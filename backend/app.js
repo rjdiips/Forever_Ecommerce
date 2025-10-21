@@ -25,7 +25,7 @@ app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 
 app.get("/", (req, res) => {
-  res.send("Hello World");
+  res.send("API working");
 });
 
 // Listener
