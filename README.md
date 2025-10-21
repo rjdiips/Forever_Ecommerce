@@ -1,5 +1,3 @@
-(The file `c:\Users\Rajdeep\Documents\Visual-Studio\forever-store\README.md` exists, but is empty)
-
 # Forever Store — Fullstack E-commerce
 
 This repository is a fullstack e-commerce template with separate `frontend`, `admin`, and `backend` folders. The frontend is a Vite + React app; the backend is an Express + MongoDB API.
