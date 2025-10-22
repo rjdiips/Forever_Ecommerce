@@ -5,7 +5,14 @@ import { assets } from "../assets/assets";
 const DEFAULT_PRESET_SCALE = 0.2;
 const DEFAULT_CUSTOM_GRAPHIC_SCALE = 0.1; // A smaller default for unknown image sizes
 
-const TshirtControls = ({ setTshirtColor, setGraphic, scale, setScale }) => {
+const TshirtControls = ({
+  setTshirtColor,
+  setGraphic,
+  scale,
+  setScale,
+  setPosition,
+  defaultPosition,
+}) => {
   const handleDownload = () => {
     const canvas = document.querySelector("canvas");
     if (canvas) {
@@ -47,6 +54,7 @@ const TshirtControls = ({ setTshirtColor, setGraphic, scale, setScale }) => {
             onClick={() => {
               setGraphic(assets.preset1);
               setScale(DEFAULT_PRESET_SCALE);
+              setPosition(defaultPosition);
             }}
             className="w-12 h-12 !border cursor-pointer object-contain p-1"
           />
@@ -55,6 +63,7 @@ const TshirtControls = ({ setTshirtColor, setGraphic, scale, setScale }) => {
             onClick={() => {
               setGraphic(assets.preset2);
               setScale(DEFAULT_PRESET_SCALE);
+              setPosition(defaultPosition);
             }}
             className="w-12 h-12 !border cursor-pointer object-contain p-1"
           />
@@ -63,6 +72,7 @@ const TshirtControls = ({ setTshirtColor, setGraphic, scale, setScale }) => {
             onClick={() => {
               setGraphic(assets.preset3);
               setScale(DEFAULT_PRESET_SCALE);
+              setPosition(defaultPosition);
             }}
             className="w-12 h-12 !border cursor-pointer object-contain p-1"
           />
@@ -71,6 +81,7 @@ const TshirtControls = ({ setTshirtColor, setGraphic, scale, setScale }) => {
             onClick={() => {
               setGraphic(assets.preset4);
               setScale(DEFAULT_PRESET_SCALE);
+              setPosition(defaultPosition);
             }}
             className="w-12 h-12 !border cursor-pointer object-contain p-1"
           />
@@ -79,6 +90,7 @@ const TshirtControls = ({ setTshirtColor, setGraphic, scale, setScale }) => {
             onClick={() => {
               setGraphic(assets.preset5);
               setScale(DEFAULT_PRESET_SCALE);
+              setPosition(defaultPosition);
             }}
             className="w-12 h-12 !border cursor-pointer object-contain p-1"
           />
@@ -102,6 +114,7 @@ const TshirtControls = ({ setTshirtColor, setGraphic, scale, setScale }) => {
               const fileUrl = URL.createObjectURL(e.target.files[0]);
               setGraphic(fileUrl);
               setScale(DEFAULT_CUSTOM_GRAPHIC_SCALE);
+              setPosition(defaultPosition);
             }
           }}
           className="
