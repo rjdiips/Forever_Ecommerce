@@ -1,0 +1,40 @@
+import React, { useState } from "react";
+import TshirtCanvas from "../Components/TshirtCanvas";
+import TshirtControls from "../Components/TshirtControls";
+import { assets } from "../assets/assets";
+
+const TshirtGeneratorPage = () => {
+  // State for the generator
+  const [tshirtColor, setTshirtColor] = useState("white");
+  const [graphic, setGraphic] = useState(null); // Default to null preset
+  const [scale, setScale] = useState(0.3);
+  const [position, setPosition] = useState({ x: 500, y: 500 }); // Adjust position of image
+
+  return (
+    <div className="border-t">
+      <div className="py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* The Canvas will take up 2/3 of the space on larger screens */}
+        <div className="md:col-span-2">
+          <TshirtCanvas
+            tshirtColor={tshirtColor}
+            graphic={graphic}
+            scale={scale}
+            position={position}
+          />
+        </div>
+
+        {/* The Controls will take up 1/3 of the space */}
+        <div className="md:col-span-1">
+          <TshirtControls
+            setTshirtColor={setTshirtColor}
+            setGraphic={setGraphic}
+            scale={scale}
+            setScale={setScale}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default TshirtGeneratorPage;
