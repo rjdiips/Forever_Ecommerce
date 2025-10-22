@@ -4,8 +4,8 @@ import { getStripe } from "../config/stripe.js";
 import Razorpay from "razorpay";
 
 // global variables
-const currency = "inr";
-const deliveryCharges = 10; // Delivery charges in INR
+const currency = "USD";
+const deliveryCharges = 10; // Delivery charges in USD
 
 // Stripe instance will be created lazily when a Stripe endpoint is invoked
 

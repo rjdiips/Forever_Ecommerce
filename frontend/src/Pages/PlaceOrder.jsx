@@ -1,10 +1,10 @@
-import { useContext, useState } from 'react';
-import { assets } from '../assets/assets';
-import CartTotal from '../Components/CartTotal';
-import Title from '../Components/Title';
-import { ShopContext } from '../Context/ShopContext';
-import axios from 'axios';
-import { toast } from 'react-toastify';
+import { useContext, useState } from "react";
+import { assets } from "../assets/assets";
+import CartTotal from "../Components/CartTotal";
+import Title from "../Components/Title";
+import { ShopContext } from "../Context/ShopContext";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const PlaceOrder = () => {
   const {
@@ -18,17 +18,17 @@ const PlaceOrder = () => {
     products,
   } = useContext(ShopContext);
 
-  const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [paymentMethod, setPaymentMethod] = useState("cod");
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    street: '',
-    city: '',
-    state: '',
-    zipcode: '',
-    country: '',
-    phone: '',
+    firstName: "",
+    lastName: "",
+    email: "",
+    street: "",
+    city: "",
+    state: "",
+    zipcode: "",
+    country: "",
+    phone: "",
   });
 
   const onChangeHandler = (e) => {
@@ -66,7 +66,7 @@ const PlaceOrder = () => {
       };
       switch (paymentMethod) {
         // API calls for COD payment method
-        case 'cod': {
+        case "cod": {
           const response = await axios.post(
             `${backendUrl}/api/order/place`,
             orderData,
@@ -75,7 +75,7 @@ const PlaceOrder = () => {
 
           if (response.data.success) {
             setCartItems({});
-            navigate('/orders');
+            navigate("/orders");
           } else {
             toast.error(response.data.message);
           }
@@ -83,7 +83,7 @@ const PlaceOrder = () => {
         }
 
         // API calls for Stripe payment method
-        case 'stripe': {
+        case "stripe": {
           const response = await axios.post(
             `${backendUrl}/api/order/stripe`,
             orderData,
@@ -111,154 +111,154 @@ const PlaceOrder = () => {
   return (
     <form
       onSubmit={onSubmitHandler}
-      className='flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t'
+      className="flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t"
     >
       {/* --------------- Left Side ----------------------- */}
 
-      <div className='flex flex-col gap-4 w-full sm:max-w-[480px]'>
-        <div className='text-xl sm:text-2xl my-3 '>
-          <Title text1={'DELIVERY'} text2={'INFORMATION'} />
+      <div className="flex flex-col gap-4 w-full sm:max-w-[480px]">
+        <div className="text-xl sm:text-2xl my-3 ">
+          <Title text1={"DELIVERY"} text2={"INFORMATION"} />
         </div>
-        <div className='flex flex-col sm:flex-row  gap-3'>
+        <div className="flex flex-col sm:flex-row  gap-3">
           <input
-            name='firstName'
+            name="firstName"
             onChange={onChangeHandler}
             value={formData.firstName}
-            type='text'
+            type="text"
             required
-            placeholder='First Name'
-            className='border  border-gray-300 rounded py-1.5 px-3.5 w-full'
+            placeholder="First Name"
+            className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
           <input
-            name='lastName'
+            name="lastName"
             onChange={onChangeHandler}
             value={formData.lastName}
-            type='text'
+            type="text"
             required
-            placeholder='Last Name'
-            className='border  border-gray-300 rounded py-1.5 px-3.5 w-full'
+            placeholder="Last Name"
+            className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
         </div>
         <input
-          name='email'
+          name="email"
           onChange={onChangeHandler}
           value={formData.email}
-          type='email'
+          type="email"
           required
-          placeholder='Email Address'
-          className='border  border-gray-300 rounded py-1.5 px-3.5 w-full'
+          placeholder="Email Address"
+          className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
         />
         <input
-          name='street'
+          name="street"
           onChange={onChangeHandler}
           value={formData.street}
-          type='text'
+          type="text"
           required
-          placeholder='Street'
-          className='border  border-gray-300 rounded py-1.5 px-3.5 w-full'
+          placeholder="Street"
+          className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
         />
-        <div className='flex flex-col sm:flex-row  gap-3'>
+        <div className="flex flex-col sm:flex-row  gap-3">
           <input
-            name='city'
+            name="city"
             onChange={onChangeHandler}
             value={formData.city}
-            type='text'
+            type="text"
             required
-            placeholder='City'
-            className='border  border-gray-300 rounded py-1.5 px-3.5 w-full'
+            placeholder="City"
+            className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
           <input
-            name='state'
+            name="state"
             onChange={onChangeHandler}
             value={formData.state}
-            type='text'
+            type="text"
             required
-            placeholder='State'
-            className='border  border-gray-300 rounded py-1.5 px-3.5 w-full'
+            placeholder="State"
+            className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
         </div>
-        <div className='flex flex-col sm:flex-row  gap-3'>
+        <div className="flex flex-col sm:flex-row  gap-3">
           <input
-            name='zipcode'
+            name="zipcode"
             onChange={onChangeHandler}
             value={formData.zipcode}
-            type='text'
+            type="text"
             required
-            placeholder='Zipcode'
-            className='border  border-gray-300 rounded py-1.5 px-3.5 w-full'
+            placeholder="Zipcode"
+            className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
           <input
-            name='country'
+            name="country"
             onChange={onChangeHandler}
             value={formData.country}
-            type='text'
+            type="text"
             required
-            placeholder='Country'
-            className='border  border-gray-300 rounded py-1.5 px-3.5 w-full'
+            placeholder="Country"
+            className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
         </div>
         <input
-          name='phone'
+          name="phone"
           onChange={onChangeHandler}
           value={formData.phone}
-          type='number'
+          type="number"
           required
-          placeholder='Phone '
-          className='border  border-gray-300 rounded py-1.5 px-3.5 w-full'
+          placeholder="Phone "
+          className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
         />
       </div>
 
       {/* --------------- Right Side ----------------------- */}
 
-      <div className='mt-8'>
-        <div className='mt8 min-w-80'>
+      <div className="mt-8">
+        <div className="mt8 min-w-80">
           <CartTotal />
         </div>
 
-        <div className='mt-12'>
-          <Title text1={'PAYMENT'} text2={'METHOD'} />
+        <div className="mt-12">
+          <Title text1={"PAYMENT"} text2={"METHOD"} />
 
           {/* -------------- Payment method selection -------------- */}
 
-          <div className='flex flex-col lg:flex-row gap-4'>
+          <div className="flex flex-col lg:flex-row gap-4">
             <div
               onClick={() => {
-                setPaymentMethod('stripe');
+                setPaymentMethod("stripe");
               }}
-              className='flex items-center gap-3 border p-2 px-3 cursor-pointer'
+              className="flex items-center gap-3 border p-2 px-3 cursor-pointer"
             >
               <p
                 className={` min-w-3.5 h-3.5 border rounded-full ${
-                  paymentMethod === 'stripe' ? 'bg-green-400' : ''
+                  paymentMethod === "stripe" ? "bg-green-400" : ""
                 }`}
               ></p>
-              <img className='h5 mx-4' src={assets.stripe_logo} alt='' />
+              <img className="h-6 mx-4" src={assets.stripe_logo} alt="" />
             </div>
             <div
               onClick={() => {
-                setPaymentMethod('cod');
+                setPaymentMethod("cod");
               }}
-              className='flex items-center gap-3 border p-2 px-3 cursor-pointer'
+              className="flex items-center gap-3 border p-2 px-3 cursor-pointer"
             >
               <p
                 className={` min-w-3.5 h-3.5 border rounded-full ${
-                  paymentMethod === 'cod' ? 'bg-green-400' : ''
+                  paymentMethod === "cod" ? "bg-green-400" : ""
                 }`}
               ></p>
-              <p className='text-gray-500 text-sm font-medium mx-4'>
-                {' '}
-                CASH ON DELIVARY
+              <p className="text-gray-500 text-sm font-medium mx-4">
+                {" "}
+                CASH ON DELIVERY
               </p>
             </div>
           </div>
 
           {/* -------------- Payment method selection -------------- */}
 
-          <div className='w-full text-end mt-8'>
+          <div className="w-full text-end mt-8">
             <button
-              type='submit'
+              type="submit"
               // onClick={() => navigate('/orders')}
-              className='bg-black text-white px-16 py-3 text-sm cursor-pointer'
+              className="bg-black text-white px-16 py-3 text-sm cursor-pointer"
             >
               PLACE ORDER
             </button>
