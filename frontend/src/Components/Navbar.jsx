@@ -153,6 +153,15 @@ const Navbar = () => {
               setVisible(false);
             }}
             className="py-2 pl-6 border"
+            to="/tshirt-generator"
+          >
+            CUSTOM-TEE
+          </NavLink>
+          <NavLink
+            onClick={() => {
+              setVisible(false);
+            }}
+            className="py-2 pl-6 border"
             to="/about"
           >
             ABOUT
