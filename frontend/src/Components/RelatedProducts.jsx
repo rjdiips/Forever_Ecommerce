@@ -10,10 +10,8 @@ const RelatedProducts = ({ category, subCategory, id }) => {
 
   useEffect(() => {
     if (products.length > 0) {
-      // Start transition
       setIsTransitioning(true);
 
-      // Small delay to show fade out effect
       const transitionTimer = setTimeout(() => {
         let productsCopy = products.slice();
         productsCopy = productsCopy.filter(
@@ -25,7 +23,6 @@ const RelatedProducts = ({ category, subCategory, id }) => {
         productsCopy = productsCopy.filter((item) => id !== item._id);
         setRelated(productsCopy.slice(0, 5));
 
-        // End transition after updating content
         setTimeout(() => {
           setIsTransitioning(false);
         }, 50);

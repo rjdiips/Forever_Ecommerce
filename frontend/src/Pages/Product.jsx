@@ -22,6 +22,7 @@ const Product = () => {
   };
 
   useEffect(() => {
+    setSize("");
     fetchProductsData();
   }, [productId, products]);
 
@@ -152,6 +153,7 @@ const Product = () => {
       <RelatedProducts
         category={productsData.category}
         subCategory={productsData.subCategory}
+        id={productsData._id}
       />
     </div>
   ) : (
