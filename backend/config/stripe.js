@@ -2,10 +2,6 @@ import Stripe from "stripe";
 
 let stripeInstance = null;
 
-/**
- * Lazily initialize and return the Stripe instance.
- * Throws a clear error if STRIPE_SECRET_KEY is not set when called.
- */
 export function getStripe() {
   if (stripeInstance) return stripeInstance;
 

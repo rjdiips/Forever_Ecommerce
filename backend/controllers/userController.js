@@ -1,7 +1,7 @@
-import UserModel from '../models/userModel.js';
-import validator from 'validator';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import UserModel from "../models/userModel.js";
+import validator from "validator";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const createToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET);
@@ -18,7 +18,7 @@ export const loginUser = async (req, res) => {
     if (!user) {
       return res
         .status(400)
-        .json({ success: false, message: 'User doesn`t exist ' });
+        .json({ success: false, message: "User doesn`t exist " });
     }
 
     // Check if the password is correct
@@ -27,14 +27,14 @@ export const loginUser = async (req, res) => {
     if (!isPasswordValid) {
       return res
         .status(400)
-        .json({ success: false, message: 'Invalid email or password' });
+        .json({ success: false, message: "Invalid email or password" });
     }
 
     let token = createToken(user._id);
 
     res.status(200).json({
       success: true,
-      message: 'User signed in successfully',
+      message: "User signed in successfully",
       data: {
         token,
         user,
@@ -59,20 +59,20 @@ export const registerUser = async (req, res) => {
     if (userExists) {
       return res
         .status(400)
-        .json({ success: false, message: 'User already exists' });
+        .json({ success: false, message: "User already exists" });
     }
 
     // validating email format & strong password
     if (!validator.isEmail(email)) {
       return res
         .status(400)
-        .json({ success: false, message: 'Please enter a valid email' });
+        .json({ success: false, message: "Please enter a valid email" });
     }
 
     if (password.length < 6) {
       return res.status(400).json({
         success: false,
-        message: 'Password should be at least 6 characters',
+        message: "Password should be at least 6 characters",
       });
     }
 
@@ -92,7 +92,7 @@ export const registerUser = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'User created successfully',
+      message: "User created successfully",
       data: {
         user: savedUser,
         token,
@@ -110,7 +110,7 @@ export const registerUser = async (req, res) => {
 export const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-    //
+
     if (
       email === process.env.ADMIN_EMAIL &&
       password === process.env.ADMIN_PASSWORD
@@ -118,7 +118,7 @@ export const adminLogin = async (req, res) => {
       let token = jwt.sign(email + password, process.env.JWT_SECRET);
       return res.status(200).json({
         success: true,
-        message: 'Admin signed in successfully',
+        message: "Admin signed in successfully",
         data: {
           token,
         },
@@ -126,10 +126,10 @@ export const adminLogin = async (req, res) => {
     } else {
       return res.status(400).json({
         success: false,
-        message: 'Invalid email or password',
+        message: "Invalid email or password",
       });
     }
-    res.send('Admin login');
+    res.send("Admin login");
   } catch (error) {
     res.status(500).json({
       success: false,

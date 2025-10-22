@@ -9,16 +9,16 @@ import cartRouter from "./routes/cartRouter.js";
 import orderRouter from "./routes/orderRouter.js";
 import subscriberRouter from "./routes/subscriberRouter.js";
 
-//App config
+// App config
 const app = express();
 const port = process.env.PORT || 4000;
 connectDB();
 connectCloudinary();
-// middlewares
+// Middlewares
 app.use(express.json());
 app.use(cors());
 
-// api endpoints
+// API endpoints
 app.use("/api/user", userRouter);
 app.use("/api/product", productRouter);
 app.use("/api/cart", cartRouter);

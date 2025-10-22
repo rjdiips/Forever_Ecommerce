@@ -13,7 +13,7 @@ const TshirtGeneratorPage = () => {
   return (
     <div className="border-t">
       <div className="py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* The Canvas will take up 2/3 of the space on larger screens */}
+        {/* The Canvas */}
         <div className="md:col-span-2">
           <TshirtCanvas
             tshirtColor={tshirtColor}
@@ -24,7 +24,7 @@ const TshirtGeneratorPage = () => {
           />
         </div>
 
-        {/* The Controls will take up 1/3 of the space */}
+        {/* The Controls */}
         <div className="md:col-span-1">
           <TshirtControls
             setTshirtColor={setTshirtColor}
