@@ -2,7 +2,7 @@
 
 Forever E-commerce is a full-stack e-commerce project with separate frontend, admin, and backend services. The frontend is deployed to Vercel.
 
-Live site: https://forever-frontend-one-pearl.vercel.app/
+**Live site:** https://forever-frontend-one-pearl.vercel.app/
 
 ## Repository structure
 
