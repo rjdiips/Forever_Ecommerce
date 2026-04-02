@@ -4,9 +4,7 @@ A modern full-stack e-commerce web application built with **React + Vite**, feat
 
 ---
 
-## 🌐 Live Site
-
-🚀 **Visit the App:** https://forever-frontend-one-pearl.vercel.app/
+## 🌐 Live Site: https://forever-frontend-one-pearl.vercel.app/
 
 ---
 
