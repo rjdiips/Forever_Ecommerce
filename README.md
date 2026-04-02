@@ -1,68 +1,113 @@
-# Forever E-commerce
+# 🛒 E-Commerce App
 
-Forever E-commerce is a full-stack e-commerce project with separate frontend, admin, and backend services. The frontend is deployed to Vercel.
+A modern full-stack e-commerce web application built with **React + Vite**, featuring product browsing, filtering, and a responsive design.
 
-**Live site:** https://forever-frontend-one-pearl.vercel.app/
+---
 
-## Repository structure
+## 🌐 Live Site
 
-- `frontend/` - Customer-facing React app (Vite)
-- `admin/` - Admin dashboard React app (Vite)
-- `backend/` - Express API server (Node.js)
+🚀 **Visit the App:** https://forever-frontend-one-pearl.vercel.app/
 
-## Quick start (development)
+---
 
-Prerequisites: Node.js (>=16), npm.
+## 🚀 Features
 
-1. Frontend (customer)
+- 🛍️ Full-stack MERN e-commerce platform with dynamic product browsing, category-based filtering, and search functionality
+- 🔐 Secure user authentication and seamless cart & checkout flow (in progress)
+- 💳 Integrated Stripe payments, Cloudinary image management, and admin panel for product, order, and delivery management
+- 📱 Fully responsive, mobile-first UI built with React, Vite, and Tailwind CSS using reusable components
+- ⚡ Scalable backend APIs developed with Node.js, Express, and MongoDB
 
-cd frontend
-npm install
-npm run dev
+---
 
-2. Admin
+## 🛠️ Tech Stack
 
-cd admin
-npm install
-npm run dev
+- **Frontend & Admin:** React 19, Vite 6, Tailwind CSS 4
+- **Backend:** Node.js, Express
+- **Database:** MongoDB (Mongoose)
+- **State Management:** React Context API
+- **Routing:** React Router DOM 7
+- **Authentication:** JWT, Bcrypt
+- **Payments:** Stripe, Razorpay
+- **Cloud & Services:** Cloudinary (Images), SendGrid (Email)
+- **Icons & Assets:** Custom SVGs, React Toastify
 
-3. Backend
+---
 
-cd backend
-npm install
+## 📂 Project Structure
 
-# create a .env file with required variables (see below)
+```
+FOREVER-STORE/
+├── admin/                # Admin Panel (React + Vite)
+│   ├── src/              # Source code for admin dashboard
+│   ├── .env              # Environment variables
+│   ├── index.html        # Entry point
+│   ├── package.json      # Dependencies
+│   └── vite.config.js    # Vite configuration
+│
+├── backend/              # Node.js + Express Server
+│   ├── config/           # Database & configuration files
+│   ├── controllers/      # Logic for API routes
+│   ├── middlewares/      # Custom middleware (Auth, etc.)
+│   ├── models/           # Database schemas (Mongoose)
+│   ├── routes/           # API route definitions
+│   ├── app.js            # Express app setup
+│   ├── server.js         # Server entry point
+│   └── .env              # Backend environment variables
+│
+└── frontend/             # Client Website (React + Vite)
+    ├── public/           # Static assets
+    ├── src/              # Frontend source code
+    ├── .env              # Frontend environment variables
+    └── package.json      # Dependencies
+```
 
-npm run server
+---
 
-By default the frontend and admin are Vite apps and will run on the ports Vite chooses (usually 5173). The backend runs on the port configured inside your server (check `backend/server.js`), and is started with `npm run server` (uses nodemon).
+## ⚙️ Installation & Setup
 
-## Environment variables (backend)
+1. Clone the repository:
 
-The backend uses several environment variables. Create a `.env` (or `.env.local`) in `backend/` with at least the following keys:
+   ```bash
+   git clone https://github.com/your-username/ecommerce-app.git
+   cd ecommerce-app/frontend
+   ```
 
-- ATLASDB_URI (MongoDB connection URI)
-- CLOUDINARY_CLOUD_NAME
-- CLOUDINARY_API_KEY
-- CLOUDINARY_API_SECRET
-- STRIPE_SECRET_KEY
-- (other keys may be used for SendGrid, JWT secrets, Razorpay, etc. Check `backend/` source for missing keys)
+2. Install dependencies:
 
-Example `.env` (do NOT commit secrets):
+   ```bash
+   npm install
+   ```
 
-ATLASDB_URI=your_mongodb_uri
-CLOUDINARY_CLOUD_NAME=...
-CLOUDINARY_API_KEY=...
-CLOUDINARY_API_SECRET=...
-STRIPE_SECRET_KEY=...
+3. Run development server:
 
-## Scripts
+   ```bash
+   npm run dev
+   ```
 
-- Frontend and Admin (Vite): `npm run dev`, `npm run build`, `npm run preview`
-- Backend: `npm run start` (node server.js), `npm run server` (nodemon)
+4. Build for production:
+   ```bash
+   npm run build
+   ```
 
-## Deployment
+---
 
-The frontend is deployed to Vercel at: https://forever-frontend-one-pearl.vercel.app/
+## 📸 Screenshots
 
-If you plan to deploy the backend, provide the same environment variables in your host's dashboard (e.g., Render, Heroku, Vercel Serverless functions, or DigitalOcean).
+<!-- *(Add screenshots of your UI here — homepage, product listing, filters, etc.)*   -->
+<img src="screenshots/homepage.png" alt="Homepage Screenshot" width="full">
+
+---
+
+<!-- ---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!
+Feel free to fork this repo and submit a PR.
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License**. -->
