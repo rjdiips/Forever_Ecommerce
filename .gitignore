@@ -1,3 +1,10 @@
 node_modules
 *.env
 dist/
+
+# Private agent workspace: spec, tickets, tracker docs and domain docs.
+# Deliberately kept off the remote.
+/.scratch/
+/docs/
+/GLOSSARY.md
+/AGENTS.md
