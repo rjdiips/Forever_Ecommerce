@@ -1,12 +1,13 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { formatMoney, orderItemPriceCents } from '@forever/shared';
 import Title from '../Components/Title';
-import { ShopContext } from '../Context/ShopContext';
+import { useAuth } from '../auth/AuthContext';
+import { BACKEND_URL } from '../config';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const Orders = () => {
-  const { backendUrl, token } = useContext(ShopContext);
+  const { token } = useAuth();
 
   // Orders data
   const [orderData, setOrderData] = useState([]);
@@ -19,7 +20,7 @@ const Orders = () => {
       }
 
       const response = await axios.post(
-        backendUrl + '/api/order/userorders',
+        BACKEND_URL + '/api/order/userorders',
         {},
         { headers: { token } }
       );

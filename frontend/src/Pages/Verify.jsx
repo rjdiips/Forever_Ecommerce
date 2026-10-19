@@ -1,13 +1,15 @@
-import React, { useContext, useEffect } from 'react';
-import { ShopContext } from '../Context/ShopContext';
+import { useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 import { useCart } from '../cart/CartContext';
-import { useSearchParams } from 'react-router-dom';
+import { BACKEND_URL } from '../config';
 import axios from 'axios';
 
 import { toast } from 'react-toastify';
 
 const Verify = () => {
-  const { navigate, token, backendUrl } = useContext(ShopContext);
+  const navigate = useNavigate();
+  const { token } = useAuth();
   const { clear } = useCart();
   const [searchParams] = useSearchParams();
 
@@ -22,7 +24,7 @@ const Verify = () => {
       }
 
       await axios.post(
-        backendUrl + '/api/order/verifyStripe',
+        BACKEND_URL + '/api/order/verifyStripe',
         { success, orderId, sessionId },
         {
           headers: { token },

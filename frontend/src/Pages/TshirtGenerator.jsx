@@ -1,12 +1,14 @@
-import { useContext, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { findCustomTee, formatMoney, toCents } from "@forever/shared";
 import { toast } from "react-toastify";
 import TshirtCanvas from "../Components/TshirtCanvas";
 import TshirtControls from "../Components/TshirtControls";
 import TeePurchase from "../Components/TeePurchase";
-import { ShopContext } from "../Context/ShopContext";
+import { useAuth } from "../auth/AuthContext";
 import { useCatalogue } from "../catalogue/CatalogueContext";
 import { useCart } from "../cart/CartContext";
+import { BACKEND_URL } from "../config";
 import { useTeeDesign } from "../tee/useTeeDesign";
 import {
   DEFAULT_PURCHASE_QUANTITY,
@@ -17,7 +19,8 @@ import {
 
 const TshirtGeneratorPage = () => {
   const { design, selectGraphic, moveTo, setScale, setColor, reset } = useTeeDesign();
-  const { backendUrl, token, navigate } = useContext(ShopContext);
+  const navigate = useNavigate();
+  const { token } = useAuth();
   const { allProducts } = useCatalogue();
   const { add } = useCart();
   const canvasRef = useRef(null);
@@ -65,7 +68,7 @@ const TshirtGeneratorPage = () => {
       const designUrl = await uploadDesign({
         blob,
         productId: baseTee._id,
-        backendUrl,
+        backendUrl: BACKEND_URL,
         token,
       });
 

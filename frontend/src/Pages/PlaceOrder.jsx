@@ -1,14 +1,17 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets";
 import CartTotal from "../Components/CartTotal";
 import Title from "../Components/Title";
-import { ShopContext } from "../Context/ShopContext";
+import { useAuth } from "../auth/AuthContext";
+import { BACKEND_URL } from "../config";
 import { useCart } from "../cart/CartContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 
 const PlaceOrder = () => {
-  const { navigate, backendUrl, token } = useContext(ShopContext);
+  const navigate = useNavigate();
+  const { token } = useAuth();
   const { lineItems, clear } = useCart();
 
   const [paymentMethod, setPaymentMethod] = useState("cod");
@@ -52,7 +55,7 @@ const PlaceOrder = () => {
         // API calls for COD payment method
         case "cod": {
           const response = await axios.post(
-            `${backendUrl}/api/order/place`,
+            `${BACKEND_URL}/api/order/place`,
             orderData,
             { headers: { token } }
           );
@@ -69,7 +72,7 @@ const PlaceOrder = () => {
         // API calls for Stripe payment method
         case "stripe": {
           const response = await axios.post(
-            `${backendUrl}/api/order/stripe`,
+            `${BACKEND_URL}/api/order/stripe`,
             orderData,
             { headers: { token } }
           );

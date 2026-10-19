@@ -1,6 +1,5 @@
-import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { cartLineId, formatMoney } from "@forever/shared";
-import { ShopContext } from "../Context/ShopContext";
 import { useCatalogue } from "../catalogue/CatalogueContext";
 import { useCart } from "../cart/CartContext";
 import Title from "../Components/Title";
@@ -10,7 +9,7 @@ import CartTotal from "../Components/CartTotal";
 const Cart = () => {
   const { lineItems, update, remove } = useCart();
   const { getById } = useCatalogue();
-  const { navigate } = useContext(ShopContext);
+  const navigate = useNavigate();
 
   return (
     <div className="pt-14 border-t">

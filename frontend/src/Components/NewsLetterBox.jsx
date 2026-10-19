@@ -1,18 +1,16 @@
 import { useState } from "react";
 import axios from "axios";
+import { BACKEND_URL } from "../config";
 
 const NewsLetterBox = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Correctly get the backend URL from your .env file
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
     // Small check to ensure the URL is loaded correctly
-    if (!backendUrl) {
+    if (!BACKEND_URL) {
       alert("Configuration error: Backend URL is not defined.");
       return;
     }
@@ -21,7 +19,7 @@ const NewsLetterBox = () => {
 
     try {
       // The API endpoint we created on the backend
-      const response = await axios.post(`${backendUrl}/api/subscribe`, {
+      const response = await axios.post(`${BACKEND_URL}/api/subscribe`, {
         email,
       });
       alert(response.data.message); // Or use a nicer notification library like react-toastify

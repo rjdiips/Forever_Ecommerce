@@ -1,10 +1,13 @@
-import { useContext, useEffect, useState } from "react";
-import { ShopContext } from "../Context/ShopContext";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useAuth } from "../auth/AuthContext";
+import { BACKEND_URL } from "../config";
 
 const Login = () => {
-  const { token, setToken, navigate, backendUrl } = useContext(ShopContext);
+  const navigate = useNavigate();
+  const { token, setToken } = useAuth();
   const [currentState, setCurrentState] = useState("Login");
 
   const [name, setName] = useState("");
@@ -15,7 +18,7 @@ const Login = () => {
     e.preventDefault();
     try {
       if (currentState === "Sign Up") {
-        const response = await axios.post(backendUrl + "/api/user/register", {
+        const response = await axios.post(BACKEND_URL + "/api/user/register", {
           name,
           email,
           password,
@@ -30,7 +33,7 @@ const Login = () => {
           toast.error(response.data.message);
         }
       } else {
-        const response = await axios.post(backendUrl + "/api/user/login", {
+        const response = await axios.post(BACKEND_URL + "/api/user/login", {
           email,
           password,
         });
@@ -53,7 +56,7 @@ const Login = () => {
     if (token) {
       navigate("/");
     }
-  }, [token]);
+  }, [token, navigate]);
 
   return (
     <form

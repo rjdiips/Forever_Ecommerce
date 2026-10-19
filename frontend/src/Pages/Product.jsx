@@ -1,6 +1,6 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { ShopContext } from "../Context/ShopContext";
+import { formatMoney, toCents } from "@forever/shared";
 import { useCatalogue } from "../catalogue/CatalogueContext";
 import { useCart } from "../cart/CartContext";
 import { assets } from "../assets/assets";
@@ -8,7 +8,6 @@ import RelatedProducts from "../Components/RelatedProducts";
 
 const Product = () => {
   const { productId } = useParams();
-  const { currency } = useContext(ShopContext);
   const { getById } = useCatalogue();
   const { add } = useCart();
   const productsData = getById(productId);
@@ -68,8 +67,7 @@ const Product = () => {
           </div>
 
           <p className="mt-5 text-3xl font-medium">
-            {currency}
-            {productsData.price}
+            {formatMoney(toCents(productsData.price))}
           </p>
           <p className="mt-5 text-gray-500 md:w-4/5 ">
             {productsData.description}

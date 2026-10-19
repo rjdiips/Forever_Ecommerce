@@ -1,4 +1,3 @@
-import { useContext } from "react";
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import Home from "./Pages/Home";
@@ -17,19 +16,19 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Verify from "./Pages/Verify";
 import TshirtGenerator from "./Pages/TshirtGenerator";
-import { ShopContext } from "./Context/ShopContext";
+import { useAuth } from "./auth/AuthContext";
 import { useCatalogue } from "./catalogue/CatalogueContext";
 import { CartProvider } from "./cart/CartContext";
+import { BACKEND_URL } from "./config";
 
 function App() {
-  // Auth still lives in ShopContext (ticket 10 splits it out). The catalogue is
-  // its own module; the Cart gets every product (the custom-tee base included)
-  // so it can price a Custom Tee line.
-  const { token, backendUrl } = useContext(ShopContext);
+  // The composition root: the Cart still receives its auth and catalogue
+  // dependencies as props, so the module itself knows neither.
+  const { token } = useAuth();
   const { allProducts } = useCatalogue();
 
   return (
-    <CartProvider token={token} products={allProducts} backendUrl={backendUrl}>
+    <CartProvider token={token} products={allProducts} backendUrl={BACKEND_URL}>
       <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
         <ToastContainer />
 
