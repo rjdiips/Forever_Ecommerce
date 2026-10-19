@@ -22,12 +22,17 @@ export {
 } from "./order.js";
 export {
   PRODUCT_KIND,
+  TEE_COLORS,
   catalogueProducts,
   findCustomTee,
   formatProductPrice,
   isCustomTee,
   normalizeProductKind,
+  normalizeTeeColor,
   orderProducts,
+  teeBases,
+  findTeeBase,
+  teeColors,
 } from "./product.js";
 export {
   CATEGORIES,

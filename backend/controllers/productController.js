@@ -7,6 +7,7 @@ import {
   normalizeProductKind,
 } from "@forever/shared";
 import { HttpError } from "../lib/http.js";
+import { resolveProductColor } from "../lib/product.js";
 
 export const addProduct = async (req) => {
   const {
@@ -28,6 +29,11 @@ export const addProduct = async (req) => {
   if (!isSubCategory(subCategory)) {
     throw new HttpError(400, "Unknown product sub-category");
   }
+
+  // The kind decides whether a colour is required, so resolve both before the
+  // upload for the same reason: a refused Tee base must not leave images behind.
+  const kind = normalizeProductKind(req.body.kind);
+  const color = resolveProductColor(kind, req.body.color);
 
   // Check if images are availabe in req.files then it`ll store image in image variable
   const image1 = req.files.image1 && req.files.image1[0];
@@ -60,12 +66,17 @@ export const addProduct = async (req) => {
     subCategory,
     sizes: JSON.parse(sizes),
     bestseller: bestseller === "true" ? true : false,
-    kind: normalizeProductKind(req.body.kind),
+    kind,
     image: imageUrl,
     // Added now, so it sorts after every existing Product (see orderProducts).
     position: Date.now(),
     date: Date.now(),
   };
+
+  // Only a Tee base carries a colour; an ordinary Product must not store one.
+  if (color !== null) {
+    productData.color = color;
+  }
 
   const product = new ProductModel(productData);
   await product.save();

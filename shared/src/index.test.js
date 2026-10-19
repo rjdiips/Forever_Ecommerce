@@ -5,6 +5,13 @@ import { addCartLine, cartLines, cartLineId, setCartLineQuantity } from "@foreve
 import { CATEGORIES, SUB_CATEGORIES, isCategory, isSubCategory } from "@forever/shared";
 import { ORDER_STATUSES, isOrderStatus } from "@forever/shared";
 import { formatProductPrice } from "@forever/shared";
+import {
+  TEE_COLORS,
+  findTeeBase,
+  normalizeTeeColor,
+  teeBases,
+  teeColors,
+} from "@forever/shared";
 import { requireApiBaseUrl } from "@forever/shared";
 
 test("the package root exposes the API base URL validator", () => {
@@ -40,4 +47,12 @@ test("the package root exposes the order statuses", () => {
 
 test("the package root exposes the Product price display", () => {
   assert.equal(typeof formatProductPrice, "function");
+});
+
+test("the package root exposes the Tee base lookups", () => {
+  assert.ok(Array.isArray(TEE_COLORS));
+  assert.equal(typeof normalizeTeeColor, "function");
+  assert.equal(typeof teeBases, "function");
+  assert.equal(typeof findTeeBase, "function");
+  assert.equal(typeof teeColors, "function");
 });
