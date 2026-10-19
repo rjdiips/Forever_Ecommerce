@@ -21,7 +21,7 @@ const TshirtGeneratorPage = () => {
   const { design, selectGraphic, moveTo, setScale, setColor, reset } = useTeeDesign();
   const navigate = useNavigate();
   const { token } = useAuth();
-  const { allProducts } = useCatalogue();
+  const { allProducts, loading } = useCatalogue();
   const { add } = useCart();
   const canvasRef = useRef(null);
 
@@ -121,6 +121,7 @@ const TshirtGeneratorPage = () => {
             onQuantity={setQuantity}
             canBuy={canBuy}
             busy={busy}
+            loading={loading}
             onAddToCart={handleAddToCart}
           />
         </div>

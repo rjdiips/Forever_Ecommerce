@@ -11,6 +11,7 @@ const TeePurchase = ({
   onQuantity,
   canBuy,
   busy,
+  loading,
   onAddToCart,
 }) => {
   return (
@@ -19,7 +20,9 @@ const TeePurchase = ({
         <h3 className="text-lg font-semibold mb-2">Size</h3>
         {sizes.length === 0 ? (
           <p className="text-sm text-gray-500">
-            The Custom Tee is not available right now.
+            {loading
+              ? "Loading the Custom Tee..."
+              : "The Custom Tee is not available right now."}
           </p>
         ) : (
           <div className="flex gap-2 flex-wrap">
@@ -58,7 +61,7 @@ const TeePurchase = ({
       >
         {busy ? "PREPARING YOUR DESIGN..." : "ADD CUSTOM TEE TO CART"}
       </button>
-      {!canBuy && (
+      {!canBuy && !loading && (
         <p className="text-sm text-gray-500">
           Choose a graphic and a size to add this tee to your cart.
         </p>
