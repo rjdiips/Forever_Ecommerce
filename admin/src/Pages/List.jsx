@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { formatMoney, toCents } from "@forever/shared";
+import { formatProductPrice } from "@forever/shared";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { BACKEND_URL } from "../config";
@@ -80,7 +80,7 @@ const List = () => {
             />
             <p>{product.name}</p>
             <p>{product.category}</p>
-            <p>{formatMoney(toCents(product.price))}</p>
+            <p>{formatProductPrice(product.price)}</p>
             <button
               onClick={() => removeProduct(product._id)}
               className="text-right md:text-center text-lg  cursor-pointer"

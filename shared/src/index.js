@@ -23,6 +23,7 @@ export {
   PRODUCT_KIND,
   catalogueProducts,
   findCustomTee,
+  formatProductPrice,
   isCustomTee,
   normalizeProductKind,
 } from "./product.js";

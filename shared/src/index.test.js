@@ -4,6 +4,7 @@ import { CURRENCY, DELIVERY_FEE, formatMoney, fromCents, toCents } from "@foreve
 import { addCartLine, cartLines, cartLineId, setCartLineQuantity } from "@forever/shared";
 import { CATEGORIES, SUB_CATEGORIES, isCategory, isSubCategory } from "@forever/shared";
 import { ORDER_STATUSES, isOrderStatus } from "@forever/shared";
+import { formatProductPrice } from "@forever/shared";
 
 test("the package root exposes money and delivery", () => {
   assert.equal(typeof toCents, "function");
@@ -30,4 +31,8 @@ test("the package root exposes the Product taxonomy", () => {
 test("the package root exposes the order statuses", () => {
   assert.ok(Array.isArray(ORDER_STATUSES));
   assert.equal(typeof isOrderStatus, "function");
+});
+
+test("the package root exposes the Product price display", () => {
+  assert.equal(typeof formatProductPrice, "function");
 });

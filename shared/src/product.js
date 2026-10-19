@@ -1,3 +1,5 @@
+import { CURRENCY, formatMoney, toCents } from "./money.js";
+
 /**
  * Product kinds. Most products are `standard`; exactly one product is the
  * `custom-tee` base the tee generator designs onto. Kept here so the shop, the
@@ -37,6 +39,20 @@ export function normalizeProductKind(kind) {
   return kind === PRODUCT_KIND.CUSTOM_TEE
     ? PRODUCT_KIND.CUSTOM_TEE
     : PRODUCT_KIND.STANDARD;
+}
+
+/**
+ * A Product's price for display.
+ *
+ * Catalogue prices are stored in major units; the shop renders every one the
+ * same way by converting at this edge and formatting with the shared currency.
+ *
+ * @param {number} price the catalogue price, in major units
+ * @param {string} [currency] ISO 4217 code, defaults to {@link CURRENCY}.
+ * @returns {string}
+ */
+export function formatProductPrice(price, currency = CURRENCY) {
+  return formatMoney(toCents(price), currency);
 }
 
 /**

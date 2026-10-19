@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { formatMoney, toCents } from "@forever/shared";
+import { formatProductPrice } from "@forever/shared";
 import { useCatalogue } from "../catalogue/CatalogueContext";
 import { useCart } from "../cart/CartContext";
 import { assets } from "../assets/assets";
@@ -67,7 +67,7 @@ const Product = () => {
           </div>
 
           <p className="mt-5 text-3xl font-medium">
-            {formatMoney(toCents(productsData.price))}
+            {formatProductPrice(productsData.price)}
           </p>
           <p className="mt-5 text-gray-500 md:w-4/5 ">
             {productsData.description}

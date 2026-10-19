@@ -4,6 +4,7 @@ import {
   PRODUCT_KIND,
   catalogueProducts,
   findCustomTee,
+  formatProductPrice,
   isCustomTee,
   normalizeProductKind,
 } from "./product.js";
@@ -56,4 +57,17 @@ test("returns null when the catalogue holds no base", () => {
   assert.equal(findCustomTee([standard, explicitStandard]), null);
   assert.equal(findCustomTee([]), null);
   assert.equal(findCustomTee(), null);
+});
+
+test("formats a whole-dollar product price with the shared currency", () => {
+  assert.equal(formatProductPrice(10), "$10.00");
+});
+
+test("formats a product price that includes cents", () => {
+  assert.equal(formatProductPrice(19.99), "$19.99");
+  assert.equal(formatProductPrice(0.05), "$0.05");
+});
+
+test("formats a product price in an explicit currency", () => {
+  assert.equal(formatProductPrice(19.99, "EUR"), "€19.99");
 });

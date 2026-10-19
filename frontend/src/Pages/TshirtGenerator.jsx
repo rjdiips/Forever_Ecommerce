@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { findCustomTee, formatMoney, toCents } from "@forever/shared";
+import { findCustomTee, formatProductPrice } from "@forever/shared";
 import { toast } from "react-toastify";
 import TshirtCanvas from "../Components/TshirtCanvas";
 import TshirtControls from "../Components/TshirtControls";
@@ -100,7 +100,7 @@ const TshirtGeneratorPage = () => {
         <div className="md:col-span-1 flex flex-col gap-6">
           {baseTee && (
             <p className="text-sm text-gray-500">
-              Designing onto {baseTee.name} · {formatMoney(toCents(baseTee.price))}
+              Designing onto {baseTee.name} · {formatProductPrice(baseTee.price)}
             </p>
           )}
 

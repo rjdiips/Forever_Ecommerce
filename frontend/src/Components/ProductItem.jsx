@@ -1,4 +1,4 @@
-import { formatMoney, toCents } from "@forever/shared";
+import { formatProductPrice } from "@forever/shared";
 import { Link } from "react-router-dom";
 
 const ProductItem = ({ id, image, name, price }) => {
@@ -12,7 +12,7 @@ const ProductItem = ({ id, image, name, price }) => {
         />
       </div>
       <p className="pt-3 pb-1 text-sm">{name}</p>
-      <p className="text-sm font-medium">{formatMoney(toCents(price))}</p>
+      <p className="text-sm font-medium">{formatProductPrice(price)}</p>
     </Link>
   );
 };
