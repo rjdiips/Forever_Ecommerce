@@ -38,7 +38,7 @@
 **Deliberate notes:**
 
 - The pure pricing seam is the tested boundary (agreed with the maintainer). The DB/Stripe orchestration in `orderIntake.js` stays thin and untested.
-- `success=false` deletes an unpaid Stripe Order on the shopper's word, but refuses when the Order is already marked paid.
+- `success=false` never deletes an Order: the cancel redirect is the shopper's word. A paid Order is reported as successful; an unpaid one is left unpaid for the admin. Only a confirmed paid session marks it paid.
 - Stripe errors carry `statusCode`, not `status`; a 4xx from Stripe is translated to a 400 so a bad/expired session id is not reported as a 500.
 - A missing `origin` on the Stripe route is a 400; Stripe needs absolute redirect URLs.
 - The design URL is validated as http(s) only. Cloudinary is the only uploader today; binding the check to the Cloudinary host would couple the pricing rule to one provider.

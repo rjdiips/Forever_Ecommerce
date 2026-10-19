@@ -113,12 +113,12 @@ export async function verifyOrderPayment({
   }
 
   if (cancelled) {
-    // A client claim of failure must never erase a paid Order.
-    if (order.payment) {
-      throw new HttpError(400, "This order is already paid");
-    }
+    // The cancel redirect is the shopper's word, not proof of anything. If the
+    // Order is already paid (e.g. paid in another tab), leave it alone and
+    // report success. Otherwise leave it unpaid for the admin and the shopper;
+    // deleting it on a client flag could erase a real purchase.
+    if (order.payment) return;
 
-    await orderModel.findByIdAndDelete(order._id);
     throw new HttpError(400, "Payment failed");
   }
 
