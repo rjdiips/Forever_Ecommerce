@@ -18,6 +18,10 @@ const productSchema = new mongoose.Schema({
     enum: [PRODUCT_KIND.STANDARD, PRODUCT_KIND.CUSTOM_TEE],
     default: PRODUCT_KIND.STANDARD,
   },
+  // The admin-set catalogue order. Products saved before this field existed
+  // read back undefined, which the catalogue sorts as 0; a Product added now is
+  // given a later position so it lands at the end of the catalogue.
+  position: { type: Number },
   date: { type: Number, required: true },
 });
 

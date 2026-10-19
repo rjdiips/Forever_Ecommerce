@@ -27,6 +27,7 @@ export {
   formatProductPrice,
   isCustomTee,
   normalizeProductKind,
+  orderProducts,
 } from "./product.js";
 export {
   CATEGORIES,

@@ -4,6 +4,7 @@ import {
   removeProduct,
   getSingleProduct,
   getListProducts,
+  reorderProducts,
 } from "../controllers/productController.js";
 import upload from "../middlewares/multer.js";
 import adminAuth from "../middlewares/adminAuth.js";
@@ -32,6 +33,13 @@ productRouter.post(
   "/remove",
   adminAuth,
   route(removeProduct, { message: "Product removed successfully" })
+);
+
+// /api/product/reorder
+productRouter.post(
+  "/reorder",
+  adminAuth,
+  route(reorderProducts, { message: "Product order updated" })
 );
 
 // /api/product/single

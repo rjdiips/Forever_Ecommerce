@@ -8,7 +8,11 @@ const LatestCollection = () => {
   const [latestProducts, setLatestProducts] = useState([]);
 
   useEffect(() => {
-    const latest = products.slice(0, 10);
+    // The catalogue is in display order, which is not necessarily newest first,
+    // so the "latest" rail sorts by the date each Product was added.
+    const latest = [...products]
+      .sort((a, b) => (b.date ?? 0) - (a.date ?? 0))
+      .slice(0, 10);
     setLatestProducts(latest);
   }, [products]);
   return (

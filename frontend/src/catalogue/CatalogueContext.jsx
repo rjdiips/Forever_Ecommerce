@@ -8,7 +8,7 @@ import {
 } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { catalogueProducts } from "@forever/shared";
+import { catalogueProducts, orderProducts } from "@forever/shared";
 import { BACKEND_URL } from "../config";
 import { relatedTo as selectRelated } from "./related";
 
@@ -50,8 +50,12 @@ export const CatalogueProvider = ({ children }) => {
   }, []);
 
   // The shop catalogue excludes the Custom Tee base; the full list is kept so
-  // a lookup can still resolve the base a Cart line names.
-  const products = useMemo(() => catalogueProducts(allProducts), [allProducts]);
+  // a lookup can still resolve the base a Cart line names. Both are shown in
+  // the admin-set display order, so a newly added Product lands at the end.
+  const products = useMemo(
+    () => orderProducts(catalogueProducts(allProducts)),
+    [allProducts]
+  );
 
   const byId = useMemo(
     () =>

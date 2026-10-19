@@ -7,7 +7,7 @@ import { CURRENCY, formatMoney, toCents } from "./money.js";
  */
 
 /** @typedef {"standard" | "custom-tee"} ProductKind */
-/** @typedef {{ kind?: ProductKind, [key: string]: unknown }} Product */
+/** @typedef {{ kind?: ProductKind, position?: number, date?: number, [key: string]: unknown }} Product */
 
 /** @type {{ STANDARD: ProductKind, CUSTOM_TEE: ProductKind }} */
 export const PRODUCT_KIND = Object.freeze({
@@ -74,4 +74,49 @@ export function catalogueProducts(products = []) {
  */
 export function findCustomTee(products = []) {
   return products.find((product) => isCustomTee(product)) ?? null;
+}
+
+/**
+ * A Product's stored display position. Products saved before ordering existed
+ * have none, which reads as `0` so they keep their place ahead of newly added
+ * Products.
+ *
+ * @param {Product | null | undefined} product
+ * @returns {number}
+ */
+function positionOf(product) {
+  const position = product?.position;
+  return Number.isFinite(position) ? position : 0;
+}
+
+/**
+ * @param {Product | null | undefined} product
+ * @returns {number}
+ */
+function dateOf(product) {
+  const date = product?.date;
+  return Number.isFinite(date) ? date : 0;
+}
+
+/**
+ * The Products in their catalogue display order.
+ *
+ * Ordered by the admin-set `position`, then by the date each Product was added,
+ * then by id so the order is total and stable. A newly added Product is given a
+ * later position than every existing one, so it lands at the end of the
+ * catalogue instead of the front. The input is not mutated.
+ *
+ * @param {Product[]} [products]
+ * @returns {Product[]}
+ */
+export function orderProducts(products = []) {
+  return [...products].sort((a, b) => {
+    const byPosition = positionOf(a) - positionOf(b);
+    if (byPosition !== 0) return byPosition;
+
+    const byDate = dateOf(a) - dateOf(b);
+    if (byDate !== 0) return byDate;
+
+    return String(a?._id ?? "").localeCompare(String(b?._id ?? ""));
+  });
 }

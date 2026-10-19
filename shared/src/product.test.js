@@ -7,6 +7,7 @@ import {
   formatProductPrice,
   isCustomTee,
   normalizeProductKind,
+  orderProducts,
 } from "./product.js";
 
 const standard = { _id: "1", name: "Hoodie" };
@@ -70,4 +71,48 @@ test("formats a product price that includes cents", () => {
 
 test("formats a product price in an explicit currency", () => {
   assert.equal(formatProductPrice(19.99, "EUR"), "€19.99");
+});
+
+const early = { _id: "a", name: "Early", position: 1, date: 10 };
+const later = { _id: "b", name: "Later", position: 2, date: 5 };
+const legacy = { _id: "c", name: "Legacy", date: 1 };
+const added = { _id: "d", name: "Added", position: 1760000000000, date: 200 };
+
+test("orders products by their admin-set position", () => {
+  assert.deepEqual(orderProducts([later, early]), [early, later]);
+});
+
+test("keeps products saved before ordering existed ahead of positioned ones", () => {
+  assert.deepEqual(orderProducts([early, legacy]), [legacy, early]);
+});
+
+test("puts a newly added product at the end of the catalogue", () => {
+  assert.deepEqual(orderProducts([added, later, early]), [
+    early,
+    later,
+    added,
+  ]);
+});
+
+test("breaks a position tie by the date added, then by id", () => {
+  const newerTie = { _id: "b", date: 2 };
+  const olderTie = { _id: "a", date: 2 };
+  const oldest = { _id: "c", date: 1 };
+
+  assert.deepEqual(orderProducts([newerTie, olderTie, oldest]), [
+    oldest,
+    olderTie,
+    newerTie,
+  ]);
+});
+
+test("does not mutate the products it is given", () => {
+  const input = [later, early];
+  orderProducts(input);
+  assert.deepEqual(input, [later, early]);
+});
+
+test("returns an empty list when there are no products", () => {
+  assert.deepEqual(orderProducts([]), []);
+  assert.deepEqual(orderProducts(), []);
 });

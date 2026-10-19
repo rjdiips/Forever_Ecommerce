@@ -1,4 +1,5 @@
 import ProductModel from "../models/productModel.js";
+import mongoose from "mongoose";
 import { uploadImageBuffer } from "../config/cloudinary.js";
 import {
   isCategory,
@@ -61,6 +62,8 @@ export const addProduct = async (req) => {
     bestseller: bestseller === "true" ? true : false,
     kind: normalizeProductKind(req.body.kind),
     image: imageUrl,
+    // Added now, so it sorts after every existing Product (see orderProducts).
+    position: Date.now(),
     date: Date.now(),
   };
 
@@ -94,4 +97,33 @@ export const getSingleProduct = async (req) => {
   }
 
   return { product };
+};
+
+/**
+ * Persist the catalogue order the admin set: `order` lists Product ids from
+ * first to last. Each id becomes that Product's `position`, which lets the
+ * storefront and the admin agree on one order instead of relying on whatever
+ * order the database happens to return.
+ */
+export const reorderProducts = async (req) => {
+  const { order } = req.body;
+
+  if (!Array.isArray(order) || order.length === 0) {
+    throw new HttpError(400, "Provide the products in their new order");
+  }
+
+  if (order.some((id) => !mongoose.isValidObjectId(id))) {
+    throw new HttpError(400, "Unknown product in the new order");
+  }
+
+  await ProductModel.bulkWrite(
+    order.map((id, index) => ({
+      updateOne: {
+        filter: { _id: id },
+        update: { $set: { position: index } },
+      },
+    }))
+  );
+
+  return { count: order.length };
 };

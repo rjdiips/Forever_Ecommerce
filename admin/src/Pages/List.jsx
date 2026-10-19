@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { formatProductPrice } from "@forever/shared";
+import { formatProductPrice, orderProducts } from "@forever/shared";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { BACKEND_URL } from "../config";
@@ -16,13 +16,13 @@ const List = () => {
       });
 
       if (response.data.success) {
-        setList(response.data.data.products);
+        setList(orderProducts(response.data.data.products));
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
       console.error(error);
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 
@@ -44,7 +44,36 @@ const List = () => {
       }
     } catch (error) {
       console.error(error);
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || error.message);
+    }
+  };
+
+  // Move a Product one place and persist the whole order. The list already is
+  // the admin-set order, so the new order is sent as-is; the API stores each
+  // Product's position from it.
+  const moveProduct = async (index, offset) => {
+    const target = index + offset;
+    if (target < 0 || target >= list.length) return;
+
+    const next = [...list];
+    [next[index], next[target]] = [next[target], next[index]];
+    setList(next);
+
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/product/reorder`,
+        { order: next.map((product) => product._id) },
+        { headers: { token } }
+      );
+
+      if (!response.data.success) {
+        toast.error(response.data.message);
+        fetchList();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || error.message);
+      fetchList();
     }
   };
 
@@ -55,6 +84,10 @@ const List = () => {
   return (
     <>
       <p className="mb-2">All Products List</p>
+      <p className="mb-4 text-sm text-gray-500">
+        Use the arrows to set the order products appear in the storefront. New
+        products are added at the end.
+      </p>
 
       <div className="flex flex-col gap-2">
         {/* list table title */}
@@ -63,14 +96,14 @@ const List = () => {
           <b>Name</b>
           <b>Category</b>
           <b>Price</b>
-          <b className="text-center">Action</b>
+          <b className="text-center">Order</b>
         </div>
 
         {/* Product List  */}
 
         {list.map((product, index) => (
           <div
-            key={index}
+            key={product._id}
             className="grid grid-cols-[1fr_3fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr] items-center gap-2 py-1 px-2 border border-gray-200 text-sm"
           >
             <img
@@ -81,12 +114,34 @@ const List = () => {
             <p>{product.name}</p>
             <p>{product.category}</p>
             <p>{formatProductPrice(product.price)}</p>
-            <button
-              onClick={() => removeProduct(product._id)}
-              className="text-right md:text-center text-lg  cursor-pointer"
-            >
-              X
-            </button>
+            <div className="flex items-center justify-end md:justify-center gap-3 text-lg">
+              <button
+                onClick={() => moveProduct(index, -1)}
+                disabled={index === 0}
+                className="cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                title="Move up"
+                aria-label={`Move ${product.name} up`}
+              >
+                ↑
+              </button>
+              <button
+                onClick={() => moveProduct(index, 1)}
+                disabled={index === list.length - 1}
+                className="cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                title="Move down"
+                aria-label={`Move ${product.name} down`}
+              >
+                ↓
+              </button>
+              <button
+                onClick={() => removeProduct(product._id)}
+                className="cursor-pointer"
+                title="Remove"
+                aria-label={`Remove ${product.name}`}
+              >
+                X
+              </button>
+            </div>
           </div>
         ))}
       </div>
