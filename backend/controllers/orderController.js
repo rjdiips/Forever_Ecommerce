@@ -2,10 +2,10 @@ import orderModel from "../models/orderModel.js";
 import UserModel from "../models/userModel.js";
 import { getStripe } from "../config/stripe.js";
 import Razorpay from "razorpay";
+import { DELIVERY_FEE } from "@forever/shared";
 
 // global variables
 const currency = "USD";
-const deliveryCharges = 10; // Delivery charges in USD
 
 // Stripe instance will be created lazily when a Stripe endpoint is invoked
 
@@ -77,7 +77,7 @@ export const placeOrderStripe = async (req, res) => {
         product_data: {
           name: "Delivery Charges",
         },
-        unit_amount: deliveryCharges * 100,
+        unit_amount: DELIVERY_FEE,
       },
       quantity: 1,
     });

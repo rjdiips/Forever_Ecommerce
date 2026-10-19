@@ -2,12 +2,13 @@ import { createContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { DELIVERY_FEE, fromCents } from '@forever/shared';
 
 export const ShopContext = createContext();
 
 const ShopContextProvider = ({ children }) => {
   const currency = '$';
-  const delivery_fee = 10;
+  const delivery_fee = fromCents(DELIVERY_FEE);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const [search, setSearch] = useState('');
