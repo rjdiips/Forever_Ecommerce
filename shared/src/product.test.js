@@ -4,7 +4,6 @@ import {
   PRODUCT_KIND,
   TEE_COLORS,
   catalogueProducts,
-  findCustomTee,
   formatProductPrice,
   isCustomTee,
   normalizeProductKind,
@@ -65,17 +64,6 @@ test("keeps a product with no kind as an ordinary catalogue product", () => {
     standard,
     explicitStandard,
   ]);
-});
-
-test("finds the custom-tee base however it is ordered", () => {
-  assert.equal(findCustomTee([standard, base]), base);
-  assert.equal(findCustomTee([base, standard]), base);
-});
-
-test("returns null when the catalogue holds no base", () => {
-  assert.equal(findCustomTee([standard, explicitStandard]), null);
-  assert.equal(findCustomTee([]), null);
-  assert.equal(findCustomTee(), null);
 });
 
 const whiteBase = {

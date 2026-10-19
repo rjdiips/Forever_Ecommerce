@@ -91,16 +91,6 @@ export function catalogueProducts(products = []) {
 }
 
 /**
- * The custom-tee base, or null when the catalogue holds none.
- *
- * @param {Product[]} [products]
- * @returns {Product | null}
- */
-export function findCustomTee(products = []) {
-  return products.find((product) => isCustomTee(product)) ?? null;
-}
-
-/**
  * The Tee bases in catalogue display order: one Product per colour, each
  * supplying the price, the sizes and the blank image the generator designs
  * onto. A base saved before colours existed is still a base; it simply offers

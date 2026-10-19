@@ -10,6 +10,7 @@ const TshirtControls = ({
   onColor,
   onReset,
   onExport,
+  canExport = true,
 }) => {
   const handleUpload = (event) => {
     const file = event.target.files?.[0];
@@ -129,7 +130,8 @@ const TshirtControls = ({
       {/* --- Download + Reset --- */}
       <button
         onClick={handleDownload}
-        className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors"
+        disabled={!canExport}
+        className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
       >
         Download Design
       </button>
