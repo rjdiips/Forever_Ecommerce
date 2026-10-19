@@ -113,7 +113,18 @@ test("lists the colours the catalogue actually offers", () => {
   assert.deepEqual(teeColors([blackBase, whiteBase]), ["white", "black"]);
   assert.deepEqual(teeColors([whiteBase]), ["white"]);
   assert.deepEqual(teeColors([blackBase]), ["black"]);
-  assert.deepEqual(teeColors([whiteBase, whiteBase]), ["white"]);
+});
+
+test("offers a colour once even when two bases supply it", () => {
+  const whiteAgain = { ...whiteBase, _id: "10", position: 3 };
+  assert.deepEqual(teeColors([whiteBase, whiteAgain]), ["white"]);
+});
+
+test("follows the catalogue's display order, not the vocabulary's", () => {
+  const blackFirst = { ...blackBase, position: 1 };
+  const whiteSecond = { ...whiteBase, position: 2 };
+
+  assert.deepEqual(teeColors([whiteSecond, blackFirst]), ["black", "white"]);
 });
 
 test("offers no colour for a colourless base or an empty catalogue", () => {

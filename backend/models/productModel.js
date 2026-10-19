@@ -25,11 +25,18 @@ const productSchema = new mongoose.Schema({
   },
   // The colour a Tee base supplies, one base per colour. Only a Tee base
   // carries one: an ordinary Product never stores a colour. A base saved
-  // before this field existed reads back with no colour, and a new base must
-  // name one (see resolveProductColor). The vocabulary lives in @forever/shared.
+  // before this field existed reads back with no colour (validation only runs
+  // on save, so legacy documents still load), and a new base must name one
+  // (see resolveProductColor). The vocabulary lives in @forever/shared.
   color: {
     type: String,
     enum: TEE_COLORS,
+    required: [
+      function isRequiredForTeeBase() {
+        return this.kind === PRODUCT_KIND.CUSTOM_TEE;
+      },
+      "A Custom Tee base needs a colour",
+    ],
   },
   // The admin-set catalogue order. Products saved before this field existed
   // read back undefined, which the catalogue sorts as 0; a Product added now is

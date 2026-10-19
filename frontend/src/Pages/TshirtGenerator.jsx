@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { findTeeBase, formatProductPrice, teeColors } from "@forever/shared";
 import { toast } from "react-toastify";
@@ -25,9 +25,11 @@ const TshirtGeneratorPage = () => {
   const { add } = useCart();
   const canvasRef = useRef(null);
 
-  // The colours the catalogue actually offers come from its Tee bases; the
-  // editor never hardcodes a pair, and a colour with no base is not offered.
-  const colors = teeColors(allProducts);
+  // The colours the catalogue actually offers come from its Tee bases, in the
+  // bases' display order; the editor never hardcodes a pair, and a colour with
+  // no base is not offered. Memoised so the list keeps its identity between
+  // renders, which is what stops the draft being re-examined on every render.
+  const colors = useMemo(() => teeColors(allProducts), [allProducts]);
   const { design, selectGraphic, moveTo, setScale, setColor, reset } =
     useTeeDesign(colors);
 

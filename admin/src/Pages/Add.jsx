@@ -4,6 +4,7 @@ import {
   PRODUCT_KIND,
   SUB_CATEGORIES,
   TEE_COLORS,
+  normalizeTeeColor,
 } from "@forever/shared";
 import { assets } from "../assets/assets";
 import axios from "axios";
@@ -37,8 +38,9 @@ const Add = () => {
     }
 
     // A Tee base must name a colour, so the API never has to guess; refuse
-    // here rather than letting the request fail.
-    if (kind === PRODUCT_KIND.CUSTOM_TEE && !TEE_COLORS.includes(color)) {
+    // here rather than letting the request fail. The shared normaliser is the
+    // same rule the backend applies on save.
+    if (kind === PRODUCT_KIND.CUSTOM_TEE && normalizeTeeColor(color) === null) {
       toast.error("Please choose a colour for the Tee base.");
       return;
     }

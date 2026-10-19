@@ -3,7 +3,7 @@ import { DEFAULT_POSITION } from "./geometry";
 export const DEFAULT_GRAPHIC_SCALE = 0.2;
 
 // The draft starts with no colour: the editor does not know which Tee bases the
-// catalogue offers until it has loaded, so the colour is settled from the
+// catalogue offers until it has loaded, so the colour is taken from the
 // catalogue rather than guessed here (see `availableColors`).
 export const INITIAL_DESIGN = {
   color: null,
@@ -20,8 +20,8 @@ export const INITIAL_DESIGN = {
 export function designReducer(state, action) {
   switch (action.type) {
     // Reconcile the draft's colour with the colours the catalogue offers: keep
-    // it while its base is still there, otherwise settle on the first available
-    // one, or on none when the catalogue offers no base at all. Returns the same
+    // it while its base is still there, otherwise take the first available
+    // one, or none when the catalogue offers no base at all. Returns the same
     // state when nothing changes, so the hook can dispatch this on every
     // catalogue update without looping.
     case "availableColors": {
