@@ -1,19 +1,29 @@
 import { CURRENCY, formatMoney, toCents } from "./money.js";
 
 /**
- * Product kinds. Most products are `standard`; exactly one product is the
- * `custom-tee` base the tee generator designs onto. Kept here so the shop, the
- * admin and the API classify products the same way.
+ * Product kinds. Most products are `standard`; a `custom-tee` product is a
+ * Tee base the tee generator designs onto, one per colour. Kept here so the
+ * shop, the admin and the API classify products the same way.
  */
 
 /** @typedef {"standard" | "custom-tee"} ProductKind */
-/** @typedef {{ kind?: ProductKind, position?: number, date?: number, [key: string]: unknown }} Product */
+/** @typedef {"white" | "black"} TeeColor */
+/** @typedef {{ kind?: ProductKind, color?: TeeColor | null, position?: number, date?: number, [key: string]: unknown }} Product */
 
 /** @type {{ STANDARD: ProductKind, CUSTOM_TEE: ProductKind }} */
 export const PRODUCT_KIND = Object.freeze({
   STANDARD: "standard",
   CUSTOM_TEE: "custom-tee",
 });
+
+/**
+ * The colours a Tee base can be, and so the only colours the tee generator can
+ * design onto. Closed on purpose: a new colour is a change here, not just an
+ * admin action.
+ *
+ * @type {readonly TeeColor[]}
+ */
+export const TEE_COLORS = Object.freeze(["white", "black"]);
 
 /**
  * Is this product the base the tee generator designs onto?
@@ -39,6 +49,20 @@ export function normalizeProductKind(kind) {
   return kind === PRODUCT_KIND.CUSTOM_TEE
     ? PRODUCT_KIND.CUSTOM_TEE
     : PRODUCT_KIND.STANDARD;
+}
+
+/**
+ * Coerce an untrusted colour to the Tee base vocabulary, or to no colour.
+ *
+ * A base saved before colours existed has none, and a malformed colour is
+ * treated the same way: no colour, rather than one the tee generator would not
+ * recognise.
+ *
+ * @param {unknown} color
+ * @returns {TeeColor | null}
+ */
+export function normalizeTeeColor(color) {
+  return TEE_COLORS.includes(color) ? color : null;
 }
 
 /**
@@ -74,6 +98,59 @@ export function catalogueProducts(products = []) {
  */
 export function findCustomTee(products = []) {
   return products.find((product) => isCustomTee(product)) ?? null;
+}
+
+/**
+ * The Tee bases in catalogue display order: one Product per colour, each
+ * supplying the price, the sizes and the blank image the generator designs
+ * onto. A base saved before colours existed is still a base; it simply offers
+ * no colour.
+ *
+ * @param {Product[]} [products]
+ * @returns {Product[]}
+ */
+export function teeBases(products = []) {
+  return orderProducts(products.filter(isCustomTee));
+}
+
+/**
+ * The Tee base for a colour, or null when the catalogue offers none.
+ *
+ * A malformed colour, a colour with no base, and a base saved before colours
+ * existed all resolve to null, so the caller can treat them alike.
+ *
+ * @param {Product[]} [products]
+ * @param {unknown} color
+ * @returns {Product | null}
+ */
+export function findTeeBase(products = [], color) {
+  const wanted = normalizeTeeColor(color);
+  if (wanted === null) return null;
+
+  return (
+    products.find(
+      (product) =>
+        isCustomTee(product) && normalizeTeeColor(product.color) === wanted
+    ) ?? null
+  );
+}
+
+/**
+ * The colours the catalogue actually offers, in vocabulary order.
+ *
+ * A colour with no base is not offered, so the tee generator can never present
+ * a colour it cannot design onto or buy; a base with no colour offers nothing.
+ * Two bases of the same colour still offer it once.
+ *
+ * @param {Product[]} [products]
+ * @returns {TeeColor[]}
+ */
+export function teeColors(products = []) {
+  const colors = products
+    .filter(isCustomTee)
+    .map((product) => normalizeTeeColor(product.color));
+
+  return TEE_COLORS.filter((color) => colors.includes(color));
 }
 
 /**

@@ -1,5 +1,10 @@
 import mongoose from 'mongoose';
-import { CATEGORIES, PRODUCT_KIND, SUB_CATEGORIES } from '@forever/shared';
+import {
+  CATEGORIES,
+  PRODUCT_KIND,
+  SUB_CATEGORIES,
+  TEE_COLORS,
+} from '@forever/shared';
 
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -10,13 +15,21 @@ const productSchema = new mongoose.Schema({
   subCategory: { type: String, enum: SUB_CATEGORIES, required: true },
   sizes: { type: Array, required: true },
   bestseller: { type: Boolean },
-  // "standard" for ordinary products; "custom-tee" marks the one base product
-  // the tee generator designs onto. Products saved before this field existed
-  // read back as "standard".
+  // "standard" for ordinary products; "custom-tee" marks a Tee base the tee
+  // generator designs onto, one per colour. Products saved before this field
+  // existed read back as "standard".
   kind: {
     type: String,
     enum: [PRODUCT_KIND.STANDARD, PRODUCT_KIND.CUSTOM_TEE],
     default: PRODUCT_KIND.STANDARD,
+  },
+  // The colour a Tee base supplies, one base per colour. Only a Tee base
+  // carries one: an ordinary Product never stores a colour. A base saved
+  // before this field existed reads back with no colour, and a new base must
+  // name one (see resolveProductColor). The vocabulary lives in @forever/shared.
+  color: {
+    type: String,
+    enum: TEE_COLORS,
   },
   // The admin-set catalogue order. Products saved before this field existed
   // read back undefined, which the catalogue sorts as 0; a Product added now is

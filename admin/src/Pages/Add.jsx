@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { CATEGORIES, PRODUCT_KIND, SUB_CATEGORIES } from "@forever/shared";
+import {
+  CATEGORIES,
+  PRODUCT_KIND,
+  SUB_CATEGORIES,
+  TEE_COLORS,
+} from "@forever/shared";
 import { assets } from "../assets/assets";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
@@ -21,12 +26,20 @@ const Add = () => {
   const [sizes, setSizes] = useState([]);
   const [bestSeller, setBestSeller] = useState(false);
   const [kind, setKind] = useState(PRODUCT_KIND.STANDARD);
+  const [color, setColor] = useState("");
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
     if (sizes.length === 0) {
       toast.error("Please select at least one product size.");
+      return;
+    }
+
+    // A Tee base must name a colour, so the API never has to guess; refuse
+    // here rather than letting the request fail.
+    if (kind === PRODUCT_KIND.CUSTOM_TEE && !TEE_COLORS.includes(color)) {
+      toast.error("Please choose a colour for the Tee base.");
       return;
     }
 
@@ -41,6 +54,9 @@ const Add = () => {
       formData.append("sizes", JSON.stringify(sizes));
       formData.append("bestseller", bestSeller ? "true" : "false");
       formData.append("kind", kind);
+      if (kind === PRODUCT_KIND.CUSTOM_TEE) {
+        formData.append("color", color);
+      }
 
       image1 && formData.append("image1", image1);
       image2 && formData.append("image2", image2);
@@ -60,6 +76,7 @@ const Add = () => {
         setDescription("");
         setPrice("");
         setSizes([]);
+        setColor("");
         setImage1(false);
         setImage2(false);
         setImage3(false);
@@ -350,6 +367,29 @@ const Add = () => {
           Custom Tee base
         </label>
       </div>
+
+      {/* A Tee base's colour, chosen at creation: one base per colour. */}
+      {kind === PRODUCT_KIND.CUSTOM_TEE && (
+        <div>
+          <p className="mb-2">Tee base colour</p>
+          <select
+            onChange={(e) => setColor(e.target.value)}
+            value={color}
+            className="w-full max-w-[500px] px-3 py-2"
+            id="teeBaseColor"
+            required
+          >
+            <option value="" disabled>
+              Choose a colour
+            </option>
+            {TEE_COLORS.map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* Submit Button */}
       <button
