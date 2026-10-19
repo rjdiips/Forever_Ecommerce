@@ -1,109 +1,119 @@
-import React, { useRef, useEffect, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { assets } from "../assets/assets";
+import { CANVAS_SIZE, bounds, hitTest, toCanvasPoint } from "../tee/geometry";
+import { exportTeeBlob } from "../tee/export";
 
-const TshirtCanvas = ({
-  tshirtColor,
-  graphic,
-  scale,
-  position,
-  setPosition,
-}) => {
+const TshirtCanvas = forwardRef(function TshirtCanvas({ design, onMove }, ref) {
   const canvasRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
-  const graphicDimensions = useRef({ width: 0, height: 0 });
   const dragOffset = useRef({ x: 0, y: 0 });
 
+  // Images are held in refs so dragging only repaints; it never reloads assets.
+  const designRef = useRef(design);
+  const teeImageRef = useRef(null);
+  const graphicImageRef = useRef(null);
+
+  const teeSrc = design.color === "white" ? assets.tshirt_white : assets.tshirt_black;
+
   useEffect(() => {
+    designRef.current = design;
+  }, [design]);
+
+  const draw = useCallback(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    const tshirtImg = new Image();
-    tshirtImg.crossOrigin = "anonymous";
-    tshirtImg.src =
-      tshirtColor === "white" ? assets.tshirt_white : assets.tshirt_black;
+    if (!canvas) return;
+    const context = canvas.getContext("2d");
+    context.clearRect(0, 0, canvas.width, canvas.height);
 
-    tshirtImg.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(tshirtImg, 0, 0, canvas.width, canvas.height);
+    const tee = teeImageRef.current;
+    if (!tee) return;
+    context.drawImage(tee, 0, 0, canvas.width, canvas.height);
 
-      if (graphic) {
-        const graphicImg = new Image();
-        graphicImg.crossOrigin = "anonymous";
-        graphicImg.src = graphic;
-        graphicImg.onload = () => {
-          graphicDimensions.current = {
-            width: graphicImg.width,
-            height: graphicImg.height,
-          };
-          const scaledWidth = graphicImg.width * scale;
-          const scaledHeight = graphicImg.height * scale;
-          ctx.drawImage(
-            graphicImg,
-            position.x - scaledWidth / 2,
-            position.y - scaledHeight / 2,
-            scaledWidth,
-            scaledHeight
-          );
-        };
-      }
+    const current = designRef.current;
+    const graphic = graphicImageRef.current;
+    if (!current.graphic || !current.graphicSize || !graphic) return;
+
+    const box = bounds(current);
+    context.drawImage(graphic, box.x, box.y, box.width, box.height);
+  }, []);
+
+  useEffect(() => {
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => {
+      teeImageRef.current = image;
+      draw();
     };
-  }, [tshirtColor, graphic, scale, position]);
+    image.src = teeSrc;
+    return () => {
+      teeImageRef.current = null;
+    };
+  }, [teeSrc, draw]);
 
-  const handleMouseDown = (e) => {
-    const mouseX = e.nativeEvent.offsetX;
-    const mouseY = e.nativeEvent.offsetY;
-
-    const scaledWidth = graphicDimensions.current.width * scale;
-    const scaledHeight = graphicDimensions.current.height * scale;
-    const graphicX = position.x - scaledWidth / 2;
-    const graphicY = position.y - scaledHeight / 2;
-
-    if (
-      mouseX >= graphicX &&
-      mouseX <= graphicX + scaledWidth &&
-      mouseY >= graphicY &&
-      mouseY <= graphicY + scaledHeight
-    ) {
-      setIsDragging(true);
-
-      dragOffset.current = {
-        x: mouseX - position.x,
-        y: mouseY - position.y,
-      };
+  useEffect(() => {
+    if (!design.graphic) {
+      graphicImageRef.current = null;
+      draw();
+      return undefined;
     }
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => {
+      graphicImageRef.current = image;
+      draw();
+    };
+    image.src = design.graphic;
+    return () => {
+      graphicImageRef.current = null;
+    };
+  }, [design.graphic, draw]);
+
+  useEffect(() => {
+    draw();
+  }, [design.position, design.scale, design.graphicSize, draw]);
+
+  useImperativeHandle(
+    ref,
+    () => ({ exportBlob: () => exportTeeBlob(canvasRef.current) }),
+    []
+  );
+
+  const handleMouseDown = (event) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const point = toCanvasPoint(event, rect);
+    if (!hitTest(point, bounds(design))) return;
+
+    setIsDragging(true);
+    dragOffset.current = {
+      x: point.x - design.position.x,
+      y: point.y - design.position.y,
+    };
   };
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (event) => {
     if (!isDragging) return;
-
-    const mouseX = e.nativeEvent.offsetX;
-    const mouseY = e.nativeEvent.offsetY;
-
-    setPosition({
-      x: mouseX - dragOffset.current.x,
-      y: mouseY - dragOffset.current.y,
+    const rect = event.currentTarget.getBoundingClientRect();
+    const point = toCanvasPoint(event, rect);
+    onMove({
+      x: point.x - dragOffset.current.x,
+      y: point.y - dragOffset.current.y,
     });
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleMouseLeave = () => {
-    setIsDragging(false);
-  };
+  const stopDragging = () => setIsDragging(false);
 
   return (
     <canvas
       ref={canvasRef}
-      width={1000}
-      height={1000}
+      width={CANVAS_SIZE}
+      height={CANVAS_SIZE}
       className="border rounded-lg shadow-lg w-full cursor-pointer"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseLeave}
+      onMouseUp={stopDragging}
+      onMouseLeave={stopDragging}
     />
   );
-};
+});
 
 export default TshirtCanvas;
