@@ -14,7 +14,6 @@ const Navbar = () => {
   const { count, clear } = useCart();
 
   const logout = () => {
-    localStorage.removeItem("token");
     setToken("");
     clear();
     navigate("/login");

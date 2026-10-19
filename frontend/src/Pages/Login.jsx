@@ -27,7 +27,6 @@ const Login = () => {
         const token = response.data.data.token;
         if (response.data.success) {
           setToken(token);
-          localStorage.setItem("token", token);
           toast.success("Signup Successful!");
         } else {
           toast.error(response.data.message);
@@ -40,7 +39,6 @@ const Login = () => {
         const token = response.data.data.token;
         if (response.data.success) {
           setToken(token);
-          localStorage.setItem("token", token);
           toast.success("Login Successful!");
         } else {
           toast.error(response.data.message);

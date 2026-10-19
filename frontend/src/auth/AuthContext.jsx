@@ -1,4 +1,10 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 const AuthContext = createContext(null);
 
@@ -8,6 +14,16 @@ const AuthContext = createContext(null);
 // navigate through the router.
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem("token") || "");
+
+  // Auth owns the token's storage in both directions: callers only ever set the
+  // token, and a reload or logout follows from it.
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem("token", token);
+    } else {
+      localStorage.removeItem("token");
+    }
+  }, [token]);
 
   const value = useMemo(() => ({ token, setToken }), [token]);
 
