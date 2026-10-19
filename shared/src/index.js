@@ -5,3 +5,10 @@
  */
 export { CURRENCY, formatMoney, fromCents, toCents } from "./money.js";
 export { DELIVERY_FEE } from "./delivery.js";
+export {
+  PRODUCT_KIND,
+  catalogueProducts,
+  findCustomTee,
+  isCustomTee,
+  normalizeProductKind,
+} from "./product.js";

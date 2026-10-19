@@ -22,11 +22,12 @@ import { CartProvider } from "./cart/CartContext";
 
 function App() {
   // Auth and the catalogue still live in ShopContext; the Cart takes them as
-  // dependencies until candidates 4 and 6 split them out.
-  const { token, products, backendUrl } = useContext(ShopContext);
+  // dependencies until candidates 4 and 6 split them out. The Cart gets every
+  // product (the custom-tee base included) so it can price a Custom Tee line.
+  const { token, allProducts, backendUrl } = useContext(ShopContext);
 
   return (
-    <CartProvider token={token} products={products} backendUrl={backendUrl}>
+    <CartProvider token={token} products={allProducts} backendUrl={backendUrl}>
       <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
         <ToastContainer />
 

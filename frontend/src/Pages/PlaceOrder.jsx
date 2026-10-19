@@ -9,7 +9,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const PlaceOrder = () => {
-  const { navigate, backendUrl, token, products } = useContext(ShopContext);
+  const { navigate, backendUrl, token, allProducts } = useContext(ShopContext);
   const { lineItems, total, clear } = useCart();
 
   const [paymentMethod, setPaymentMethod] = useState("cod");
@@ -38,7 +38,7 @@ const PlaceOrder = () => {
     try {
       const orderItems = lineItems
         .map((line) => {
-          const product = products.find(
+          const product = allProducts.find(
             (product) => product._id === line.productId
           );
           if (!product) {

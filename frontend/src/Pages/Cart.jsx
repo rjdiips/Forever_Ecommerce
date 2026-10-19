@@ -8,7 +8,7 @@ import CartTotal from "../Components/CartTotal";
 
 const Cart = () => {
   const { lineItems, update, remove } = useCart();
-  const { products, navigate } = useContext(ShopContext);
+  const { allProducts, navigate } = useContext(ShopContext);
 
   return (
     <div className="pt-14 border-t">
@@ -20,7 +20,7 @@ const Cart = () => {
 
       <div>
         {lineItems.map((line) => {
-          const product = products.find(
+          const product = allProducts.find(
             (product) => product._id === line.productId
           );
 

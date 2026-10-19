@@ -1,10 +1,9 @@
 import multer from "multer";
 
-const storage = multer.diskStorage({
-  filename: function (req, file, callback) {
-    callback(null, file.originalname);
-  },
-});
+// Uploads are buffered in memory and streamed straight to Cloudinary, so
+// nothing is written to disk: two uploads can no longer collide on the
+// original file name, and no temp files are left behind.
+const storage = multer.memoryStorage();
 
 const upload = multer({ storage });
 

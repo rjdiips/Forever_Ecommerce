@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { PRODUCT_KIND } from '@forever/shared';
 
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -9,6 +10,14 @@ const productSchema = new mongoose.Schema({
   subCategory: { type: String, required: true },
   sizes: { type: Array, required: true },
   bestseller: { type: Boolean },
+  // "standard" for ordinary products; "custom-tee" marks the one base product
+  // the tee generator designs onto. Products saved before this field existed
+  // read back as "standard".
+  kind: {
+    type: String,
+    enum: [PRODUCT_KIND.STANDARD, PRODUCT_KIND.CUSTOM_TEE],
+    default: PRODUCT_KIND.STANDARD,
+  },
   date: { type: Number, required: true },
 });
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PRODUCT_KIND } from "@forever/shared";
 import { assets } from "../assets/assets";
 import axios from "axios";
 import { backendUrl } from "../App";
@@ -17,6 +18,7 @@ const Add = ({ token }) => {
   const [price, setPrice] = useState("");
   const [sizes, setSizes] = useState([]);
   const [bestSeller, setBestSeller] = useState(false);
+  const [kind, setKind] = useState(PRODUCT_KIND.STANDARD);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -36,6 +38,7 @@ const Add = ({ token }) => {
       formData.append("price", price);
       formData.append("sizes", JSON.stringify(sizes));
       formData.append("bestseller", bestSeller ? "true" : "false");
+      formData.append("kind", kind);
 
       image1 && formData.append("image1", image1);
       image2 && formData.append("image2", image2);
@@ -319,6 +322,26 @@ const Add = ({ token }) => {
         />
         <label htmlFor="bestseller" className="cursor-pointer">
           Add to Bestseller
+        </label>
+      </div>
+
+      {/* Custom Tee base: the product the tee generator designs onto. */}
+      <div className="flex items-center gap-2 mt-2">
+        <input
+          onChange={() =>
+            setKind((prev) =>
+              prev === PRODUCT_KIND.CUSTOM_TEE
+                ? PRODUCT_KIND.STANDARD
+                : PRODUCT_KIND.CUSTOM_TEE
+            )
+          }
+          checked={kind === PRODUCT_KIND.CUSTOM_TEE}
+          className="w-3 h-3 cursor-pointer"
+          type="checkbox"
+          id="customTee"
+        />
+        <label htmlFor="customTee" className="cursor-pointer">
+          Custom Tee base
         </label>
       </div>
 

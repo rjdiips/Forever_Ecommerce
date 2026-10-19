@@ -9,6 +9,7 @@ import userRouter from "./routes/userRouter.js";
 import productRouter from "./routes/productRouter.js";
 import cartRouter from "./routes/cartRouter.js";
 import orderRouter from "./routes/orderRouter.js";
+import designRouter from "./routes/designRouter.js";
 import subscriberRouter from "./routes/subscriberRouter.js";
 
 // App config
@@ -28,6 +29,7 @@ app.use("/api/user", userRouter);
 app.use("/api/product", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
+app.use("/api/design", designRouter);
 app.use("/api/subscribe", subscriberRouter);
 
 app.get("/", route(() => undefined, { message: "API working" }));

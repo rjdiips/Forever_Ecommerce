@@ -1,5 +1,6 @@
-import { v2 as cloudinary } from "cloudinary";
 import ProductModel from "../models/productModel.js";
+import { uploadImageBuffer } from "../config/cloudinary.js";
+import { normalizeProductKind } from "@forever/shared";
 import { HttpError } from "../lib/http.js";
 
 export const addProduct = async (req) => {
@@ -31,9 +32,7 @@ export const addProduct = async (req) => {
 
   const imageUrl = await Promise.all(
     images.map(async (image) => {
-      const result = await cloudinary.uploader.upload(image.path, {
-        resource_type: "image",
-      });
+      const result = await uploadImageBuffer(image.buffer);
       return result.secure_url;
     })
   );
@@ -46,6 +45,7 @@ export const addProduct = async (req) => {
     subCategory,
     sizes: JSON.parse(sizes),
     bestseller: bestseller === "true" ? true : false,
+    kind: normalizeProductKind(req.body.kind),
     image: imageUrl,
     date: Date.now(),
   };
