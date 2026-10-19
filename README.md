@@ -49,8 +49,8 @@ FOREVER-STORE/
 │   ├── middlewares/      # Custom middleware (Auth, etc.)
 │   ├── models/           # Database schemas (Mongoose)
 │   ├── routes/           # API route definitions
-│   ├── app.js            # Express app setup
-│   ├── server.js         # Server entry point
+│   ├── app.js            # Single Express entry (default-exports the app)
+│   ├── lib/              # log.js (+ candidate 5's request seam)
 │   └── .env              # Backend environment variables
 │
 └── frontend/             # Client Website (React + Vite)
