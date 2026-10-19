@@ -48,7 +48,7 @@ describe("designReducer", () => {
     expect(INITIAL_DESIGN.color).toBeNull();
   });
 
-  it("settles on the first available colour once the bases arrive", () => {
+  it("takes the first available colour once the bases arrive", () => {
     const state = designReducer(
       { ...INITIAL_DESIGN, color: null },
       { type: "availableColors", colors: ["black", "white"] }
@@ -80,7 +80,7 @@ describe("designReducer", () => {
     expect(state.color).toBeNull();
   });
 
-  it("returns the same state when the colour is already settled", () => {
+  it("returns the same state when the colour is already chosen", () => {
     const settled = { ...INITIAL_DESIGN, color: "white" };
     expect(
       designReducer(settled, {

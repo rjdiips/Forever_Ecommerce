@@ -91,6 +91,19 @@ export function catalogueProducts(products = []) {
 }
 
 /**
+ * The colour a Tee base carries, told apart from a Product that is not a base:
+ * `null` for a base with no colour, and `undefined` for anything that is not a
+ * base, so a lookup can distinguish "no base for that colour" from "not a base
+ * at all".
+ *
+ * @param {Product | null | undefined} product
+ * @returns {TeeColor | null | undefined}
+ */
+function teeBaseColor(product) {
+  return isCustomTee(product) ? normalizeTeeColor(product.color) : undefined;
+}
+
+/**
  * The Tee bases in catalogue display order: one Product per colour, each
  * supplying the price, the sizes and the blank image the generator designs
  * onto. A base saved before colours existed is still a base; it simply offers
@@ -100,7 +113,9 @@ export function catalogueProducts(products = []) {
  * @returns {Product[]}
  */
 export function teeBases(products = []) {
-  return orderProducts(products.filter(isCustomTee));
+  return orderProducts(
+    products.filter((product) => teeBaseColor(product) !== undefined)
+  );
 }
 
 /**
@@ -117,30 +132,27 @@ export function findTeeBase(products = [], color) {
   const wanted = normalizeTeeColor(color);
   if (wanted === null) return null;
 
-  return (
-    products.find(
-      (product) =>
-        isCustomTee(product) && normalizeTeeColor(product.color) === wanted
-    ) ?? null
-  );
+  return products.find((product) => teeBaseColor(product) === wanted) ?? null;
 }
 
 /**
- * The colours the catalogue actually offers, in vocabulary order.
+ * The colours the catalogue actually offers, in the bases' catalogue display
+ * order.
  *
  * A colour with no base is not offered, so the tee generator can never present
  * a colour it cannot design onto or buy; a base with no colour offers nothing.
- * Two bases of the same colour still offer it once.
+ * Two bases of the same colour still offer it once, in the order the first
+ * appears.
  *
  * @param {Product[]} [products]
  * @returns {TeeColor[]}
  */
 export function teeColors(products = []) {
-  const colors = products
-    .filter(isCustomTee)
-    .map((product) => normalizeTeeColor(product.color));
+  const colors = teeBases(products)
+    .map(teeBaseColor)
+    .filter((color) => color !== null);
 
-  return TEE_COLORS.filter((color) => colors.includes(color));
+  return [...new Set(colors)];
 }
 
 /**

@@ -5,24 +5,25 @@ import { designReducer, INITIAL_DESIGN } from "./designReducer";
 // and the geometry it relies on live in designReducer.js / geometry.js, both
 // of which are pure and tested directly.
 //
-// `colors` is the Tee colours the catalogue offers, in display order. The draft
-// settles on the first one once the catalogue resolves, and follows the
-// catalogue if that colour's base later disappears; it is never a hardcoded
-// guess. The list is keyed by value so a fresh array per render does not
-// re-settle, and resetting settles again from the colours the catalogue still
-// offers.
-export function useTeeDesign(colors = []) {
+// `colors` is the Tee colours the catalogue offers, in catalogue display order.
+// The caller memoises the list, so its identity is stable between renders and
+// the draft is reconsidered only when the colours actually change. The draft
+// takes the first one once the catalogue resolves, and follows the catalogue if
+// that colour's base later disappears; it is never a hardcoded guess. The
+// reducer returns the same state when the colour is unchanged, so dispatching
+// on every identity change cannot loop, and resetting re-applies the colours
+// the catalogue still offers.
+
+// A stable empty list, so the default argument does not change the effect's
+// dependency on every render.
+const NO_COLORS = [];
+
+export function useTeeDesign(colors = NO_COLORS) {
   const [design, dispatch] = useReducer(designReducer, INITIAL_DESIGN);
 
-  const colorKey = colors.join(",");
-  const settleColors = useCallback(
-    () => (colorKey ? colorKey.split(",") : []),
-    [colorKey]
-  );
-
   useEffect(() => {
-    dispatch({ type: "availableColors", colors: settleColors() });
-  }, [settleColors]);
+    dispatch({ type: "availableColors", colors });
+  }, [colors]);
 
   // Learn the graphic's natural size so the layout can be computed in canvas
   // space (drawing, hit-testing and export all share bounds()).
@@ -53,8 +54,8 @@ export function useTeeDesign(colors = []) {
   const setColor = useCallback((color) => dispatch({ type: "setColor", color }), []);
   const reset = useCallback(() => {
     dispatch({ type: "reset" });
-    dispatch({ type: "availableColors", colors: settleColors() });
-  }, [settleColors]);
+    dispatch({ type: "availableColors", colors });
+  }, [colors]);
 
   return { design, selectGraphic, moveTo, setScale, setColor, reset };
 }
