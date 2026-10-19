@@ -12,7 +12,7 @@
     "test": "npm test --workspaces --if-present"
   },
   "allowScripts": {
-    "bcrypt": true,
-    "esbuild@0.25.12": true
+    "esbuild@0.25.12": true,
+    "bcrypt@5.1.1": true
   }
 }
