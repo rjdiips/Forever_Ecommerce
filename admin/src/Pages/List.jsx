@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
-import { backendUrl, currency } from "../App";
+import { formatMoney, toCents } from "@forever/shared";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { BACKEND_URL } from "../config";
+import { useAdminAuth } from "../auth/AdminAuthContext";
 
-const List = ({ token }) => {
+const List = () => {
+  const { token } = useAdminAuth();
   const [list, setList] = useState([]);
 
   const fetchList = async () => {
     try {
-      const response = await axios.get(`${backendUrl}/api/product/list`, {
+      const response = await axios.get(`${BACKEND_URL}/api/product/list`, {
         headers: { token },
       });
 
@@ -26,7 +29,7 @@ const List = ({ token }) => {
   const removeProduct = async (id) => {
     try {
       const response = await axios.post(
-        `${backendUrl}/api/product/remove`,
+        `${BACKEND_URL}/api/product/remove`,
         { id },
         {
           headers: { token },
@@ -77,10 +80,7 @@ const List = ({ token }) => {
             />
             <p>{product.name}</p>
             <p>{product.category}</p>
-            <p>
-              {currency}
-              {product.price}
-            </p>
+            <p>{formatMoney(toCents(product.price))}</p>
             <button
               onClick={() => removeProduct(product._id)}
               className="text-right md:text-center text-lg  cursor-pointer"

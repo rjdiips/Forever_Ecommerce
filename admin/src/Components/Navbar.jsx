@@ -1,7 +1,9 @@
-import React from "react";
 import { assets } from "../assets/assets.js";
+import { useAdminAuth } from "../auth/AdminAuthContext";
 
-const Navbar = ({ setToken }) => {
+const Navbar = () => {
+  const { setToken } = useAdminAuth();
+
   return (
     <div className="flex justify-between items-center bg-gray-100 py-2 px-[4%]">
       <img className="w-[max(10%,80px)]" src={assets.logo} alt="" />

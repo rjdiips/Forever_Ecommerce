@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { CURRENCY, DELIVERY_FEE, formatMoney, fromCents, toCents } from "@forever/shared";
 import { addCartLine, cartLines, cartLineId, setCartLineQuantity } from "@forever/shared";
 import { CATEGORIES, SUB_CATEGORIES, isCategory, isSubCategory } from "@forever/shared";
+import { ORDER_STATUSES, isOrderStatus } from "@forever/shared";
 
 test("the package root exposes money and delivery", () => {
   assert.equal(typeof toCents, "function");
@@ -24,4 +25,9 @@ test("the package root exposes the Product taxonomy", () => {
   assert.ok(Array.isArray(SUB_CATEGORIES));
   assert.equal(typeof isCategory, "function");
   assert.equal(typeof isSubCategory, "function");
+});
+
+test("the package root exposes the order statuses", () => {
+  assert.ok(Array.isArray(ORDER_STATUSES));
+  assert.equal(typeof isOrderStatus, "function");
 });

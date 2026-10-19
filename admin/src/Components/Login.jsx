@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
-import { backendUrl } from '../App';
+import { BACKEND_URL } from '../config';
+import { useAdminAuth } from '../auth/AdminAuthContext';
 import { toast } from 'react-toastify';
 
-const Login = ({ setToken }) => {
+const Login = () => {
+  const { setToken } = useAdminAuth();
   const [email, seteMail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -11,21 +13,20 @@ const Login = ({ setToken }) => {
     try {
       e.preventDefault();
 
-      const response = await axios.post(backendUrl + '/api/user/admin', {
+      const response = await axios.post(`${BACKEND_URL}/api/user/admin`, {
         email,
         password,
       });
-      const token = response.data.data.token;
 
       if (response.data.success) {
-        setToken(token);
+        setToken(response.data.data.token);
         toast.success('Login Successful!');
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message); // This will show an error message if the request failed
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 

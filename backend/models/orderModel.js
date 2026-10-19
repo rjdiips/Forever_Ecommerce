@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { ORDER_STATUS, ORDER_STATUSES } from '@forever/shared';
 
 const orderSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -10,7 +11,12 @@ const orderSchema = new mongoose.Schema({
   // written before server pricing; the shared order helpers read both.
   pricingVersion: { type: Number },
   address: { type: Object, required: true },
-  orderStatus: { type: String, required: true, default: 'Order Placed' },
+  orderStatus: {
+    type: String,
+    enum: ORDER_STATUSES,
+    required: true,
+    default: ORDER_STATUS.PLACED,
+  },
   paymentMethod: { type: String, required: true },
   payment: { type: Boolean, required: true, default: false },
   date: { type: Number, required: true },

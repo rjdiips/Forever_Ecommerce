@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
-import { formatMoney, orderAmountCents } from '@forever/shared';
+import {
+  ORDER_STATUSES,
+  formatMoney,
+  orderAmountCents,
+} from '@forever/shared';
 import axios from 'axios';
-import { backendUrl } from '../App';
+import { BACKEND_URL } from '../config';
+import { useAdminAuth } from '../auth/AdminAuthContext';
 import { toast } from 'react-toastify';
 import { assets } from '../assets/assets';
 
-const Orders = ({ token }) => {
+const Orders = () => {
+  const { token } = useAdminAuth();
   const [orders, setOrders] = useState([]);
 
   const fetchAllOrders = async () => {
@@ -14,7 +20,7 @@ const Orders = ({ token }) => {
     }
     try {
       const response = await axios.post(
-        backendUrl + '/api/order/list',
+        `${BACKEND_URL}/api/order/list`,
         {},
         { headers: { token } }
       );
@@ -32,7 +38,7 @@ const Orders = ({ token }) => {
   const orderStatusHandler = async (event, orderId) => {
     try {
       const response = await axios.post(
-        backendUrl + '/api/order/status',
+        `${BACKEND_URL}/api/order/status`,
         { orderId, orderStatus: event.target.value },
         { headers: { token } }
       );
@@ -117,11 +123,11 @@ const Orders = ({ token }) => {
               value={order.orderStatus}
               className='p-2 font-semibold cursor-pointer'
             >
-              <option value='Order Placed'>Order Placed</option>
-              <option value='Packing'>Packing</option>
-              <option value='Shipped'>Shipped</option>
-              <option value='Out for Delivery'>Out for Delivery</option>
-              <option value='Delivered'>Delivered</option>
+              {ORDER_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
             </select>
           </div>
         ))}

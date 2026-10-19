@@ -1,4 +1,6 @@
 import orderModel from "../models/orderModel.js";
+import { isOrderStatus } from "@forever/shared";
+import { HttpError } from "../lib/http.js";
 import {
   createOrder,
   PAYMENT_METHOD,
@@ -59,6 +61,10 @@ export const getUserOrders = async (req) => {
 // upadae order status --> /api/order/status
 export const updateOrderStatus = async (req) => {
   const { orderId, orderStatus } = req.body;
+
+  if (!isOrderStatus(orderStatus)) {
+    throw new HttpError(400, "Unknown order status");
+  }
 
   await orderModel.findByIdAndUpdate(orderId, { orderStatus });
 };

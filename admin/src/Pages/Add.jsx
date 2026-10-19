@@ -2,10 +2,12 @@ import { useState } from "react";
 import { CATEGORIES, PRODUCT_KIND, SUB_CATEGORIES } from "@forever/shared";
 import { assets } from "../assets/assets";
 import axios from "axios";
-import { backendUrl } from "../App";
+import { BACKEND_URL } from "../config";
+import { useAdminAuth } from "../auth/AdminAuthContext";
 import { toast } from "react-toastify";
 
-const Add = ({ token }) => {
+const Add = () => {
+  const { token } = useAdminAuth();
   const [image1, setImage1] = useState(false);
   const [image2, setImage2] = useState(false);
   const [image3, setImage3] = useState(false);
@@ -46,7 +48,7 @@ const Add = ({ token }) => {
       image4 && formData.append("image4", image4);
 
       const response = await axios.post(
-        backendUrl + "/api/product/add",
+        `${BACKEND_URL}/api/product/add`,
         formData,
         {
           headers: { token },

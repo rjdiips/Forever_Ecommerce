@@ -13,6 +13,9 @@ export {
 } from "./cart.js";
 export {
   ORDER_PRICING,
+  ORDER_STATUS,
+  ORDER_STATUSES,
+  isOrderStatus,
   orderAmountCents,
   orderItemPriceCents,
 } from "./order.js";

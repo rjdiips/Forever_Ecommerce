@@ -16,6 +16,35 @@ export const ORDER_PRICING = Object.freeze({
 });
 
 /**
+ * The statuses an Order moves through, in the order the admin offers them.
+ *
+ * One definition shared by the admin select, the order model and the status
+ * route, so a typo can neither be written nor displayed.
+ *
+ * @type {Record<string, string>}
+ */
+export const ORDER_STATUS = Object.freeze({
+  PLACED: "Order Placed",
+  PACKING: "Packing",
+  SHIPPED: "Shipped",
+  OUT_FOR_DELIVERY: "Out for Delivery",
+  DELIVERED: "Delivered",
+});
+
+/** The order statuses in display order. @type {string[]} */
+export const ORDER_STATUSES = Object.freeze(Object.values(ORDER_STATUS));
+
+/**
+ * Whether `value` is one of the known order statuses.
+ *
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+export function isOrderStatus(value) {
+  return ORDER_STATUSES.includes(value);
+}
+
+/**
  * An Order's amount in integer cents, whichever version wrote it.
  *
  * @param {{ amount?: number, pricingVersion?: number } | null | undefined} order
