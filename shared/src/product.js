@@ -44,15 +44,16 @@ export function normalizeProductKind(kind) {
 /**
  * A Product's price for display.
  *
- * Catalogue prices are stored in major units; the shop renders every one the
- * same way by converting at this edge and formatting with the shared currency.
+ * Catalogue prices are stored in major units; the shop and the admin render
+ * every one the same way by converting at this edge and formatting with the
+ * shared currency.
  *
- * @param {number} price the catalogue price, in major units
+ * @param {number} priceMajorUnits the catalogue price, before conversion
  * @param {string} [currency] ISO 4217 code, defaults to {@link CURRENCY}.
  * @returns {string}
  */
-export function formatProductPrice(price, currency = CURRENCY) {
-  return formatMoney(toCents(price), currency);
+export function formatProductPrice(priceMajorUnits, currency = CURRENCY) {
+  return formatMoney(toCents(priceMajorUnits), currency);
 }
 
 /**
