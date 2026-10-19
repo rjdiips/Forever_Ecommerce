@@ -2,7 +2,8 @@ import UserModel from "../models/userModel.js";
 
 // add products to user cart
 export const addToCart = async (req) => {
-  const { userId, itemId, size } = req.body;
+  const { itemId, size } = req.body;
+  const userId = req.userId;
 
   const userData = await UserModel.findById(userId);
   const cartData = await userData.cartData;
@@ -23,7 +24,8 @@ export const addToCart = async (req) => {
 
 // update user cart
 export const updateCart = async (req) => {
-  const { userId, itemId, size, quantity } = req.body;
+  const { itemId, size, quantity } = req.body;
+  const userId = req.userId;
 
   const userData = await UserModel.findById(userId);
   const cartData = await userData.cartData;
@@ -35,9 +37,7 @@ export const updateCart = async (req) => {
 
 // get user cart data
 export const getUserCart = async (req) => {
-  const { userId } = req.body;
-
-  const userData = await UserModel.findById(userId);
+  const userData = await UserModel.findById(req.userId);
   const cartData = await userData.cartData;
 
   return { cartData };

@@ -3,7 +3,6 @@ import {
   getAllOrders,
   getUserOrders,
   placeOrderCOD,
-  placeOrderRazorpay,
   placeOrderStripe,
   updateOrderStatus,
   verifyStripePayment,
@@ -29,8 +28,11 @@ orderRouter.post(
   userAuth,
   route(placeOrderCOD, { message: 'Order placed successfully' })
 );
-orderRouter.post('/stripe', userAuth, route(placeOrderStripe));
-orderRouter.post('/razorpay', route(placeOrderRazorpay));
+orderRouter.post(
+  '/stripe',
+  userAuth,
+  route(placeOrderStripe, { message: 'Order placed successfully' })
+);
 
 // User features
 orderRouter.post('/userorders', userAuth, route(getUserOrders));

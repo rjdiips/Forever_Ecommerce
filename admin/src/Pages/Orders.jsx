@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import { formatMoney } from '@forever/shared';
 import axios from 'axios';
-import { backendUrl, currency } from '../App';
+import { backendUrl } from '../App';
 import { toast } from 'react-toastify';
 import { assets } from '../assets/assets';
 
@@ -101,8 +102,7 @@ const Orders = ({ token }) => {
               <p>Date : {new Date(order.date).toLocaleDateString()} </p>
             </div>
             <p className='text-sm sm:text-[15px]'>
-              Amount : {currency}
-              {order.amount}
+              Amount : {formatMoney(order.amount)}
             </p>
 
             <select

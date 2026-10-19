@@ -1,5 +1,4 @@
 import { useContext, useState } from "react";
-import { fromCents } from "@forever/shared";
 import { assets } from "../assets/assets";
 import CartTotal from "../Components/CartTotal";
 import Title from "../Components/Title";
@@ -9,8 +8,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const PlaceOrder = () => {
-  const { navigate, backendUrl, token, allProducts } = useContext(ShopContext);
-  const { lineItems, total, clear } = useCart();
+  const { navigate, backendUrl, token } = useContext(ShopContext);
+  const { lineItems, clear } = useCart();
 
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [formData, setFormData] = useState({
@@ -36,26 +35,18 @@ const PlaceOrder = () => {
     e.preventDefault();
 
     try {
-      const orderItems = lineItems
-        .map((line) => {
-          const product = allProducts.find(
-            (product) => product._id === line.productId
-          );
-          if (!product) {
-            return null;
-          }
-          return {
-            ...structuredClone(product),
-            size: line.size,
-            quantity: line.quantity,
-          };
-        })
-        .filter(Boolean);
+      // Intent only: the server prices every line from the catalogue. Any
+      // amount sent from here would be ignored.
+      const orderItems = lineItems.map((line) => ({
+        productId: line.productId,
+        size: line.size,
+        quantity: line.quantity,
+        ...(line.design ? { design: line.design } : {}),
+      }));
 
       const orderData = {
         address: formData,
         items: orderItems,
-        amount: fromCents(total),
       };
       switch (paymentMethod) {
         // API calls for COD payment method
@@ -84,8 +75,8 @@ const PlaceOrder = () => {
           );
 
           if (response.data.success) {
-            const { session_url } = response.data.data;
-            window.location.replace(session_url);
+            const { sessionUrl } = response.data.data;
+            window.location.replace(sessionUrl);
           } else {
             toast.error(response.data.message);
           }
@@ -97,7 +88,7 @@ const PlaceOrder = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 

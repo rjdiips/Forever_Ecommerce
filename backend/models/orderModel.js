@@ -1,9 +1,10 @@
 import mongoose from 'mongoose';
 
 const orderSchema = new mongoose.Schema({
-  // userId: { type: String, required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  // Each item carries a server-priced `price` in integer cents.
   items: { type: [], required: true },
+  // The server-priced total in integer cents, delivery included (ADR-0002).
   amount: { type: Number, required: true },
   address: { type: Object, required: true },
   orderStatus: { type: String, required: true, default: 'Order Placed' },

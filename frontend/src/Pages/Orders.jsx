@@ -1,11 +1,12 @@
 import { useContext, useEffect, useState } from 'react';
+import { formatMoney } from '@forever/shared';
 import Title from '../Components/Title';
 import { ShopContext } from '../Context/ShopContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const Orders = () => {
-  const { currency, backendUrl, token } = useContext(ShopContext);
+  const { backendUrl, token } = useContext(ShopContext);
 
   // Orders data
   const [orderData, setOrderData] = useState([]);
@@ -80,8 +81,7 @@ const Orders = () => {
 
                     <div className='flex items-center gap-5 mt-1 text-base text-gray-700'>
                       <p>
-                        {currency}
-                        {item.price}
+                        {formatMoney(item.price)}
                       </p>
                       <p>Quantity: {item.quantity}</p>
                       <p>Size: {item.size}</p>

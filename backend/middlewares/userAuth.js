@@ -10,7 +10,7 @@ export const userAuth = (req, res, next) => {
 
   try {
     const token_decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.body.userId = token_decoded.userId;
+    req.userId = token_decoded.userId;
     next();
   } catch (error) {
     next(new HttpError(401, "Not authorized, token failed"));
