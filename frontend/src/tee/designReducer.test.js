@@ -44,6 +44,52 @@ describe("designReducer", () => {
     );
   });
 
+  it("starts with no colour until the catalogue resolves", () => {
+    expect(INITIAL_DESIGN.color).toBeNull();
+  });
+
+  it("settles on the first available colour once the bases arrive", () => {
+    const state = designReducer(
+      { ...INITIAL_DESIGN, color: null },
+      { type: "availableColors", colors: ["black", "white"] }
+    );
+    expect(state.color).toBe("black");
+  });
+
+  it("keeps the current colour while its base is still offered", () => {
+    const state = designReducer(
+      { ...INITIAL_DESIGN, color: "black" },
+      { type: "availableColors", colors: ["white", "black"] }
+    );
+    expect(state.color).toBe("black");
+  });
+
+  it("moves to an available colour when the current one's base disappears", () => {
+    const state = designReducer(
+      { ...INITIAL_DESIGN, color: "white" },
+      { type: "availableColors", colors: ["black"] }
+    );
+    expect(state.color).toBe("black");
+  });
+
+  it("leaves the colour unknown while no bases are available", () => {
+    const state = designReducer(
+      { ...INITIAL_DESIGN, color: "white" },
+      { type: "availableColors", colors: [] }
+    );
+    expect(state.color).toBeNull();
+  });
+
+  it("returns the same state when the colour is already settled", () => {
+    const settled = { ...INITIAL_DESIGN, color: "white" };
+    expect(
+      designReducer(settled, {
+        type: "availableColors",
+        colors: ["white", "black"],
+      })
+    ).toBe(settled);
+  });
+
   it("resets to the initial design", () => {
     const dirty = {
       color: "black",

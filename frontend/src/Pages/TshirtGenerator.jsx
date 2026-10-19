@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { findTeeBase, formatProductPrice } from "@forever/shared";
+import { findTeeBase, formatProductPrice, teeColors } from "@forever/shared";
 import { toast } from "react-toastify";
 import TshirtCanvas from "../Components/TshirtCanvas";
 import TshirtControls from "../Components/TshirtControls";
@@ -19,12 +19,17 @@ import {
 } from "../tee/purchase";
 
 const TshirtGeneratorPage = () => {
-  const { design, selectGraphic, moveTo, setScale, setColor, reset } = useTeeDesign();
   const navigate = useNavigate();
   const { token } = useAuth();
   const { allProducts, loading } = useCatalogue();
   const { add } = useCart();
   const canvasRef = useRef(null);
+
+  // The colours the catalogue actually offers come from its Tee bases; the
+  // editor never hardcodes a pair, and a colour with no base is not offered.
+  const colors = teeColors(allProducts);
+  const { design, selectGraphic, moveTo, setScale, setColor, reset } =
+    useTeeDesign(colors);
 
   const [size, setSize] = useState("");
   const [quantity, setQuantity] = useState(DEFAULT_PURCHASE_QUANTITY);
@@ -135,6 +140,7 @@ const TshirtGeneratorPage = () => {
 
           <TshirtControls
             design={design}
+            colors={colors}
             onSelectGraphic={selectGraphic}
             onScale={setScale}
             onColor={setColor}

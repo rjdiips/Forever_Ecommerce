@@ -1,10 +1,10 @@
 import { toast } from "react-toastify";
-import { TEE_COLORS } from "../tee/designReducer";
 import { DEFAULT_CUSTOM_GRAPHIC_SCALE, PRESETS } from "../tee/presets";
 import { designFileName } from "../tee/purchase";
 
 const TshirtControls = ({
   design,
+  colors = [],
   onSelectGraphic,
   onScale,
   onColor,
@@ -39,7 +39,7 @@ const TshirtControls = ({
       <div>
         <h3 className="text-lg font-semibold mb-2">T-shirt Color</h3>
         <div className="flex gap-2">
-          {TEE_COLORS.map((color) => (
+          {colors.map((color) => (
             <button
               key={color}
               onClick={() => onColor(color)}
