@@ -16,6 +16,10 @@ import subscriberRouter from "./routes/subscriberRouter.js";
 const app = express();
 const port = process.env.PORT || 4000;
 
+// One proxy hop sits in front of the API in deployment, so `req.ip` is the
+// real client. Without this every client would share one rate-limit bucket.
+app.set("trust proxy", 1);
+
 connectDB();
 connectToCloudinary();
 
