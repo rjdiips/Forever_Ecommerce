@@ -1,12 +1,14 @@
 import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ShopContext } from "../Context/ShopContext";
+import { useCart } from "../cart/CartContext";
 import { assets } from "../assets/assets";
 import RelatedProducts from "../Components/RelatedProducts";
 
 const Product = () => {
   const { productId } = useParams();
-  const { products, currency, addToCart } = useContext(ShopContext);
+  const { products, currency } = useContext(ShopContext);
+  const { add } = useCart();
   const [productsData, setProductsData] = useState(false);
   const [image, setImage] = useState("");
   const [size, setSize] = useState("");
@@ -105,7 +107,7 @@ const Product = () => {
           {/*  */}
 
           <button
-            onClick={() => addToCart(productsData._id, size)}
+            onClick={() => add(productsData._id, size)}
             className="bg-black text-white px-8 py-3 text-sm active:bg-gray-700 transition-colors duration-200 hover:bg-gray-800 cursor-pointer"
           >
             ADD TO CART

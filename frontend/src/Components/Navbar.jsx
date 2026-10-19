@@ -2,23 +2,19 @@ import { useContext, useState } from "react";
 import { assets } from "../assets/assets";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { ShopContext } from "../Context/ShopContext";
+import { useCart } from "../cart/CartContext";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
   const location = useLocation();
-  const {
-    setShowSearch,
-    getCartCount,
-    navigate,
-    token,
-    setToken,
-    setCartItems,
-  } = useContext(ShopContext);
+  const { setShowSearch, navigate, token, setToken } =
+    useContext(ShopContext);
+  const { count, clear } = useCart();
 
   const logout = () => {
     localStorage.removeItem("token");
     setToken("");
-    setCartItems({});
+    clear();
     navigate("/login");
   };
 
@@ -98,7 +94,7 @@ const Navbar = () => {
         <Link to="/cart" className="relative">
           <img src={assets.cart_icon} alt="" className="w-5 min-w-5 " />
           <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]">
-            {getCartCount()}
+            {count}
           </p>
         </Link>
 

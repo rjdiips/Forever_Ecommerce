@@ -1,22 +1,16 @@
 import { useContext, useState } from "react";
+import { fromCents } from "@forever/shared";
 import { assets } from "../assets/assets";
 import CartTotal from "../Components/CartTotal";
 import Title from "../Components/Title";
 import { ShopContext } from "../Context/ShopContext";
+import { useCart } from "../cart/CartContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 
 const PlaceOrder = () => {
-  const {
-    navigate,
-    backendUrl,
-    token,
-    cartItems,
-    setCartItems,
-    getCartAmount,
-    delivery_fee,
-    products,
-  } = useContext(ShopContext);
+  const { navigate, backendUrl, token, products } = useContext(ShopContext);
+  const { lineItems, total, clear } = useCart();
 
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [formData, setFormData] = useState({
@@ -42,27 +36,26 @@ const PlaceOrder = () => {
     e.preventDefault();
 
     try {
-      const orderItems = [];
-
-      for (const items in cartItems) {
-        for (const item in cartItems[items]) {
-          if (cartItems[items][item] > 0) {
-            const itemInfo = structuredClone(
-              products.find((product) => product._id === items)
-            );
-            if (itemInfo) {
-              itemInfo.size = item;
-              itemInfo.quantity = cartItems[items][item];
-              orderItems.push(itemInfo);
-            }
+      const orderItems = lineItems
+        .map((line) => {
+          const product = products.find(
+            (product) => product._id === line.productId
+          );
+          if (!product) {
+            return null;
           }
-        }
-      }
+          return {
+            ...structuredClone(product),
+            size: line.size,
+            quantity: line.quantity,
+          };
+        })
+        .filter(Boolean);
 
       const orderData = {
         address: formData,
         items: orderItems,
-        amount: getCartAmount() + delivery_fee,
+        amount: fromCents(total),
       };
       switch (paymentMethod) {
         // API calls for COD payment method
@@ -74,7 +67,7 @@ const PlaceOrder = () => {
           );
 
           if (response.data.success) {
-            setCartItems({});
+            clear();
             navigate("/orders");
           } else {
             toast.error(response.data.message);

@@ -1,12 +1,14 @@
 import React, { useContext, useEffect } from 'react';
 import { ShopContext } from '../Context/ShopContext';
+import { useCart } from '../cart/CartContext';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 
 import { toast } from 'react-toastify';
 
 const Verify = () => {
-  const { navigate, token, setCartItems, backendUrl } = useContext(ShopContext);
+  const { navigate, token, backendUrl } = useContext(ShopContext);
+  const { clear } = useCart();
   const [searchParams] = useSearchParams();
 
   const success = searchParams.get('success');
@@ -26,7 +28,7 @@ const Verify = () => {
         }
       );
 
-      setCartItems({});
+      clear();
       navigate('/orders');
     } catch (error) {
       console.log(error);

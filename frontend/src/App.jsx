@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import Home from "./Pages/Home";
@@ -12,35 +13,43 @@ import Orders from "./Pages/Orders";
 import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
 import SearchBar from "./Components/SearchBar";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Verify from "./Pages/Verify";
 import TshirtGenerator from "./Pages/TshirtGenerator";
+import { ShopContext } from "./Context/ShopContext";
+import { CartProvider } from "./cart/CartContext";
 
 function App() {
+  // Auth and the catalogue still live in ShopContext; the Cart takes them as
+  // dependencies until candidates 4 and 6 split them out.
+  const { token, products, backendUrl } = useContext(ShopContext);
+
   return (
-    <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
-      <ToastContainer />
+    <CartProvider token={token} products={products} backendUrl={backendUrl}>
+      <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+        <ToastContainer />
 
-      <Navbar />
-      <SearchBar />
+        <Navbar />
+        <SearchBar />
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/collection" element={<Collection />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/product/:productId" element={<Product />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/place-order" element={<PlaceOrder />} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/verify" element={<Verify />} />
-        <Route path="/tshirt-generator" element={<TshirtGenerator />} />
-      </Routes>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/collection" element={<Collection />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/product/:productId" element={<Product />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/place-order" element={<PlaceOrder />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/verify" element={<Verify />} />
+          <Route path="/tshirt-generator" element={<TshirtGenerator />} />
+        </Routes>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </CartProvider>
   );
 }
 

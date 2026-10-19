@@ -46,7 +46,7 @@ const RelatedProducts = ({ category, subCategory, id }) => {
             : "opacity-100 translate-y-0 scale-100"
         }`}
       >
-        {related.map((item, index) => (
+        {related.map((item) => (
           <ProductItem
             key={item._id}
             id={item._id}
