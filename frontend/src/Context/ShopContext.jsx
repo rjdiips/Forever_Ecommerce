@@ -153,7 +153,7 @@ const ShopContextProvider = ({ children }) => {
     try {
       const response = await axios.get(backendUrl + '/api/product/list');
       if (response.data.success) {
-        setProducts(response.data.products);
+        setProducts(response.data.data.products);
       } else {
         toast.error(response.data.message);
       }
@@ -175,7 +175,7 @@ const ShopContextProvider = ({ children }) => {
         }
       );
       if (response.data.success) {
-        setCartItems(response.data.cartData);
+        setCartItems(response.data.data.cartData);
       }
     } catch (error) {
       console.log(error);

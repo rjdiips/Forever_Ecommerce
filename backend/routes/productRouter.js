@@ -7,11 +7,12 @@ import {
 } from "../controllers/productController.js";
 import upload from "../middlewares/multer.js";
 import adminAuth from "../middlewares/adminAuth.js";
+import { route } from "../lib/http.js";
 
 const productRouter = express.Router();
 
 // /api/product/list
-productRouter.get("/list", getListProducts);
+productRouter.get("/list", route(getListProducts));
 
 // /api/product/add
 productRouter.post(
@@ -23,13 +24,17 @@ productRouter.post(
     { name: "image3", maxCount: 1 },
     { name: "image4", maxCount: 1 },
   ]),
-  addProduct
+  route(addProduct, { status: 201, message: "Product added successfully" })
 );
 
 // /api/product/remove
-productRouter.post("/remove", adminAuth, removeProduct);
+productRouter.post(
+  "/remove",
+  adminAuth,
+  route(removeProduct, { message: "Product removed successfully" })
+);
 
 // /api/product/single
-productRouter.post("/single", getSingleProduct);
+productRouter.post("/single", route(getSingleProduct));
 
 export default productRouter;

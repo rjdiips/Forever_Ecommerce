@@ -6,27 +6,40 @@ import {
   placeOrderRazorpay,
   placeOrderStripe,
   updateOrderStatus,
-  verifyStrpePayment,
+  verifyStripePayment,
 } from '../controllers/orderController.js';
 
 import adminAuth from '../middlewares/adminAuth.js';
 import { userAuth } from '../middlewares/userAuth.js';
+import { route } from '../lib/http.js';
 
 const orderRouter = express.Router();
 
 // Admin features
-orderRouter.use('/list', adminAuth, getAllOrders);
-orderRouter.use('/status', adminAuth, updateOrderStatus);
+orderRouter.post('/list', adminAuth, route(getAllOrders));
+orderRouter.post(
+  '/status',
+  adminAuth,
+  route(updateOrderStatus, { message: 'Order status updated successfully' })
+);
 
 // Place order / Payment features
-orderRouter.use('/place', userAuth, placeOrderCOD);
-orderRouter.use('/stripe', userAuth, placeOrderStripe);
-orderRouter.use('/razorpay', placeOrderRazorpay);
+orderRouter.post(
+  '/place',
+  userAuth,
+  route(placeOrderCOD, { message: 'Order placed successfully' })
+);
+orderRouter.post('/stripe', userAuth, route(placeOrderStripe));
+orderRouter.post('/razorpay', route(placeOrderRazorpay));
 
 // User features
-orderRouter.use('/userorders', userAuth, getUserOrders);
+orderRouter.post('/userorders', userAuth, route(getUserOrders));
 
 // verify payment
-orderRouter.use('/verifyStripe', userAuth, verifyStrpePayment);
+orderRouter.post(
+  '/verifyStripe',
+  userAuth,
+  route(verifyStripePayment, { message: 'Payment successful' })
+);
 
 export default orderRouter;

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { ShopContext } from '../Context/ShopContext';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 
 const Verify = () => {
   const { navigate, token, setCartItems, backendUrl } = useContext(ShopContext);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const success = searchParams.get('success');
   const orderId = searchParams.get('orderId');
@@ -18,7 +18,7 @@ const Verify = () => {
         return null;
       }
 
-      const response = await axios.post(
+      await axios.post(
         backendUrl + '/api/order/verifyStripe',
         { success, orderId },
         {
@@ -26,16 +26,12 @@ const Verify = () => {
         }
       );
 
-      if (response.data.success) {
-        setCartItems({});
-        navigate('/orders');
-      } else {
-        navigate('/cart');
-        toast.error(response.data.message);
-      }
+      setCartItems({});
+      navigate('/orders');
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || error.message);
+      navigate('/cart');
     }
   };
 

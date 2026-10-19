@@ -13,7 +13,7 @@ const List = ({ token }) => {
       });
 
       if (response.data.success) {
-        setList(response.data.products);
+        setList(response.data.data.products);
       } else {
         toast.error(response.data.message);
       }

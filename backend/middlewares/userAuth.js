@@ -1,10 +1,11 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
+import { HttpError } from "../lib/http.js";
 
-export const userAuth = async (req, res, next) => {
+export const userAuth = (req, res, next) => {
   const { token } = req.headers;
 
   if (!token) {
-    return res.status(401).json({ message: 'Not authorized, Login again' });
+    return next(new HttpError(401, "Not authorized, Login again"));
   }
 
   try {
@@ -12,10 +13,6 @@ export const userAuth = async (req, res, next) => {
     req.body.userId = token_decoded.userId;
     next();
   } catch (error) {
-    console.error(error);
-    res.status(401).json({
-      success: false,
-      message: error.message,
-    });
+    next(new HttpError(401, "Not authorized, token failed"));
   }
 };
