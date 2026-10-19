@@ -9,12 +9,6 @@ const NewsLetterBox = () => {
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
-    // Small check to ensure the URL is loaded correctly
-    if (!BACKEND_URL) {
-      alert("Configuration error: Backend URL is not defined.");
-      return;
-    }
-
     setLoading(true);
 
     try {

@@ -3,6 +3,7 @@
  *
  * Plain ESM with JSDoc: consumed straight from source, with no build step.
  */
+export { requireApiBaseUrl } from "./config.js";
 export { CURRENCY, formatMoney, fromCents, toCents } from "./money.js";
 export { DELIVERY_FEE } from "./delivery.js";
 export {

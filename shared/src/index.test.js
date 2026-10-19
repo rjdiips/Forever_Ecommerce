@@ -5,6 +5,11 @@ import { addCartLine, cartLines, cartLineId, setCartLineQuantity } from "@foreve
 import { CATEGORIES, SUB_CATEGORIES, isCategory, isSubCategory } from "@forever/shared";
 import { ORDER_STATUSES, isOrderStatus } from "@forever/shared";
 import { formatProductPrice } from "@forever/shared";
+import { requireApiBaseUrl } from "@forever/shared";
+
+test("the package root exposes the API base URL validator", () => {
+  assert.equal(typeof requireApiBaseUrl, "function");
+});
 
 test("the package root exposes money and delivery", () => {
   assert.equal(typeof toCents, "function");
