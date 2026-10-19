@@ -70,7 +70,7 @@ export async function createOrder({
   });
 
   if (paymentMethod === PAYMENT_METHOD.COD) {
-    await UserModel.findByIdAndUpdate(userId, { cartData: {} });
+    await UserModel.findByIdAndUpdate(userId, { cartData: [] });
     return { orderId: order._id };
   }
 
@@ -139,7 +139,7 @@ export async function verifyOrderPayment({
   order.payment = true;
   await order.save();
 
-  await UserModel.findByIdAndUpdate(userId, { cartData: {} });
+  await UserModel.findByIdAndUpdate(userId, { cartData: [] });
 }
 
 /** Load the Products the request names, ignoring ids that cannot exist. */

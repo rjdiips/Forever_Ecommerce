@@ -16,9 +16,13 @@ const userSchema = mongoose.Schema(
       required: true,
     },
 
+    // The Cart is a list of Cart lines: `{ productId, size, quantity, design? }`.
+    // Mixed because carts saved before Custom Tees were orderable hold the old
+    // `{ [productId]: { [size]: quantity } }` object; `cartLines()` in
+    // @forever/shared reads both.
     cartData: {
-      type: Object,
-      default: {},
+      type: mongoose.Schema.Types.Mixed,
+      default: [],
     },
   },
   {

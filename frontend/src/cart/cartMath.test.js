@@ -1,59 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
-  addLine,
   count,
-  linesFromCartData,
   priceOfFromProducts,
   pricedLines,
-  setQuantity,
   subtotal,
   total,
 } from "./cartMath";
-
-describe("addLine", () => {
-  it("appends a new line for a product and size", () => {
-    expect(addLine([], { productId: "p1", size: "M" })).toEqual([
-      { productId: "p1", size: "M", quantity: 1 },
-    ]);
-  });
-
-  it("increments the line with the same product and size", () => {
-    const lines = [
-      { productId: "p1", size: "M", quantity: 1 },
-      { productId: "p1", size: "L", quantity: 1 },
-    ];
-    expect(addLine(lines, { productId: "p1", size: "M" })).toEqual([
-      { productId: "p1", size: "M", quantity: 2 },
-      { productId: "p1", size: "L", quantity: 1 },
-    ]);
-  });
-
-  it("leaves the original lines untouched", () => {
-    const lines = [{ productId: "p1", size: "M", quantity: 1 }];
-    addLine(lines, { productId: "p1", size: "M" });
-    expect(lines).toEqual([{ productId: "p1", size: "M", quantity: 1 }]);
-  });
-});
-
-describe("setQuantity", () => {
-  const lines = [
-    { productId: "p1", size: "M", quantity: 1 },
-    { productId: "p2", size: "M", quantity: 3 },
-  ];
-
-  it("sets the quantity of the matching line", () => {
-    expect(setQuantity(lines, "p1::M", 4)).toEqual([
-      { productId: "p1", size: "M", quantity: 4 },
-      { productId: "p2", size: "M", quantity: 3 },
-    ]);
-  });
-
-  it("drops the line when the quantity falls to zero", () => {
-    expect(setQuantity(lines, "p1::M", 0)).toEqual([
-      { productId: "p2", size: "M", quantity: 3 },
-    ]);
-  });
-});
 
 describe("count", () => {
   it("sums the quantities across the lines", () => {
@@ -67,27 +19,6 @@ describe("count", () => {
 
   it("is zero for an empty cart", () => {
     expect(count([])).toBe(0);
-  });
-});
-
-describe("linesFromCartData", () => {
-  it("turns the saved product/size/quantity shape into lines", () => {
-    const saved = { p1: { M: 2, L: 1 }, p2: { S: 4 } };
-    expect(linesFromCartData(saved)).toEqual([
-      { productId: "p1", size: "M", quantity: 2 },
-      { productId: "p1", size: "L", quantity: 1 },
-      { productId: "p2", size: "S", quantity: 4 },
-    ]);
-  });
-
-  it("drops lines that were emptied", () => {
-    expect(linesFromCartData({ p1: { M: 0, L: 2 } })).toEqual([
-      { productId: "p1", size: "L", quantity: 2 },
-    ]);
-  });
-
-  it("is empty for no saved cart", () => {
-    expect(linesFromCartData(undefined)).toEqual([]);
   });
 });
 
@@ -115,6 +46,22 @@ describe("pricedLines", () => {
       pricedLines([{ productId: "p1", size: "M", quantity: 2 }], priceOf)
     ).toEqual([
       { productId: "p1", size: "M", quantity: 2, unitPrice: 1999, total: 3998 },
+    ]);
+  });
+
+  it("keeps the design on a Custom Tee line", () => {
+    const design = "https://res.cloudinary.com/forever/design.webp";
+    expect(
+      pricedLines([{ productId: "p1", size: "M", quantity: 1, design }], priceOf)
+    ).toEqual([
+      {
+        productId: "p1",
+        size: "M",
+        quantity: 1,
+        design,
+        unitPrice: 1999,
+        total: 1999,
+      },
     ]);
   });
 

@@ -75,7 +75,11 @@ const Orders = () => {
                 className='py-4 border-t border-b text-gray-700 flex flex-col md:flex-row md:items-center md:justify-between g4'
               >
                 <div className='flex items-start gap-6'>
-                  <img src={item.image[0]} alt='' className='w-16 sm:w-20' />
+                  <img
+                    src={item.design || item.image[0]}
+                    alt={item.design ? 'Your custom design' : ''}
+                    className='w-16 sm:w-20'
+                  />
 
                   <div>
                     <p className='sm:text-base font-medium'>{item.name}</p>
@@ -87,6 +91,11 @@ const Orders = () => {
                       <p>Quantity: {item.quantity}</p>
                       <p>Size: {item.size}</p>
                     </div>
+                    {item.design && (
+                      <p className='mt-1 text-xs text-gray-400'>
+                        Your custom design
+                      </p>
+                    )}
                     <p className='mt-1'>
                       Date: <span className='text-gray-400'>{currentDate}</span>
                     </p>

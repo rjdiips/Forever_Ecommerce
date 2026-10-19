@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { formatMoney } from "@forever/shared";
+import { cartLineId, formatMoney } from "@forever/shared";
 import { ShopContext } from "../Context/ShopContext";
 import { useCart } from "../cart/CartContext";
 import Title from "../Components/Title";
@@ -29,15 +29,19 @@ const Cart = () => {
             return null;
           }
 
+          // A Custom Tee shows the design the shopper made, not the base
+          // product photo.
+          const preview = line.design || product.image[0];
+
           return (
             <div
-              key={`${line.productId}-${line.size}`}
+              key={cartLineId(line)}
               className="py-3 border-b border-t text-gray-700 grid  grid-cols-[4fr_0.5fr_0.5fr] sm:grid-cols-[4fr_2fr_0.5fr] items-center gap-4"
             >
               <div className="flex items-start gap-6">
                 <img
-                  src={product.image[0]}
-                  alt=""
+                  src={preview}
+                  alt={line.design ? "Custom tee design" : ""}
                   className="w-16 sm:w-20"
                 />
                 <div>
@@ -51,6 +55,11 @@ const Cart = () => {
                       {line.size}
                     </p>
                   </div>
+                  {line.design && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      Your custom design
+                    </p>
+                  )}
                 </div>
               </div>
 

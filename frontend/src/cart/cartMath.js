@@ -1,12 +1,10 @@
-// Pure cart math. A Cart line is `{ productId, size, quantity }` and money is
-// integer cents. The catalogue enters only through a `priceOf` lookup, so
-// everything here is testable without React, the API or a browser.
+// Pure cart math. A Cart line is `{ productId, size, quantity, design? }` and
+// money is integer cents. The catalogue enters only through a `priceOf` lookup,
+// so everything here is testable without React, the API or a browser.
+//
+// Line identity (product + size + design) lives in `@forever/shared` because
+// the API persists the same Cart lines.
 import { toCents } from "@forever/shared";
-
-/** The identity of a Cart line: its product and its size. */
-export function lineId({ productId, size }) {
-  return `${productId}::${size}`;
-}
 
 /**
  * Builds the `priceOf(productId) → cents` lookup from the catalogue. Unknown
@@ -17,34 +15,6 @@ export function priceOfFromProducts(products = []) {
     products.map((product) => [product._id, toCents(product.price)])
   );
   return (productId) => prices.get(productId) ?? 0;
-}
-
-/** Appends `line` to `lines`, merging into the matching line if it exists. */
-export function addLine(lines, { productId, size, quantity = 1 }) {
-  const id = lineId({ productId, size });
-  const existing = lines.find((line) => lineId(line) === id);
-
-  if (!existing) {
-    return [...lines, { productId, size, quantity }];
-  }
-
-  return lines.map((line) =>
-    lineId(line) === id ? { ...line, quantity: line.quantity + quantity } : line
-  );
-}
-
-/** Removes the line with `id` and returns a new array. */
-function removeLine(lines, id) {
-  return lines.filter((line) => lineId(line) !== id);
-}
-
-/** Sets the matching line's quantity; a quantity of zero or less drops it. */
-export function setQuantity(lines, id, quantity) {
-  if (quantity <= 0) {
-    return removeLine(lines, id);
-  }
-
-  return lines.map((line) => (lineId(line) === id ? { ...line, quantity } : line));
 }
 
 /**
@@ -75,16 +45,3 @@ export function subtotal(priced) {
 export function total(subtotalCents, deliveryFee) {
   return subtotalCents === 0 ? 0 : subtotalCents + deliveryFee;
 }
-
-/**
- * Turns the saved cart (`{ [productId]: { [size]: quantity } }`) into lines,
- * dropping lines that were emptied.
- */
-export function linesFromCartData(cartData = {}) {
-  return Object.entries(cartData).flatMap(([productId, sizes]) =>
-    Object.entries(sizes ?? {})
-      .filter(([, quantity]) => quantity > 0)
-      .map(([size, quantity]) => ({ productId, size, quantity }))
-  );
-}
-

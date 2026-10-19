@@ -4,6 +4,7 @@ import {
   DESIGN_TYPES,
   MAX_DESIGN_BYTES,
   assertDesignTarget,
+  assertDesignUrl,
   validateDesignUpload,
 } from "./design.js";
 import { HttpError } from "./http.js";
@@ -64,6 +65,33 @@ test("a design is rejected on an ordinary product", () => {
   ]) {
     assert.throws(
       () => assertDesignTarget(product),
+      (err) => err instanceof HttpError && err.status === 400
+    );
+  }
+});
+
+test("a design is a stored http(s) image URL", () => {
+  for (const design of [
+    "https://res.cloudinary.com/forever/image/upload/design.webp",
+    "http://example.com/design.png",
+  ]) {
+    assert.doesNotThrow(() => assertDesignUrl(design));
+  }
+});
+
+test("a design that is not an http(s) URL is rejected", () => {
+  for (const design of [
+    undefined,
+    null,
+    "",
+    "   ",
+    42,
+    "not-a-url",
+    "javascript:alert(1)",
+    "data:image/webp;base64,AAAA",
+  ]) {
+    assert.throws(
+      () => assertDesignUrl(design),
       (err) => err instanceof HttpError && err.status === 400
     );
   }

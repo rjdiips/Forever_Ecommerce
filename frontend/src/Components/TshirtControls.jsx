@@ -1,12 +1,7 @@
 import { toast } from "react-toastify";
 import { TEE_COLORS } from "../tee/designReducer";
 import { DEFAULT_CUSTOM_GRAPHIC_SCALE, PRESETS } from "../tee/presets";
-
-function extensionFor(type) {
-  if (type === "image/webp") return "webp";
-  if (type === "image/jpeg") return "jpg";
-  return "png";
-}
+import { designFileName } from "../tee/purchase";
 
 const TshirtControls = ({ design, onSelectGraphic, onScale, onColor, onReset, onExport }) => {
   const handleUpload = (event) => {
@@ -22,7 +17,7 @@ const TshirtControls = ({ design, onSelectGraphic, onScale, onColor, onReset, on
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `custom-tshirt.${extensionFor(blob.type)}`;
+      link.download = designFileName(blob.type);
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {

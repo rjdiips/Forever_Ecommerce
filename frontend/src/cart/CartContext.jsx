@@ -8,15 +8,17 @@ import {
 } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { DELIVERY_FEE } from "@forever/shared";
 import {
-  addLine,
+  DELIVERY_FEE,
+  addCartLine,
+  cartLineId,
+  cartLines,
+  setCartLineQuantity,
+} from "@forever/shared";
+import {
   count,
-  linesFromCartData,
-  lineId,
   priceOfFromProducts,
   pricedLines,
-  setQuantity,
   subtotal,
   total as cartTotal,
 } from "./cartMath";
@@ -44,7 +46,7 @@ export const CartProvider = ({ token, products = [], backendUrl, children }) => 
       .post(`${backendUrl}/api/cart/get`, {}, { headers: { token } })
       .then((response) => {
         if (!cancelled && response.data.success) {
-          setLines(linesFromCartData(response.data.data.cartData));
+          setLines(cartLines(response.data.data.cartData));
         }
       })
       .catch((error) => {
@@ -56,21 +58,30 @@ export const CartProvider = ({ token, products = [], backendUrl, children }) => 
     };
   }, [token, backendUrl]);
 
+  // `design` is the uploaded URL of a Custom Tee; it is part of the line's
+  // identity, so two designs of the same base and size stay separate lines.
   const add = useCallback(
-    async (productId, size) => {
+    async (productId, size, { design, quantity = 1 } = {}) => {
       if (!size) {
         toast.error("Please select a size");
         return;
       }
 
-      setLines((current) => addLine(current, { productId, size }));
+      setLines((current) =>
+        addCartLine(current, {
+          productId,
+          size,
+          quantity,
+          ...(design ? { design } : {}),
+        })
+      );
 
       if (!token) return;
 
       try {
         const response = await axios.post(
           `${backendUrl}/api/cart/add`,
-          { itemId: productId, size },
+          { itemId: productId, size, quantity, ...(design ? { design } : {}) },
           { headers: { token } }
         );
         if (response.data.success) {
@@ -85,14 +96,21 @@ export const CartProvider = ({ token, products = [], backendUrl, children }) => 
 
   const update = useCallback(
     async (line, quantity) => {
-      setLines((current) => setQuantity(current, lineId(line), quantity));
+      setLines((current) =>
+        setCartLineQuantity(current, cartLineId(line), quantity)
+      );
 
       if (!token) return;
 
       try {
         await axios.post(
           `${backendUrl}/api/cart/update`,
-          { itemId: line.productId, size: line.size, quantity },
+          {
+            itemId: line.productId,
+            size: line.size,
+            quantity,
+            ...(line.design ? { design: line.design } : {}),
+          },
           { headers: { token } }
         );
       } catch (error) {

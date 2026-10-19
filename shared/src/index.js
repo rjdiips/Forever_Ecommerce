@@ -6,6 +6,12 @@
 export { CURRENCY, formatMoney, fromCents, toCents } from "./money.js";
 export { DELIVERY_FEE } from "./delivery.js";
 export {
+  addCartLine,
+  cartLineId,
+  cartLines,
+  setCartLineQuantity,
+} from "./cart.js";
+export {
   ORDER_PRICING,
   orderAmountCents,
   orderItemPriceCents,

@@ -7,8 +7,7 @@
  * `total` on the request is ignored. See ADR-0002.
  */
 import { DELIVERY_FEE, isCustomTee, toCents } from "@forever/shared";
-import validator from "validator";
-import { assertDesignTarget } from "./design.js";
+import { assertDesignTarget, assertDesignUrl } from "./design.js";
 import { HttpError } from "./http.js";
 
 /**
@@ -75,13 +74,7 @@ export function priceOrder(items, products) {
 
     if (hasDesign) {
       assertDesignTarget(product);
-
-      if (
-        typeof item.design !== "string" ||
-        !validator.isURL(item.design, { protocols: ["http", "https"] })
-      ) {
-        throw new HttpError(400, "A design must be an uploaded image");
-      }
+      assertDesignUrl(item.design);
     } else if (isCustomTee(product)) {
       // A Custom Tee is the base Product plus a Design. The base is not
       // shoppable on its own, so a design-less base line is rejected.
