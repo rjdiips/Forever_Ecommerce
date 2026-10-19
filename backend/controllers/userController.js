@@ -3,10 +3,10 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { HttpError } from "../lib/http.js";
+import { signSessionToken } from "../lib/authTokens.js";
 
-const createToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET);
-};
+const createToken = (user) =>
+  signSessionToken(user._id, user.tokenVersion ?? 0);
 
 // Route for user login
 export const loginUser = async (req) => {
@@ -26,7 +26,7 @@ export const loginUser = async (req) => {
     throw new HttpError(400, "Invalid email or password");
   }
 
-  const token = createToken(user._id);
+  const token = createToken(user);
 
   return { token, user };
 };
@@ -63,7 +63,7 @@ export const registerUser = async (req) => {
 
   const savedUser = await newUser.save();
 
-  const token = createToken(savedUser._id);
+  const token = createToken(savedUser);
 
   return { user: savedUser, token };
 };

@@ -39,6 +39,15 @@ const HOST = "127.0.0.1";
 /**
  * Start the auth app on an ephemeral loopback port.
  *
+ * `mount` runs after the real user router and before the shared error handler,
+ * so a test can add a probe route that uses real auth middleware while keeping
+ * the production error path. The user router alone has no route that
+ * `userAuth` protects, so later tickets need this hook to exercise rejection
+ * over HTTP.
+ *
+ * @param {{
+ *   mount?: (app: import("express").Express) => void,
+ * }} [options]
  * @returns {Promise<{
  *   app: import("express").Express,
  *   server: import("node:http").Server,
@@ -57,7 +66,7 @@ const HOST = "127.0.0.1";
  *   close: () => Promise<void>,
  * }>}
  */
-export const startAuthServer = async () => {
+export const startAuthServer = async ({ mount } = {}) => {
   const app = express();
 
   // Match the deployed API: one proxy hop in front, so `req.ip` is the real
@@ -66,6 +75,10 @@ export const startAuthServer = async () => {
 
   app.use(express.json());
   app.use("/api/user", userRouter);
+
+  // Test-only routes go before the shared error path so their failures get the
+  // same `{ success, message }` envelope as production.
+  mount?.(app);
 
   // One error path, registered last, exactly as in app.js.
   app.use(errorHandler);
