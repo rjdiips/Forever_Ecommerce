@@ -1,32 +1,26 @@
 import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ShopContext } from "../Context/ShopContext";
+import { useCatalogue } from "../catalogue/CatalogueContext";
 import { useCart } from "../cart/CartContext";
 import { assets } from "../assets/assets";
 import RelatedProducts from "../Components/RelatedProducts";
 
 const Product = () => {
   const { productId } = useParams();
-  const { products, currency } = useContext(ShopContext);
+  const { currency } = useContext(ShopContext);
+  const { getById } = useCatalogue();
   const { add } = useCart();
-  const [productsData, setProductsData] = useState(false);
+  const productsData = getById(productId);
   const [image, setImage] = useState("");
   const [size, setSize] = useState("");
 
-  const fetchProductsData = () => {
-    products.map((product) => {
-      if (product._id === productId) {
-        setProductsData(product);
-        setImage(product.image[0]);
-        return null;
-      }
-    });
-  };
-
   useEffect(() => {
     setSize("");
-    fetchProductsData();
-  }, [productId, products]);
+    setImage("");
+  }, [productId]);
+
+  const shownImage = image || productsData?.image?.[0] || "";
 
   return productsData ? (
     <div className="border-t pt-10 transition-opacity ease-in duration-500 opacity-100">
@@ -51,7 +45,7 @@ const Product = () => {
           {/*---------------------- main img---------------------- */}
           <div className="w-full sm:w-[80%]">
             <img
-              src={image}
+              src={shownImage}
               alt="product"
               className="w-full h-auto object-cover"
             />
@@ -152,11 +146,7 @@ const Product = () => {
 
       {/* ----------------------  Display Products  Products ----------------------*/}
 
-      <RelatedProducts
-        category={productsData.category}
-        subCategory={productsData.subCategory}
-        id={productsData._id}
-      />
+      <RelatedProducts product={productsData} />
     </div>
   ) : (
     <div className="opacity-0"></div>

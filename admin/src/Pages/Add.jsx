@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PRODUCT_KIND } from "@forever/shared";
+import { CATEGORIES, PRODUCT_KIND, SUB_CATEGORIES } from "@forever/shared";
 import { assets } from "../assets/assets";
 import axios from "axios";
 import { backendUrl } from "../App";
@@ -13,8 +13,8 @@ const Add = ({ token }) => {
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("Men");
-  const [subCategory, setSubCategory] = useState("Topwear");
+  const [category, setCategory] = useState(CATEGORIES[0]);
+  const [subCategory, setSubCategory] = useState(SUB_CATEGORIES[0]);
   const [price, setPrice] = useState("");
   const [sizes, setSizes] = useState([]);
   const [bestSeller, setBestSeller] = useState(false);
@@ -179,9 +179,11 @@ const Add = ({ token }) => {
             name="category"
             id="category"
           >
-            <option value="Men">Men</option>
-            <option value="Women">Women</option>
-            <option value="Kids">Kids</option>
+            {CATEGORIES.map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -194,9 +196,11 @@ const Add = ({ token }) => {
             name="category"
             id="category"
           >
-            <option value="Topwear">Topwear</option>
-            <option value="Bottomwear">Bottomwear</option>
-            <option value="Winterwear">Winterwear</option>
+            {SUB_CATEGORIES.map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
           </select>
         </div>
 

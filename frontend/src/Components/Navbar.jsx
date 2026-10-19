@@ -2,13 +2,14 @@ import { useContext, useState } from "react";
 import { assets } from "../assets/assets";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { ShopContext } from "../Context/ShopContext";
+import { useCatalogue } from "../catalogue/CatalogueContext";
 import { useCart } from "../cart/CartContext";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
   const location = useLocation();
-  const { setShowSearch, navigate, token, setToken } =
-    useContext(ShopContext);
+  const { setShowSearch } = useCatalogue();
+  const { navigate, token, setToken } = useContext(ShopContext);
   const { count, clear } = useCart();
 
   const logout = () => {

@@ -5,6 +5,7 @@ import TshirtCanvas from "../Components/TshirtCanvas";
 import TshirtControls from "../Components/TshirtControls";
 import TeePurchase from "../Components/TeePurchase";
 import { ShopContext } from "../Context/ShopContext";
+import { useCatalogue } from "../catalogue/CatalogueContext";
 import { useCart } from "../cart/CartContext";
 import { useTeeDesign } from "../tee/useTeeDesign";
 import {
@@ -16,7 +17,8 @@ import {
 
 const TshirtGeneratorPage = () => {
   const { design, selectGraphic, moveTo, setScale, setColor, reset } = useTeeDesign();
-  const { allProducts, backendUrl, token, navigate } = useContext(ShopContext);
+  const { backendUrl, token, navigate } = useContext(ShopContext);
+  const { allProducts } = useCatalogue();
   const { add } = useCart();
   const canvasRef = useRef(null);
 

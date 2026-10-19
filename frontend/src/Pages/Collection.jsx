@@ -1,13 +1,13 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { ShopContext } from "../Context/ShopContext";
+import { CATEGORIES, SUB_CATEGORIES } from "@forever/shared";
+import { useCatalogue } from "../catalogue/CatalogueContext";
 import { assets } from "../assets/assets";
 import Title from "../Components/Title";
 import ProductItem from "../Components/ProductItem";
 
 const Collection = () => {
-  const { products, search, showSearch, setShowSearch } =
-    useContext(ShopContext);
+  const { products, search, showSearch, setShowSearch } = useCatalogue();
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState([]);
@@ -124,33 +124,17 @@ const Collection = () => {
           <p className="mb-3 text-sm font-medium">CATEGORIES</p>
 
           <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
-            <p className="flex gap-2">
-              <input
-                type="checkbox"
-                className="w-3"
-                value={"Men"}
-                onChange={toggleCategory}
-              />
-              MEN
-            </p>
-            <p className="flex gap-2">
-              <input
-                type="checkbox"
-                className="w-3"
-                value={"Women"}
-                onChange={toggleCategory}
-              />
-              WOMEN
-            </p>
-            <p className="flex gap-2">
-              <input
-                type="checkbox"
-                className="w-3"
-                value={"Kids"}
-                onChange={toggleCategory}
-              />
-              KIDS
-            </p>
+            {CATEGORIES.map((value) => (
+              <p key={value} className="flex gap-2">
+                <input
+                  type="checkbox"
+                  className="w-3"
+                  value={value}
+                  onChange={toggleCategory}
+                />
+                {value.toUpperCase()}
+              </p>
+            ))}
           </div>
         </div>
 
@@ -164,33 +148,17 @@ const Collection = () => {
           <p className="mb-3 text-sm font-medium">TYPES</p>
 
           <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
-            <p className="flex gap-2">
-              <input
-                type="checkbox"
-                className="w-3"
-                value={"Topwear"}
-                onChange={toggleSubCategory}
-              />
-              Topwear
-            </p>
-            <p className="flex gap-2">
-              <input
-                type="checkbox"
-                className="w-3"
-                value={"Bottomwear"}
-                onChange={toggleSubCategory}
-              />
-              Bottomwear
-            </p>
-            <p className="flex gap-2">
-              <input
-                type="checkbox"
-                className="w-3"
-                value={"Winterwear"}
-                onChange={toggleSubCategory}
-              />
-              Winterwear
-            </p>
+            {SUB_CATEGORIES.map((value) => (
+              <p key={value} className="flex gap-2">
+                <input
+                  type="checkbox"
+                  className="w-3"
+                  value={value}
+                  onChange={toggleSubCategory}
+                />
+                {value}
+              </p>
+            ))}
           </div>
         </div>
       </div>

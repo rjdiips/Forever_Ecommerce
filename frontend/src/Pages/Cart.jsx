@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { cartLineId, formatMoney } from "@forever/shared";
 import { ShopContext } from "../Context/ShopContext";
+import { useCatalogue } from "../catalogue/CatalogueContext";
 import { useCart } from "../cart/CartContext";
 import Title from "../Components/Title";
 import { assets } from "../assets/assets";
@@ -8,7 +9,8 @@ import CartTotal from "../Components/CartTotal";
 
 const Cart = () => {
   const { lineItems, update, remove } = useCart();
-  const { allProducts, navigate } = useContext(ShopContext);
+  const { getById } = useCatalogue();
+  const { navigate } = useContext(ShopContext);
 
   return (
     <div className="pt-14 border-t">
@@ -20,9 +22,7 @@ const Cart = () => {
 
       <div>
         {lineItems.map((line) => {
-          const product = allProducts.find(
-            (product) => product._id === line.productId
-          );
+          const product = getById(line.productId);
 
           // Skip rendering this item until its product is in the catalogue
           if (!product) {

@@ -1,12 +1,11 @@
-import { useContext, useEffect, useState } from "react";
-import { ShopContext } from "../Context/ShopContext";
+import { useEffect, useState } from "react";
+import { useCatalogue } from "../catalogue/CatalogueContext";
 import { assets } from "../assets/assets";
 import { useLocation } from "react-router-dom";
 
 const SearchBar = () => {
-  // Extract context values related to search and visibility from ShopContext
-  const { search, setSearch, showSearch, setShowSearch } =
-    useContext(ShopContext);
+  // Search state belongs to the Catalogue module, not to auth.
+  const { search, setSearch, showSearch, setShowSearch } = useCatalogue();
 
   // Local state to control visibility and animation of the search bar
   const [visible, setVisible] = useState(showSearch);

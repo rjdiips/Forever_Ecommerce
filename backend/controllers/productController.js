@@ -1,6 +1,10 @@
 import ProductModel from "../models/productModel.js";
 import { uploadImageBuffer } from "../config/cloudinary.js";
-import { normalizeProductKind } from "@forever/shared";
+import {
+  isCategory,
+  isSubCategory,
+  normalizeProductKind,
+} from "@forever/shared";
 import { HttpError } from "../lib/http.js";
 
 export const addProduct = async (req) => {
@@ -13,6 +17,16 @@ export const addProduct = async (req) => {
     sizes,
     bestseller,
   } = req.body;
+
+  // Validate the taxonomy before uploading images, so an unknown category
+  // cannot leave orphaned Cloudinary assets behind.
+  if (!isCategory(category)) {
+    throw new HttpError(400, "Unknown product category");
+  }
+
+  if (!isSubCategory(subCategory)) {
+    throw new HttpError(400, "Unknown product sub-category");
+  }
 
   // Check if images are availabe in req.files then it`ll store image in image variable
   const image1 = req.files.image1 && req.files.image1[0];

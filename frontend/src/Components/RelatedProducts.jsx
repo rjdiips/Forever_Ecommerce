@@ -1,38 +1,30 @@
-import React, { useContext, useEffect, useState } from "react";
-import { ShopContext } from "../Context/ShopContext";
+import { useEffect, useState } from "react";
+import { useCatalogue } from "../catalogue/CatalogueContext";
 import Title from "../Components/Title";
 import ProductItem from "./ProductItem";
 
-const RelatedProducts = ({ category, subCategory, id }) => {
-  const { products } = useContext(ShopContext);
+const RelatedProducts = ({ product }) => {
+  const { relatedTo } = useCatalogue();
   const [related, setRelated] = useState([]);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    if (products.length > 0) {
-      setIsTransitioning(true);
+    setIsTransitioning(true);
 
-      const transitionTimer = setTimeout(() => {
-        let productsCopy = products.slice();
-        productsCopy = productsCopy.filter(
-          (item) => category === item.category
-        );
-        productsCopy = productsCopy.filter(
-          (item) => subCategory === item.subCategory
-        );
-        productsCopy = productsCopy.filter((item) => id !== item._id);
-        setRelated(productsCopy.slice(0, 5));
+    let fadeTimer;
+    const transitionTimer = setTimeout(() => {
+      setRelated(relatedTo(product));
 
-        setTimeout(() => {
-          setIsTransitioning(false);
-        }, 50);
-      }, 200);
+      fadeTimer = setTimeout(() => {
+        setIsTransitioning(false);
+      }, 50);
+    }, 200);
 
-      return () => {
-        clearTimeout(transitionTimer);
-      };
-    }
-  }, [products, id, category, subCategory]);
+    return () => {
+      clearTimeout(transitionTimer);
+      clearTimeout(fadeTimer);
+    };
+  }, [relatedTo, product]);
 
   return (
     <div className="my-24">

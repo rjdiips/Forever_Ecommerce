@@ -23,3 +23,9 @@ export {
   isCustomTee,
   normalizeProductKind,
 } from "./product.js";
+export {
+  CATEGORIES,
+  SUB_CATEGORIES,
+  isCategory,
+  isSubCategory,
+} from "./taxonomy.js";

@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
-import { PRODUCT_KIND } from '@forever/shared';
+import { CATEGORIES, PRODUCT_KIND, SUB_CATEGORIES } from '@forever/shared';
 
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
   price: { type: Number, required: true },
   image: { type: Array, required: true },
-  category: { type: String, required: true },
-  subCategory: { type: String, required: true },
+  category: { type: String, enum: CATEGORIES, required: true },
+  subCategory: { type: String, enum: SUB_CATEGORIES, required: true },
   sizes: { type: Array, required: true },
   bestseller: { type: Boolean },
   // "standard" for ordinary products; "custom-tee" marks the one base product

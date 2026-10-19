@@ -18,13 +18,15 @@ import "react-toastify/dist/ReactToastify.css";
 import Verify from "./Pages/Verify";
 import TshirtGenerator from "./Pages/TshirtGenerator";
 import { ShopContext } from "./Context/ShopContext";
+import { useCatalogue } from "./catalogue/CatalogueContext";
 import { CartProvider } from "./cart/CartContext";
 
 function App() {
-  // Auth and the catalogue still live in ShopContext; the Cart takes them as
-  // dependencies until candidates 4 and 6 split them out. The Cart gets every
-  // product (the custom-tee base included) so it can price a Custom Tee line.
-  const { token, allProducts, backendUrl } = useContext(ShopContext);
+  // Auth still lives in ShopContext (ticket 10 splits it out). The catalogue is
+  // its own module; the Cart gets every product (the custom-tee base included)
+  // so it can price a Custom Tee line.
+  const { token, backendUrl } = useContext(ShopContext);
+  const { allProducts } = useCatalogue();
 
   return (
     <CartProvider token={token} products={allProducts} backendUrl={backendUrl}>
