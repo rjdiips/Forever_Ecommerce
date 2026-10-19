@@ -27,7 +27,7 @@ A modern full-stack e-commerce web application built with **React + Vite**, feat
 - **Routing:** React Router DOM 7
 - **Authentication:** JWT, Bcrypt
 - **Payments:** Stripe, Razorpay
-- **Cloud & Services:** Cloudinary (Images), SendGrid (Email)
+- **Cloud & Services:** Cloudinary (Images), Resend (Email)
 - **Icons & Assets:** Custom SVGs, React Toastify
 
 ---

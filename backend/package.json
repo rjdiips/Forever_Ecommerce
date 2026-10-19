@@ -13,7 +13,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@sendgrid/mail": "^8.1.6",
     "@vercel/functions": "^3.10.1",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.5.1",
@@ -25,6 +24,7 @@
     "multer": "^1.4.5-lts.1",
     "nodemon": "^3.1.10",
     "razorpay": "^2.9.6",
+    "resend": "^6.34.1",
     "stripe": "^17.7.0",
     "validator": "^13.12.0"
   }
