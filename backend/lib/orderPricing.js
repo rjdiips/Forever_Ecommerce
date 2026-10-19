@@ -6,7 +6,8 @@
  * every price comes from the Product in the catalogue. Any `price`, `amount` or
  * `total` on the request is ignored. See ADR-0002.
  */
-import { DELIVERY_FEE, toCents } from "@forever/shared";
+import { DELIVERY_FEE, isCustomTee, toCents } from "@forever/shared";
+import validator from "validator";
 import { assertDesignTarget } from "./design.js";
 import { HttpError } from "./http.js";
 
@@ -40,18 +41,17 @@ import { HttpError } from "./http.js";
 /**
  * Price an Order from the catalogue.
  *
- * Throws a 400 for anything a shopper cannot buy: an empty cart, an unknown
- * Product, a size the Product does not offer, a bad quantity, or a design on a
- * Product that is not the Custom Tee base.
+ * Throws a 400 for anything a shopper cannot buy: an empty order, an unknown
+ * Product, a size the Product does not offer, a bad quantity, a design on a
+ * Product that is not the Custom Tee base, or a base without a design.
  *
  * @param {OrderIntentLine[]} items
  * @param {Array<{ _id: unknown, name: string, price: number, image?: string[], sizes?: string[], kind?: string }>} products
- * @param {number} [deliveryFee]
  * @returns {PricedOrder}
  */
-export function priceOrder(items, products = [], deliveryFee = DELIVERY_FEE) {
+export function priceOrder(items, products) {
   if (!Array.isArray(items) || items.length === 0) {
-    throw new HttpError(400, "Your cart is empty");
+    throw new HttpError(400, "Your order is empty");
   }
 
   const catalogue = new Map(products.map((product) => [String(product._id), product]));
@@ -76,9 +76,16 @@ export function priceOrder(items, products = [], deliveryFee = DELIVERY_FEE) {
     if (hasDesign) {
       assertDesignTarget(product);
 
-      if (!isHttpUrl(item.design)) {
+      if (
+        typeof item.design !== "string" ||
+        !validator.isURL(item.design, { protocols: ["http", "https"] })
+      ) {
         throw new HttpError(400, "A design must be an uploaded image");
       }
+    } else if (isCustomTee(product)) {
+      // A Custom Tee is the base Product plus a Design. The base is not
+      // shoppable on its own, so a design-less base line is rejected.
+      throw new HttpError(400, "A Custom Tee needs a design");
     }
 
     return {
@@ -100,19 +107,7 @@ export function priceOrder(items, products = [], deliveryFee = DELIVERY_FEE) {
   return {
     items: pricedItems,
     subtotal,
-    deliveryFee,
-    amount: subtotal + deliveryFee,
+    deliveryFee: DELIVERY_FEE,
+    amount: subtotal + DELIVERY_FEE,
   };
-}
-
-/** Is `value` an absolute http(s) URL, as Cloudinary returns? */
-function isHttpUrl(value) {
-  if (typeof value !== "string" || value.trim() === "") return false;
-
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" || url.protocol === "http:";
-  } catch {
-    return false;
-  }
 }

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { formatMoney } from '@forever/shared';
+import { formatMoney, orderItemPriceCents } from '@forever/shared';
 import Title from '../Components/Title';
 import { ShopContext } from '../Context/ShopContext';
 import axios from 'axios';
@@ -31,6 +31,7 @@ const Orders = () => {
             item['payment'] = order.payment;
             item['paymentMethod'] = order.paymentMethod;
             item['date'] = order.date;
+            item['price'] = orderItemPriceCents(item, order);
             allOrderItem.push(item);
           });
         });

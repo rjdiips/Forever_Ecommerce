@@ -27,10 +27,12 @@ const products = [tee, hoodie];
 
 const isClientError = (err) => err instanceof HttpError && err.status === 400;
 
+const design = "https://res.cloudinary.com/forever/design.webp";
+
 test("prices every line from the catalogue and adds the shared delivery fee", () => {
   const priced = priceOrder(
     [
-      { productId: "tee-1", size: "M", quantity: 2 },
+      { productId: "tee-1", size: "M", quantity: 2, design },
       { productId: "hoodie-1", size: "L", quantity: 1 },
     ],
     products
@@ -44,6 +46,7 @@ test("prices every line from the catalogue and adds the shared delivery fee", ()
       price: 1999,
       size: "M",
       quantity: 2,
+      design,
     },
     {
       productId: "hoodie-1",
@@ -66,6 +69,7 @@ test("ignores a client-sent amount or price", () => {
         productId: "tee-1",
         size: "M",
         quantity: 1,
+        design,
         price: 1,
         amount: 1,
         total: 1,
@@ -78,18 +82,17 @@ test("ignores a client-sent amount or price", () => {
   assert.equal(priced.amount, 2999);
 });
 
-test("uses the delivery fee it is given", () => {
+test("uses the shared delivery fee", () => {
   const priced = priceOrder(
-    [{ productId: "tee-1", size: "M", quantity: 1 }],
-    products,
-    500
+    [{ productId: "tee-1", size: "M", quantity: 1, design }],
+    products
   );
 
-  assert.equal(priced.deliveryFee, 500);
-  assert.equal(priced.amount, 2499);
+  assert.equal(priced.deliveryFee, DELIVERY_FEE);
+  assert.equal(priced.amount, 1999 + DELIVERY_FEE);
 });
 
-test("rejects an empty cart", () => {
+test("rejects an empty order", () => {
   for (const items of [[], undefined, null]) {
     assert.throws(() => priceOrder(items, products), isClientError);
   }
@@ -104,7 +107,11 @@ test("rejects an unknown product", () => {
 
 test("rejects a size the product does not offer", () => {
   assert.throws(
-    () => priceOrder([{ productId: "tee-1", size: "XL", quantity: 1 }], products),
+    () =>
+      priceOrder(
+        [{ productId: "tee-1", size: "XL", quantity: 1, design }],
+        products
+      ),
     (err) => isClientError(err) && /size/i.test(err.message)
   );
 });
@@ -112,14 +119,17 @@ test("rejects a size the product does not offer", () => {
 test("rejects a quantity that is not a whole number of at least one", () => {
   for (const quantity of [0, -1, 1.5, "2", Number.NaN]) {
     assert.throws(
-      () => priceOrder([{ productId: "tee-1", size: "M", quantity }], products),
+      () =>
+        priceOrder(
+          [{ productId: "tee-1", size: "M", quantity, design }],
+          products
+        ),
       isClientError
     );
   }
 });
 
 test("carries a design on the custom-tee base", () => {
-  const design = "https://res.cloudinary.com/forever/design.webp";
   const priced = priceOrder(
     [{ productId: "tee-1", size: "M", quantity: 1, design }],
     products
@@ -137,12 +147,19 @@ test("rejects a design on an ordinary product", () => {
             productId: "hoodie-1",
             size: "M",
             quantity: 1,
-            design: "https://res.cloudinary.com/forever/design.webp",
+            design,
           },
         ],
         products
       ),
     isClientError
+  );
+});
+
+test("rejects the custom-tee base without a design", () => {
+  assert.throws(
+    () => priceOrder([{ productId: "tee-1", size: "M", quantity: 1 }], products),
+    (err) => isClientError(err) && /design/i.test(err.message)
   );
 });
 

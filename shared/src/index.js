@@ -6,6 +6,11 @@
 export { CURRENCY, formatMoney, fromCents, toCents } from "./money.js";
 export { DELIVERY_FEE } from "./delivery.js";
 export {
+  ORDER_PRICING,
+  orderAmountCents,
+  orderItemPriceCents,
+} from "./order.js";
+export {
   PRODUCT_KIND,
   catalogueProducts,
   findCustomTee,

@@ -6,7 +6,7 @@
  * {@link priceOrder}; the request body supplies intent only. See ADR-0002.
  */
 import mongoose from "mongoose";
-import { CURRENCY } from "@forever/shared";
+import { CURRENCY, ORDER_PRICING } from "@forever/shared";
 import ProductModel from "../models/productModel.js";
 import orderModel from "../models/orderModel.js";
 import UserModel from "../models/userModel.js";
@@ -62,6 +62,7 @@ export async function createOrder({
     userId,
     items: priced.items,
     amount: priced.amount,
+    pricingVersion: ORDER_PRICING.CENTS,
     address,
     paymentMethod,
     payment: false,
@@ -73,7 +74,15 @@ export async function createOrder({
     return { orderId: order._id };
   }
 
-  const sessionUrl = await createCheckoutSession({ order, priced, origin });
+  let sessionUrl;
+
+  try {
+    sessionUrl = await createCheckoutSession({ order, priced, origin });
+  } catch (error) {
+    // No session means no way to pay: do not leave an orphan Order behind.
+    await orderModel.findByIdAndDelete(order._id);
+    throw toStripeClientError(error, "Could not start the payment. Please try again.");
+  }
 
   return { orderId: order._id, sessionUrl };
 }
@@ -89,13 +98,13 @@ export async function createOrder({
  * @param {string} verification.userId the authenticated user
  * @param {unknown} verification.orderId
  * @param {string} [verification.sessionId]
- * @param {string | boolean} [verification.success] Stripe's cancel redirect
+ * @param {boolean} [verification.cancelled] the shopper left Stripe without paying
  */
 export async function verifyOrderPayment({
   userId,
   orderId,
   sessionId,
-  success,
+  cancelled,
 }) {
   const order = await findOwnedOrder(orderId, userId);
 
@@ -103,7 +112,7 @@ export async function verifyOrderPayment({
     throw new HttpError(400, "This order is not a Stripe order");
   }
 
-  if (success === "false" || success === false) {
+  if (cancelled) {
     // A client claim of failure must never erase a paid Order.
     if (order.payment) {
       throw new HttpError(400, "This order is already paid");
@@ -117,7 +126,7 @@ export async function verifyOrderPayment({
     throw new HttpError(400, "Missing Stripe session");
   }
 
-  const session = await getStripe().checkout.sessions.retrieve(sessionId);
+  const session = await retrieveSession(sessionId);
 
   if (session.metadata?.orderId !== String(order._id)) {
     throw new HttpError(400, "This payment does not belong to this order");
@@ -188,4 +197,30 @@ async function createCheckoutSession({ order, priced, origin }) {
   });
 
   return session.url;
+}
+
+/** Retrieve a Checkout session, turning Stripe's client errors into 400s. */
+async function retrieveSession(sessionId) {
+  try {
+    return await getStripe().checkout.sessions.retrieve(sessionId);
+  } catch (error) {
+    throw toStripeClientError(error, "This payment session is not valid");
+  }
+}
+
+/**
+ * Stripe errors carry `statusCode`, not `status`, so the one error path would
+ * treat a bad session id or redirect origin as a server fault. A 4xx from
+ * Stripe is the caller's error; anything else stays a 5xx.
+ *
+ * @param {unknown} error
+ * @param {string} message
+ * @returns {unknown}
+ */
+function toStripeClientError(error, message) {
+  if (error?.statusCode >= 400 && error.statusCode < 500) {
+    return new HttpError(400, message);
+  }
+
+  return error;
 }

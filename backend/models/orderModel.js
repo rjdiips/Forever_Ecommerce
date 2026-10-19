@@ -6,6 +6,9 @@ const orderSchema = new mongoose.Schema({
   items: { type: [], required: true },
   // The server-priced total in integer cents, delivery included (ADR-0002).
   amount: { type: Number, required: true },
+  // 1 = `amount` and item prices are cents. Missing/0 = the legacy dollars
+  // written before server pricing; the shared order helpers read both.
+  pricingVersion: { type: Number },
   address: { type: Object, required: true },
   orderStatus: { type: String, required: true, default: 'Order Placed' },
   paymentMethod: { type: String, required: true },

@@ -38,7 +38,7 @@ export const verifyStripePayment = async (req) => {
     userId: req.userId,
     orderId,
     sessionId,
-    success,
+    cancelled: success === "false" || success === false,
   });
 };
 
