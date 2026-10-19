@@ -24,7 +24,6 @@ export {
   PRODUCT_KIND,
   TEE_COLORS,
   catalogueProducts,
-  findCustomTee,
   formatProductPrice,
   isCustomTee,
   normalizeProductKind,

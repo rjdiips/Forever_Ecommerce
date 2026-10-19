@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { findCustomTee, formatProductPrice } from "@forever/shared";
+import { findTeeBase, formatProductPrice } from "@forever/shared";
 import { toast } from "react-toastify";
 import TshirtCanvas from "../Components/TshirtCanvas";
 import TshirtControls from "../Components/TshirtControls";
@@ -9,6 +9,7 @@ import { useAuth } from "../auth/AuthContext";
 import { useCatalogue } from "../catalogue/CatalogueContext";
 import { useCart } from "../cart/CartContext";
 import { BACKEND_URL } from "../config";
+import { teeBlankUrl } from "../tee/blank";
 import { useTeeDesign } from "../tee/useTeeDesign";
 import {
   DEFAULT_PURCHASE_QUANTITY,
@@ -28,21 +29,38 @@ const TshirtGeneratorPage = () => {
   const [size, setSize] = useState("");
   const [quantity, setQuantity] = useState(DEFAULT_PURCHASE_QUANTITY);
   const [busy, setBusy] = useState(false);
+  // The blank arrives over the network, so the page waits for it before it will
+  // export or sell: "loading", "loaded", "error", or "unavailable" when the
+  // chosen colour has no base (or its base has no image).
+  const [blankState, setBlankState] = useState("loading");
 
-  // The Custom Tee is a base Product: the generator designs onto it, so it is
-  // found in the product list rather than hardcoded.
-  const baseTee = findCustomTee(allProducts);
+  // The chosen colour decides the Tee base (ADR-0005): the base supplies the
+  // price, the sizes and the blank image the generator designs onto.
+  const baseTee = findTeeBase(allProducts, design.color);
+  const blankUrl = teeBlankUrl(baseTee?.image?.[0]);
+  const blankReady = blankState === "loaded";
   const sizes = baseTee?.sizes ?? [];
-  const canBuy = Boolean(baseTee) && canBuyCustomTee({
+  const canBuy = blankReady && Boolean(baseTee) && canBuyCustomTee({
     hasGraphic: Boolean(design.graphic),
     size,
   });
+
+  // A blank canvas with an explanation beats designing onto a shape that is not
+  // the tee: nothing is drawn until the base's blank has loaded.
+  const blankMessage =
+    loading || blankState === "loading"
+      ? "Loading your tee…"
+      : blankState === "error"
+        ? "Could not load the tee image. Please check your connection and try again."
+        : blankState === "unavailable"
+          ? "This tee colour is not available right now."
+          : null;
 
   // Export the finished Tee draft, store the design, then add the base Product
   // to the Cart as a line carrying that design (ADR-0001).
   const handleAddToCart = async () => {
     if (!baseTee) {
-      toast.error("The Custom Tee is not available right now");
+      toast.error("This tee colour is not available right now");
       return;
     }
 
@@ -93,7 +111,18 @@ const TshirtGeneratorPage = () => {
       <div className="py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* The Canvas */}
         <div className="md:col-span-2">
-          <TshirtCanvas ref={canvasRef} design={design} onMove={moveTo} />
+          <TshirtCanvas
+            ref={canvasRef}
+            design={design}
+            blankUrl={blankUrl}
+            onBlankStatus={setBlankState}
+            onMove={moveTo}
+          />
+          {blankMessage && (
+            <p className="mt-3 text-sm text-gray-500" role="status">
+              {blankMessage}
+            </p>
+          )}
         </div>
 
         {/* The Controls */}
@@ -111,6 +140,7 @@ const TshirtGeneratorPage = () => {
             onColor={setColor}
             onReset={reset}
             onExport={() => canvasRef.current?.exportBlob()}
+            canExport={blankReady}
           />
 
           <TeePurchase

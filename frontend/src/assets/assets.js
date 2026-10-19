@@ -72,8 +72,6 @@ import contact_img from "./contact_img.png";
 import stripe_logo from "./stripe_logo.png";
 import cross_icon from "./cross_icon.png";
 
-import tshirt_white from "./tshirt-white.png";
-import tshirt_black from "./tshirt-black.png";
 import preset1 from "./presets/off-road-car-palm.png";
 import preset2 from "./presets/yin-yang.png";
 import preset3 from "./presets/hustle.png";
@@ -98,8 +96,6 @@ export const assets = {
   contact_img,
   stripe_logo,
   cross_icon,
-  tshirt_white,
-  tshirt_black,
   preset1,
   preset2,
   preset3,

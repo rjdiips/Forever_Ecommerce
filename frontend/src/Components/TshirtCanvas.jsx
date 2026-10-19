@@ -1,19 +1,22 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { assets } from "../assets/assets";
 import { CANVAS_SIZE, bounds, hitTest, toCanvasPoint } from "../tee/geometry";
 import { exportTeeBlob } from "../tee/export";
 
-const TshirtCanvas = forwardRef(function TshirtCanvas({ design, onMove }, ref) {
+// Draws the draft onto the Tee base's blank. The blank arrives over the network
+// (ADR-0005), so the blank's image is kept in a ref and the page is told whether
+// it is loading, loaded or failed; nothing is drawn until it is there.
+const TshirtCanvas = forwardRef(function TshirtCanvas(
+  { design, blankUrl, onMove, onBlankStatus },
+  ref
+) {
   const canvasRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const dragOffset = useRef({ x: 0, y: 0 });
 
-  // Images are held in refs so dragging only repaints; it never reloads assets.
+  // Images are held in refs so dragging only repaints; it never reloads the blank.
   const designRef = useRef(design);
   const teeImageRef = useRef(null);
   const graphicImageRef = useRef(null);
-
-  const teeSrc = design.color === "white" ? assets.tshirt_white : assets.tshirt_black;
 
   useEffect(() => {
     designRef.current = design;
@@ -38,17 +41,35 @@ const TshirtCanvas = forwardRef(function TshirtCanvas({ design, onMove }, ref) {
   }, []);
 
   useEffect(() => {
+    if (!blankUrl) {
+      teeImageRef.current = null;
+      onBlankStatus?.("unavailable");
+      draw();
+      return undefined;
+    }
+
+    let cancelled = false;
+    onBlankStatus?.("loading");
     const image = new Image();
     image.crossOrigin = "anonymous";
     image.onload = () => {
+      if (cancelled) return;
       teeImageRef.current = image;
+      onBlankStatus?.("loaded");
       draw();
     };
-    image.src = teeSrc;
+    image.onerror = () => {
+      if (cancelled) return;
+      teeImageRef.current = null;
+      onBlankStatus?.("error");
+      draw();
+    };
+    image.src = blankUrl;
     return () => {
+      cancelled = true;
       teeImageRef.current = null;
     };
-  }, [teeSrc, draw]);
+  }, [blankUrl, draw, onBlankStatus]);
 
   useEffect(() => {
     if (!design.graphic) {
