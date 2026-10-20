@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { MIN_PASSWORD_LENGTH } from "@forever/shared";
 import { useAuth } from "../auth/AuthContext";
 import { BACKEND_URL } from "../config";
 
@@ -93,6 +94,9 @@ const Login = () => {
           type="password"
           className="w-Full px-3 py-2 !border border-gray-880"
           placeholder="Password"
+          minLength={
+            currentState === "Sign Up" ? MIN_PASSWORD_LENGTH : undefined
+          }
           required
         />
 
