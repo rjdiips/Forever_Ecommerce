@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { MIN_PASSWORD_LENGTH } from "@forever/shared";
 import { useAuth } from "../auth/AuthContext";
 import { BACKEND_URL } from "../config";
 
@@ -46,7 +47,8 @@ const Login = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message); // This will show an error message if the request failed
+      // A network failure has no response, so fall back to the error itself.
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 
@@ -92,11 +94,16 @@ const Login = () => {
           type="password"
           className="w-Full px-3 py-2 !border border-gray-880"
           placeholder="Password"
+          minLength={
+            currentState === "Sign Up" ? MIN_PASSWORD_LENGTH : undefined
+          }
           required
         />
 
         <div className="w-full flex justify-between text-sm mt-[-8px]">
-          <p className=" cursor-pointer">Forgot your password?</p>
+          <Link to="/reset-password" className="cursor-pointer">
+            Forgot your password?
+          </Link>
           {currentState === "Login" ? (
             <p
               onClick={() => setCurrentState("Sign Up")}

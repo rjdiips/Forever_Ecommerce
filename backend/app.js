@@ -11,10 +11,20 @@ import cartRouter from "./routes/cartRouter.js";
 import orderRouter from "./routes/orderRouter.js";
 import designRouter from "./routes/designRouter.js";
 import subscriberRouter from "./routes/subscriberRouter.js";
+import { getFrontendUrl } from "./config/frontendUrl.js";
+
+// Fail at startup, not when the first Password reset email is attempted: a
+// missing storefront origin would otherwise put `undefined/reset-password` in
+// the link the User receives.
+getFrontendUrl();
 
 // App config
 const app = express();
 const port = process.env.PORT || 4000;
+
+// One proxy hop sits in front of the API in deployment, so `req.ip` is the
+// real client. Without this every client would share one rate-limit bucket.
+app.set("trust proxy", 1);
 
 connectDB();
 connectToCloudinary();
