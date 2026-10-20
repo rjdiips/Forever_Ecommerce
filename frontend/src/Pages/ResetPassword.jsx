@@ -2,13 +2,13 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import {
+  GENERIC_PASSWORD_RESET_CONFIRMATION,
+  MIN_PASSWORD_LENGTH,
+  passwordTooShortMessage,
+} from "@forever/shared";
 import { BACKEND_URL } from "../config";
 import { useAuth } from "../auth/AuthContext";
-
-// The same wording the API returns, so a missing message still shows a generic
-// confirmation rather than revealing whether the account exists.
-const GENERIC_CONFIRMATION =
-  "If an account with that email exists, a password reset link has been sent.";
 
 const SetPasswordForm = ({ token }) => {
   const navigate = useNavigate();
@@ -25,8 +25,8 @@ const SetPasswordForm = ({ token }) => {
 
     // Check before the request so a typo costs nothing and the User sees which
     // rule they broke.
-    if (password.length < 6) {
-      setError("Password should be at least 6 characters.");
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(passwordTooShortMessage());
       return;
     }
 
@@ -70,7 +70,7 @@ const SetPasswordForm = ({ token }) => {
       </div>
 
       <p className="text-center text-sm text-gray-600">
-        Choose a new password of at least 6 characters.
+        Choose a new password of at least {MIN_PASSWORD_LENGTH} characters.
       </p>
 
       <div className="w-full px-3 py-2 flex flex-col gap-4">
@@ -80,7 +80,7 @@ const SetPasswordForm = ({ token }) => {
           type="password"
           className="w-full px-3 py-2 !border border-gray-880"
           placeholder="New password"
-          minLength={6}
+          minLength={MIN_PASSWORD_LENGTH}
           required
         />
         <input
@@ -89,7 +89,7 @@ const SetPasswordForm = ({ token }) => {
           type="password"
           className="w-full px-3 py-2 !border border-gray-880"
           placeholder="Confirm new password"
-          minLength={6}
+          minLength={MIN_PASSWORD_LENGTH}
           required
         />
 
@@ -127,7 +127,11 @@ const RequestResetForm = () => {
         BACKEND_URL + "/api/user/forgot-password",
         { email }
       );
-      setConfirmation(response.data.message || GENERIC_CONFIRMATION);
+      // The shared fallback matches the API, so a missing message still shows a
+      // generic confirmation rather than revealing whether the account exists.
+      setConfirmation(
+        response.data.message || GENERIC_PASSWORD_RESET_CONFIRMATION
+      );
     } catch (error) {
       toast.error(
         error.response?.data?.message ||

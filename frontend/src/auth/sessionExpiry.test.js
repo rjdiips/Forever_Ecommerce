@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { isLoginPage, isRejectedSession } from "./sessionExpiry";
+import {
+  SESSION_EXPIRED_MESSAGE,
+  isLoginPage,
+  isRejectedSession,
+  sessionRejectionMessage,
+} from "./sessionExpiry";
 
 describe("isRejectedSession", () => {
   it("treats a 401 as a rejected Session token", () => {
@@ -26,5 +31,38 @@ describe("isLoginPage", () => {
     expect(isLoginPage("/")).toBe(false);
     expect(isLoginPage("/orders")).toBe(false);
     expect(isLoginPage("/login-help")).toBe(false);
+  });
+});
+
+describe("sessionRejectionMessage", () => {
+  it("keeps the API's distinct expired-session message", () => {
+    expect(
+      sessionRejectionMessage({
+        response: {
+          status: 401,
+          data: { message: "Session expired, please log in again" },
+        },
+      }),
+    ).toBe("Session expired, please log in again");
+  });
+
+  it("keeps a malformed-token message distinct from expiry", () => {
+    expect(
+      sessionRejectionMessage({
+        response: {
+          status: 401,
+          data: { message: "Not authorized, token failed" },
+        },
+      }),
+    ).toBe("Not authorized, token failed");
+  });
+
+  it("falls back to the expiry message when the API sent none", () => {
+    expect(
+      sessionRejectionMessage({ response: { status: 401, data: {} } }),
+    ).toBe(SESSION_EXPIRED_MESSAGE);
+    expect(sessionRejectionMessage(new Error("Network Error"))).toBe(
+      SESSION_EXPIRED_MESSAGE,
+    );
   });
 });

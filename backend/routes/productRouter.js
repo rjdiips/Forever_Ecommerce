@@ -7,7 +7,7 @@ import {
   reorderProducts,
 } from "../controllers/productController.js";
 import upload from "../middlewares/multer.js";
-import adminAuth from "../middlewares/adminAuth.js";
+import { adminAuth } from "../middlewares/adminAuth.js";
 import { route } from "../lib/http.js";
 
 const productRouter = express.Router();

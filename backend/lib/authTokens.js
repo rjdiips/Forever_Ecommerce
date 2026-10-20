@@ -30,6 +30,27 @@ export const TOKEN_PURPOSE = Object.freeze({
 export const ADMIN_ROLE = "admin";
 
 /**
+ * The claims a Session or Password reset token carries.
+ *
+ * @typedef {object} UserTokenClaims
+ * @property {string} userId
+ * @property {number} tokenVersion
+ * @property {string} purpose
+ * @property {number} iat
+ * @property {number} exp
+ */
+
+/**
+ * The claims an admin Session token carries.
+ *
+ * @typedef {object} AdminSessionClaims
+ * @property {"admin"} role
+ * @property {string} purpose
+ * @property {number} iat
+ * @property {number} exp
+ */
+
+/**
  * The fixed lifetime of each token kind, in seconds.
  *
  * Kept beside the signers so the promise ("7 days", "12 hours", "30 minutes")
@@ -153,7 +174,7 @@ const verify = (token, expectedPurpose) => {
  * Verify a storefront Session token.
  *
  * @param {string} token
- * @returns {any}
+ * @returns {UserTokenClaims}
  */
 export const verifySessionToken = (token) =>
   verify(token, TOKEN_PURPOSE.SESSION);
@@ -162,7 +183,7 @@ export const verifySessionToken = (token) =>
  * Verify an admin Session token.
  *
  * @param {string} token
- * @returns {any}
+ * @returns {AdminSessionClaims}
  */
 export const verifyAdminSessionToken = (token) => {
   const payload = verify(token, TOKEN_PURPOSE.ADMIN_SESSION);
@@ -178,10 +199,22 @@ export const verifyAdminSessionToken = (token) => {
  * Verify a Password reset token.
  *
  * @param {string} token
- * @returns {any}
+ * @returns {UserTokenClaims}
  */
 export const verifyPasswordResetToken = (token) =>
   verify(token, TOKEN_PURPOSE.PASSWORD_RESET);
+
+/**
+ * Did `jsonwebtoken` reject this token because it has expired?
+ *
+ * Callers use this to give expiry its own message, distinct from a malformed,
+ * tampered or wrong-purpose token.
+ *
+ * @param {unknown} error
+ * @returns {boolean}
+ */
+export const isTokenExpiredError = (error) =>
+  error instanceof jwt.TokenExpiredError;
 
 /**
  * Is this verified token still current for this User?

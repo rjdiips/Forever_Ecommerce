@@ -6,20 +6,9 @@
  * message itself is built by a pure function, so its contents are testable
  * without a Resend key.
  */
-import { Resend } from "resend";
 import { log } from "./log.js";
+import { resendClient, resendFrom } from "./resend.js";
 import { TOKEN_LIFETIME_SECONDS } from "./authTokens.js";
-
-// The Resend client is null when the key is absent, so the module still loads
-// and a missing key becomes a per-send failure rather than a boot crash.
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
-
-// `onboarding@resend.dev` only delivers to the Resend account owner. To reach
-// real Users, verify a domain in Resend and set RESEND_FROM_EMAIL to an address
-// on it.
-const from = () => process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
 
 /** The lifetime to promise in the email, derived from the token module. */
 const passwordResetMinutes = () => TOKEN_LIFETIME_SECONDS.passwordReset / 60;
@@ -71,14 +60,14 @@ export const emailService = {
    * @returns {Promise<void>}
    */
   async sendPasswordResetEmail({ to, resetUrl }) {
-    if (!resend) {
+    if (!resendClient) {
       throw new Error(
         "RESEND_API_KEY is not set; cannot send the password reset email"
       );
     }
 
-    const { error } = await resend.emails.send({
-      from: from(),
+    const { error } = await resendClient.emails.send({
+      from: resendFrom(),
       to,
       ...buildPasswordResetEmail({ resetUrl }),
     });

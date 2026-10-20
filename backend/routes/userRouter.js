@@ -1,5 +1,6 @@
 import express from 'express';
 
+import { GENERIC_PASSWORD_RESET_CONFIRMATION } from '@forever/shared';
 import {
   loginUser,
   registerUser,
@@ -44,8 +45,7 @@ userRouter.post(
   '/forgot-password',
   forgotPasswordRateLimit,
   route(requestPasswordReset, {
-    message:
-      'If an account with that email exists, a password reset link has been sent.',
+    message: GENERIC_PASSWORD_RESET_CONFIRMATION,
   })
 );
 

@@ -1,10 +1,9 @@
-import jwt from "jsonwebtoken";
-
 import UserModel from "../models/userModel.js";
 import { HttpError } from "../lib/http.js";
 import {
   TOKEN_PURPOSE,
   isCurrentToken,
+  isTokenExpiredError,
   verifySessionToken,
 } from "../lib/authTokens.js";
 
@@ -32,7 +31,7 @@ export const userAuth = async (req, res, next) => {
   try {
     payload = verifySessionToken(token);
   } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
+    if (isTokenExpiredError(error)) {
       return next(new HttpError(401, EXPIRED_MESSAGE));
     }
 

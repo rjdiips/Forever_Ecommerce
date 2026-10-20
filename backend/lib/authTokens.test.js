@@ -6,6 +6,7 @@ import {
   TokenPurposeError,
   TOKEN_PURPOSE,
   isCurrentToken,
+  isTokenExpiredError,
   signAdminSessionToken,
   signPasswordResetToken,
   signSessionToken,
@@ -90,6 +91,25 @@ test("an expired Session token reports expiry distinctly", () => {
   assert.throws(() => verifySessionToken(expired), {
     name: "TokenExpiredError",
   });
+});
+
+test("only an expiry error counts as an expired token", () => {
+  const expired = jwt.sign(
+    { userId: "user-1", tokenVersion: 0, purpose: TOKEN_PURPOSE.SESSION },
+    process.env.JWT_SECRET,
+    { expiresIn: -10 }
+  );
+
+  let expiry;
+  try {
+    verifySessionToken(expired);
+  } catch (error) {
+    expiry = error;
+  }
+
+  assert.equal(isTokenExpiredError(expiry), true);
+  assert.equal(isTokenExpiredError(new Error("tampered")), false);
+  assert.equal(isTokenExpiredError(null), false);
 });
 
 test("a Password reset token cannot verify as a Session token", () => {
