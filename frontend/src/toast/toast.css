@@ -1,0 +1,80 @@
+/* Forever toast — the editorial card chosen from the toast prototype. */
+
+.forever-toast-container {
+  --toastify-container-width: 380px;
+  --toastify-toast-width: 380px;
+  --toastify-toast-min-height: 0;
+  --toastify-toast-padding: 0;
+  --toastify-toast-bd-radius: 0;
+  --toastify-toast-shadow: none;
+  --toastify-font-family: "Outfit", sans-serif;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  padding: 0;
+}
+
+.forever-toast-shell {
+  width: var(--toastify-toast-width);
+  max-width: 100%;
+  min-height: 0;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #111;
+  overflow: visible;
+  align-items: stretch;
+}
+
+.forever-toast-shell:last-child {
+  margin-bottom: 0;
+}
+
+.forever-toast-body {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+}
+
+/* Keep the progress rule inside the card, in the dusty-rose accent chosen for
+   each toast type. The inline background comes from the toast facade. */
+.forever-toast-shell .Toastify__progress-bar--wrp {
+  height: 2px;
+  border-radius: 0;
+  background: rgba(17, 17, 17, 0.06);
+}
+
+.forever-toast__progress {
+  opacity: 1;
+  border-radius: 0;
+}
+
+.forever-toast-shell .Toastify__progress-bar--bg {
+  background: transparent;
+}
+
+.forever-toast-shell .Toastify__progress-bar:not(.Toastify__progress-bar--bg) {
+  background: var(--forever-toast-accent, #b8838e);
+}
+
+.forever-toast-shell.Toastify__slide-enter--bottom-left {
+  animation-duration: 420ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (max-width: 480px) {
+  .forever-toast-container {
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100% !important;
+    padding: 0 1rem 1rem;
+  }
+
+  .forever-toast-shell {
+    margin-bottom: 0.75rem;
+  }
+}

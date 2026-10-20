@@ -4,7 +4,7 @@ import Title from '../Components/Title';
 import { useAuth } from '../auth/AuthContext';
 import { BACKEND_URL } from '../config';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { toast } from '../toast/toast';
 
 const Orders = () => {
   const { token } = useAuth();

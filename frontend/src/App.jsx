@@ -13,8 +13,7 @@ import Orders from "./Pages/Orders";
 import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
 import SearchBar from "./Components/SearchBar";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import ToastViewport from "./toast/ToastViewport";
 import Verify from "./Pages/Verify";
 import TshirtGenerator from "./Pages/TshirtGenerator";
 import { useAuth } from "./auth/AuthContext";
@@ -31,7 +30,7 @@ function App() {
   return (
     <CartProvider token={token} products={allProducts} backendUrl={BACKEND_URL}>
       <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
-        <ToastContainer />
+        <ToastViewport />
 
         <Navbar />
         <SearchBar />

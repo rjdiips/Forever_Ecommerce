@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { findTeeBase, formatProductPrice, teeColors } from "@forever/shared";
-import { toast } from "react-toastify";
+import { toast } from "../toast/toast";
 import TshirtCanvas from "../Components/TshirtCanvas";
 import TshirtControls from "../Components/TshirtControls";
 import TeePurchase from "../Components/TeePurchase";

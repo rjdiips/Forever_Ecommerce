@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "../toast/toast";
 import { catalogueProducts, orderProducts } from "@forever/shared";
 import { BACKEND_URL } from "../config";
 import { relatedTo as selectRelated } from "./related";

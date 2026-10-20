@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import { toast } from "react-toastify";
+import { toast } from "../toast/toast";
 import { DEFAULT_CUSTOM_GRAPHIC_SCALE, PRESETS } from "../tee/presets";
 import { designFileName } from "../tee/purchase";
 import { downscaleGraphicFile } from "../tee/upload";

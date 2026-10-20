@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "../toast/toast";
 import { BACKEND_URL } from "../config";
 import { fireConfetti } from "../lib/confetti";
 
@@ -20,7 +20,9 @@ const NewsLetterBox = () => {
         email,
       });
       fireConfetti(formRef.current);
-      toast.success(response.data.message);
+      toast.success(response.data.message, {
+        title: "You're on the list.",
+      });
       setEmail(""); // Clear the input field on success
     } catch (error) {
       const errorMessage =

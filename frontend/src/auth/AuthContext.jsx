@@ -8,7 +8,7 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "../toast/toast";
 import {
   SESSION_EXPIRED_TOAST_ID,
   isLoginPage,
@@ -56,6 +56,7 @@ export const AuthProvider = ({ children }) => {
           // during the redirect from restoring the rejected token.
           localStorage.removeItem("token");
           toast.error(sessionRejectionMessage(error), {
+            title: "Please sign in again.",
             toastId: SESSION_EXPIRED_TOAST_ID,
           });
 

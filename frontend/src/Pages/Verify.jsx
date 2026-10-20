@@ -5,7 +5,7 @@ import { useCart } from '../cart/CartContext';
 import { BACKEND_URL } from '../config';
 import axios from 'axios';
 
-import { toast } from 'react-toastify';
+import { toast } from '../toast/toast';
 
 const Verify = () => {
   const navigate = useNavigate();

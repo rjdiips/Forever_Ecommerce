@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "../toast/toast";
 import { MIN_PASSWORD_LENGTH } from "@forever/shared";
 import { useAuth } from "../auth/AuthContext";
 import { BACKEND_URL } from "../config";
@@ -28,7 +28,9 @@ const Login = () => {
         const token = response.data.data.token;
         if (response.data.success) {
           setToken(token);
-          toast.success("Signup Successful!");
+          toast.success("Signup Successful!", {
+            title: "Welcome to Forever.",
+          });
         } else {
           toast.error(response.data.message);
         }
@@ -40,7 +42,9 @@ const Login = () => {
         const token = response.data.data.token;
         if (response.data.success) {
           setToken(token);
-          toast.success("Login Successful!");
+          toast.success("Login Successful!", {
+            title: "Welcome back.",
+          });
         } else {
           toast.error(response.data.message);
         }

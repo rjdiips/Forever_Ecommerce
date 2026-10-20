@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "../toast/toast";
 import {
   DELIVERY_FEE,
   addCartLine,
@@ -85,7 +85,9 @@ export const CartProvider = ({ token, products = [], backendUrl, children }) => 
           { headers: { token } }
         );
         if (response.data.success) {
-          toast.success(response.data.message);
+          toast.success(response.data.message, {
+            title: "Added to your bag.",
+          });
         }
       } catch (error) {
         toast.error(error.response?.data?.message || error.message);

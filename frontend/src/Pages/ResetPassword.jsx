@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "../toast/toast";
 import {
   GENERIC_PASSWORD_RESET_CONFIRMATION,
   MIN_PASSWORD_LENGTH,
@@ -46,7 +46,9 @@ const SetPasswordForm = ({ token }) => {
       // The API returns a fresh Session token minted after the version bump,
       // so setting it here signs the User in.
       setToken(response.data.data.token);
-      toast.success("Password reset successful. You are now signed in.");
+      toast.success("Password reset successful. You are now signed in.", {
+        title: "Password updated.",
+      });
       navigate("/");
     } catch (error) {
       const message =

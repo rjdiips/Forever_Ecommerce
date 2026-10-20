@@ -7,7 +7,7 @@ import { useAuth } from "../auth/AuthContext";
 import { BACKEND_URL } from "../config";
 import { useCart } from "../cart/CartContext";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "../toast/toast";
 
 const PlaceOrder = () => {
   const navigate = useNavigate();
