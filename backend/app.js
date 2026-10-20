@@ -4,6 +4,7 @@ import cors from "cors";
 import connectDB from "./config/mongodb.js";
 import connectToCloudinary from "./config/cloudinary.js";
 import requestLogger from "./middlewares/requestLogger.js";
+import databaseConnection from "./middlewares/databaseConnection.js";
 import { route, errorHandler } from "./lib/http.js";
 import userRouter from "./routes/userRouter.js";
 import productRouter from "./routes/productRouter.js";
@@ -26,13 +27,20 @@ const port = process.env.PORT || 4000;
 // real client. Without this every client would share one rate-limit bucket.
 app.set("trust proxy", 1);
 
-connectDB();
+// Warm the connection at boot without blocking startup or crashing the process:
+// a failed attempt is logged and retried by the request middleware below.
+connectDB().catch(() => {});
 connectToCloudinary();
 
 // Middlewares
 app.use(express.json());
 app.use(cors());
 app.use(requestLogger);
+
+// Every API router needs the database. Waiting here opens at most one
+// connection per instance and fails fast (503) while Atlas is unreachable,
+// instead of each query waiting out Mongoose's buffer timeout.
+app.use("/api", databaseConnection);
 
 // API endpoints
 app.use("/api/user", userRouter);
