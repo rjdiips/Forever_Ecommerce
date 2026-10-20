@@ -46,7 +46,8 @@ const Login = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message); // This will show an error message if the request failed
+      // A network failure has no response, so fall back to the error itself.
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 
