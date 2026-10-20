@@ -1,9 +1,11 @@
 import UserModel from "../models/userModel.js";
 import validator from "validator";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { HttpError } from "../lib/http.js";
-import { signSessionToken } from "../lib/authTokens.js";
+import {
+  signAdminSessionToken,
+  signSessionToken,
+} from "../lib/authTokens.js";
 
 const createToken = (user) =>
   signSessionToken(user._id, user.tokenVersion ?? 0);
@@ -95,7 +97,9 @@ export const adminLogin = async (req) => {
     throw new HttpError(400, "Invalid email or password");
   }
 
-  const token = jwt.sign(email + password, process.env.JWT_SECRET);
+  // A 12-hour admin Session token. It carries no credentials: a token is
+  // readable by its bearer, and the email and password must not travel in it.
+  const token = signAdminSessionToken();
 
   return { token };
 };
