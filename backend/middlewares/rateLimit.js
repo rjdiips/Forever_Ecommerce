@@ -40,3 +40,6 @@ export const registerRateLimit = authLimiter(10);
 
 /** Admin sign-in: 5 requests per 15 minutes per client IP. */
 export const adminLoginRateLimit = authLimiter(5);
+
+/** Forgot password: 5 requests per 15 minutes per client IP. */
+export const forgotPasswordRateLimit = authLimiter(5);

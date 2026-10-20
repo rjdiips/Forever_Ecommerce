@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../auth/AuthContext";
@@ -96,7 +96,9 @@ const Login = () => {
         />
 
         <div className="w-full flex justify-between text-sm mt-[-8px]">
-          <p className=" cursor-pointer">Forgot your password?</p>
+          <Link to="/reset-password" className="cursor-pointer">
+            Forgot your password?
+          </Link>
           {currentState === "Login" ? (
             <p
               onClick={() => setCurrentState("Sign Up")}

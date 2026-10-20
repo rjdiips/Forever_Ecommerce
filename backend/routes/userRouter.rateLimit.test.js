@@ -48,6 +48,14 @@ const adminLogin = (ip) =>
     ip,
   });
 
+/** A passed validation, which is enough to count against the limiter. */
+const forgotPassword = (ip) =>
+  auth.request("/api/user/forgot-password", {
+    method: "POST",
+    body: { email: "nobody@example.com" },
+    ip,
+  });
+
 test("login allows ten attempts per client IP, then answers 429", async (t) => {
   stubUserModel(t, { findOne: async () => null });
   const ip = "203.0.113.10";
@@ -92,6 +100,23 @@ test("admin sign-in allows five attempts per client IP, then answers 429", async
   }
 
   const rejected = await adminLogin(ip);
+
+  assert.equal(rejected.status, 429);
+  assert.equal(rejected.body.success, false);
+  assert.equal(typeof rejected.body.message, "string");
+  assert.notEqual(rejected.body.message, "");
+});
+
+test("forgot-password allows five attempts per client IP, then answers 429", async (t) => {
+  stubUserModel(t, { findOne: async () => null });
+  const ip = "203.0.113.13";
+
+  for (let attempt = 1; attempt <= 5; attempt += 1) {
+    const response = await forgotPassword(ip);
+    assert.equal(response.status, 200, `attempt ${attempt} should be allowed`);
+  }
+
+  const rejected = await forgotPassword(ip);
 
   assert.equal(rejected.status, 429);
   assert.equal(rejected.body.success, false);
