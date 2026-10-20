@@ -1,35 +1,33 @@
-import { useEffect, useState } from "react";
 import { useCatalogue } from "../catalogue/CatalogueContext";
 import Title from "../Components/Title";
 import ProductItem from "../Components/ProductItem";
 
+const LATEST_LIMIT = 10;
+
 const LatestCollection = () => {
   const { products } = useCatalogue();
-  const [latestProducts, setLatestProducts] = useState([]);
 
-  useEffect(() => {
-    // The catalogue is in display order, which is not necessarily newest first,
-    // so the "latest" rail sorts by the date each Product was added.
-    const latest = [...products]
-      .sort((a, b) => (b.date ?? 0) - (a.date ?? 0))
-      .slice(0, 10);
-    setLatestProducts(latest);
-  }, [products]);
+  // The catalogue is in the admin-set display order, and a newly added Product
+  // lands at the end of it, so the rail is the last slice: the newest arrivals,
+  // still in the order the admin set. Reordering them in the admin reorders
+  // this rail too.
+  const latestProducts = products.slice(-LATEST_LIMIT);
+
   return (
     <div className="my-10">
       <div className="py-8 text-center text-3xl">
         <Title text1={"LATEST"} text2={"COLLECTIONS"} />
         <p className="w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600">
-          Discover our newest arrivals that blend style and comfort. Explore the
-          latest trends in fashion, curated just for you.
+          Discover our latest edit that blends style and comfort. Explore the
+          trends we have picked for this collection, curated just for you.
         </p>
       </div>
 
       {/* Rendering Products */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6">
-        {latestProducts.map((product, idx) => (
+        {latestProducts.map((product) => (
           <ProductItem
-            key={idx}
+            key={product._id}
             id={product._id}
             image={product.image}
             name={product.name}

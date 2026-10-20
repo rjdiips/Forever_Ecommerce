@@ -86,7 +86,8 @@ const List = () => {
       <p className="mb-2">All Products List</p>
       <p className="mb-4 text-sm text-gray-500">
         Use the arrows to set the order products appear in the storefront. New
-        products are added at the end.
+        products are added at the end, and the homepage's Latest Collections rail
+        shows the last ten.
       </p>
 
       <div className="flex flex-col gap-2">

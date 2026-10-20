@@ -26,7 +26,7 @@ Unlike a UI-only store demo, Forever has real accounts, server-persisted carts, 
 
 ### Storefront
 
-- **Home page** — hero, bestsellers rail, latest arrivals (sorted by date added), policy strip, and newsletter signup.
+- **Home page** — hero, bestsellers rail, latest arrivals (the last ten products in the admin-set display order), policy strip, and newsletter signup.
 - **Catalogue browsing** — multi-select category filters (Men / Women / Kids), type filters (Topwear / Bottomwear / Winterwear), name search, and sorting by relevance, price low-to-high, or price high-to-low.
 - **Product detail** — multi-image gallery, price, description, size picker, add-to-cart, delivery and returns information, review tab (seeded demo content), and related products from the same category and type.
 - **Custom Tee studio** — design a tee, download the result, or add it straight to the cart:
