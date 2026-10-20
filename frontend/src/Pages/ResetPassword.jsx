@@ -1,13 +1,117 @@
 import { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { BACKEND_URL } from "../config";
+import { useAuth } from "../auth/AuthContext";
 
 // The same wording the API returns, so a missing message still shows a generic
 // confirmation rather than revealing whether the account exists.
 const GENERIC_CONFIRMATION =
   "If an account with that email exists, a password reset link has been sent.";
+
+const SetPasswordForm = ({ token }) => {
+  const navigate = useNavigate();
+  const { setToken } = useAuth();
+
+  const [password, setPassword] = useState("");
+  const [confirmation, setConfirmation] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const onSubmitHandler = async (event) => {
+    event.preventDefault();
+    setError("");
+
+    // Check before the request so a typo costs nothing and the User sees which
+    // rule they broke.
+    if (password.length < 6) {
+      setError("Password should be at least 6 characters.");
+      return;
+    }
+
+    if (password !== confirmation) {
+      setError("The passwords do not match.");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const response = await axios.post(
+        BACKEND_URL + "/api/user/reset-password",
+        { token, password }
+      );
+
+      // The API returns a fresh Session token minted after the version bump,
+      // so setting it here signs the User in.
+      setToken(response.data.data.token);
+      toast.success("Password reset successful. You are now signed in.");
+      navigate("/");
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <form
+      onSubmit={onSubmitHandler}
+      className="flex flex-col items-center w-[90%] sm:max-w-96 m-auto mt-14 gap-4 text-gray-800"
+    >
+      <div className="inline-flex items-center gap-2 mb-2 mt-10">
+        <p className="prata-regular text 3x1">Set a New Password</p>
+        <hr className="border-none h-[1.5px] w-8 bg-gray-800 " />
+      </div>
+
+      <p className="text-center text-sm text-gray-600">
+        Choose a new password of at least 6 characters.
+      </p>
+
+      <div className="w-full px-3 py-2 flex flex-col gap-4">
+        <input
+          onChange={(event) => setPassword(event.target.value)}
+          value={password}
+          type="password"
+          className="w-full px-3 py-2 !border border-gray-880"
+          placeholder="New password"
+          minLength={6}
+          required
+        />
+        <input
+          onChange={(event) => setConfirmation(event.target.value)}
+          value={confirmation}
+          type="password"
+          className="w-full px-3 py-2 !border border-gray-880"
+          placeholder="Confirm new password"
+          minLength={6}
+          required
+        />
+
+        {error ? (
+          <div className="text-sm text-red-700" role="alert">
+            <p>{error}</p>
+            <Link to="/reset-password" className="underline">
+              Request a new link
+            </Link>
+          </div>
+        ) : null}
+
+        <button
+          disabled={submitting}
+          className="w-1/2 m-auto bg-black text-white px-8 py-2 mt-4 cursor-pointer disabled:opacity-50"
+        >
+          {submitting ? "Saving..." : "Set New Password"}
+        </button>
+      </div>
+    </form>
+  );
+};
 
 const RequestResetForm = () => {
   const [email, setEmail] = useState("");
@@ -88,23 +192,7 @@ const ResetPassword = () => {
   const token = searchParams.get("token");
 
   if (token) {
-    // Ticket 08 replaces this placeholder with the set-password form, using
-    // `token` for the change. Request mode below is the only mode for now.
-    return (
-      <div className="flex flex-col items-center w-[90%] sm:max-w-96 m-auto mt-14 gap-4 text-gray-800">
-        <div className="inline-flex items-center gap-2 mb-2 mt-10">
-          <p className="prata-regular text 3x1">Reset Password</p>
-          <hr className="border-none h-[1.5px] w-8 bg-gray-800 " />
-        </div>
-        <p className="text-center">
-          This reset link is ready. Choosing a new password here is not
-          available yet.
-        </p>
-        <Link to="/reset-password" className="cursor-pointer underline">
-          Request a new link
-        </Link>
-      </div>
-    );
+    return <SetPasswordForm token={token} />;
   }
 
   return <RequestResetForm />;

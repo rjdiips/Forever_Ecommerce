@@ -43,3 +43,6 @@ export const adminLoginRateLimit = authLimiter(5);
 
 /** Forgot password: 5 requests per 15 minutes per client IP. */
 export const forgotPasswordRateLimit = authLimiter(5);
+
+/** Reset password: 5 requests per 15 minutes per client IP. */
+export const resetPasswordRateLimit = authLimiter(5);

@@ -4,6 +4,7 @@ import {
   loginUser,
   registerUser,
   requestPasswordReset,
+  resetPassword,
   adminLogin,
 } from '../controllers/userController.js';
 import { route } from '../lib/http.js';
@@ -11,6 +12,7 @@ import {
   loginRateLimit,
   registerRateLimit,
   forgotPasswordRateLimit,
+  resetPasswordRateLimit,
   adminLoginRateLimit,
 } from '../middlewares/rateLimit.js';
 
@@ -45,6 +47,13 @@ userRouter.post(
     message:
       'If an account with that email exists, a password reset link has been sent.',
   })
+);
+
+// /api/user/reset-password
+userRouter.post(
+  '/reset-password',
+  resetPasswordRateLimit,
+  route(resetPassword, { message: 'Password reset successfully' })
 );
 
 export default userRouter;
