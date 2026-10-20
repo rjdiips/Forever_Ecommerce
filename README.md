@@ -88,6 +88,19 @@ FOREVER-STORE/
    npm run build
    ```
 
+### Backend environment
+
+The API reads settings from `backend/.env` locally and from the deployment
+environment in production.
+
+- `FRONTEND_URL` (required) — the storefront origin used to build Password
+  reset links, for example `http://localhost:5173`. The API refuses to start
+  without it, so it never emails a broken link.
+- `RESEND_API_KEY` — the Resend key used by transactional email.
+- `RESEND_FROM_EMAIL` — the verified sender address. Until a sending domain is
+  verified in Resend, the default `onboarding@resend.dev` only delivers to the
+  Resend account owner.
+
 ---
 
 ## 📸 Screenshots

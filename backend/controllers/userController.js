@@ -3,7 +3,13 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { HttpError } from "../lib/http.js";
-import { signSessionToken } from "../lib/authTokens.js";
+import { log } from "../lib/log.js";
+import { getFrontendUrl } from "../config/frontendUrl.js";
+import { emailService } from "../lib/email.js";
+import {
+  signPasswordResetToken,
+  signSessionToken,
+} from "../lib/authTokens.js";
 
 const createToken = (user) =>
   signSessionToken(user._id, user.tokenVersion ?? 0);
@@ -82,6 +88,33 @@ export const registerUser = async (req) => {
   const token = createToken(savedUser);
 
   return { user: savedUser, token };
+};
+
+// Route for a User requesting a Password reset link
+export const requestPasswordReset = async (req) => {
+  const { email } = req.body;
+
+  if (typeof email !== "string" || !validator.isEmail(email)) {
+    throw new HttpError(400, "Please enter a valid email");
+  }
+
+  const user = await UserModel.findOne({ email });
+
+  // Whether or not the account exists, the route answers with the same generic
+  // confirmation. Only a real User gets an email, and a delivery failure must
+  // not turn into a different response.
+  if (!user) {
+    return;
+  }
+
+  try {
+    const token = signPasswordResetToken(user._id, user.tokenVersion ?? 0);
+    const resetUrl = `${getFrontendUrl()}/reset-password?token=${encodeURIComponent(token)}`;
+
+    await emailService.sendPasswordResetEmail({ to: user.email, resetUrl });
+  } catch (error) {
+    log.error("Password reset email failed", { error: error?.message });
+  }
 };
 
 // Route for admin login

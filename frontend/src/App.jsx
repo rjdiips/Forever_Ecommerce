@@ -7,6 +7,7 @@ import Contact from "./Pages/Contact";
 import Product from "./Pages/Product";
 import Cart from "./Pages/Cart";
 import Login from "./Pages/Login";
+import ResetPassword from "./Pages/ResetPassword";
 import PlaceOrder from "./Pages/PlaceOrder";
 import Orders from "./Pages/Orders";
 import Navbar from "./Components/Navbar";
@@ -43,6 +44,7 @@ function App() {
           <Route path="/product/:productId" element={<Product />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/place-order" element={<PlaceOrder />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/verify" element={<Verify />} />
