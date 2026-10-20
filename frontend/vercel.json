@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/va/script.js",
+      "destination": "https://va.vercel-scripts.com/v1/script.js"
+    },
+    {
+      "source": "/va/:path*",
+      "destination": "https://vitals.vercel-insights.com/v1/:path*"
+    },
+    {
       "source": "/((?!_vercel).*)",
       "destination": "/index.html"
     }

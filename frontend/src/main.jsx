@@ -14,7 +14,9 @@ createRoot(document.getElementById("root")).render(
       <CatalogueProvider>
         <ScrollToTop />
         <App />
-        <Analytics />
+        {/* Analytics is proxied through /va so ad blockers don't match the
+            _vercel/insights URL. Production only: dev has no rewrite. */}
+        {import.meta.env.PROD && <Analytics scriptSrc="/va/script.js" />}
       </CatalogueProvider>
     </AuthProvider>
   </BrowserRouter>
