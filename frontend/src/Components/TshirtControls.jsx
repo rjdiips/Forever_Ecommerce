@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { toast } from "../toast/toast";
 import { DEFAULT_CUSTOM_GRAPHIC_SCALE, PRESETS } from "../tee/presets";
-import { designFileName } from "../tee/purchase";
 import { downscaleGraphicFile } from "../tee/upload";
 
 const TshirtControls = ({
@@ -11,8 +10,6 @@ const TshirtControls = ({
   onScale,
   onColor,
   onReset,
-  onExport,
-  canExport = true,
 }) => {
   // The editor owns the object URL of an uploaded graphic so it can be revoked
   // when the draft moves on. Presets are bundled URLs and are never revoked.
@@ -67,21 +64,6 @@ const TshirtControls = ({
     uploadRequestRef.current += 1;
     releaseUploadUrl();
     onReset();
-  };
-
-  const handleDownload = async () => {
-    try {
-      const blob = await onExport();
-      if (!blob) return;
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = designFileName(blob.type);
-      link.click();
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      toast.error(error?.message || "Could not export the design.");
-    }
   };
 
   return (
@@ -182,14 +164,7 @@ const TshirtControls = ({
         />
       </div>
 
-      {/* --- Download + Reset --- */}
-      <button
-        onClick={handleDownload}
-        disabled={!canExport}
-        className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-      >
-        Download Design
-      </button>
+      {/* --- Reset --- */}
       <button
         onClick={handleReset}
         className="w-full py-2 text-sm !border rounded hover:bg-gray-100"

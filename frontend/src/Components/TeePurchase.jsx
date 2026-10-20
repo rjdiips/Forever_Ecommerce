@@ -1,9 +1,14 @@
+import { formatProductPrice } from "@forever/shared";
 import { purchaseQuantity } from "../tee/purchase";
 
-// The purchase half of the tee generator: pick a size and a quantity, then hand
-// the finished design to the Cart. Presentation only — the export, upload and
-// Cart call live in the page, so this stays easy to read.
+// The purchase half of the tee generator: shows the tee being bought, then
+// pick a size and a quantity, then hand the finished design to the Cart.
+// Download sits below the Cart action because buying the tee is the point of
+// the generator; the export itself lives in the page, so this stays easy to
+// read.
 const TeePurchase = ({
+  productName,
+  price,
   sizes = [],
   size,
   onSize,
@@ -13,9 +18,27 @@ const TeePurchase = ({
   busy,
   loading,
   onAddToCart,
+  onDownload,
+  canDownload = true,
 }) => {
   return (
     <div className="flex flex-col gap-4 p-4 border rounded-lg shadow-lg">
+      {(productName || price != null) && (
+        <div>
+          <p className="text-sm text-gray-500">Designing onto</p>
+          <div className="flex items-baseline justify-between gap-4">
+            {productName && (
+              <h3 className="text-lg font-semibold">{productName}</h3>
+            )}
+            {price != null && (
+              <p className="shrink-0 font-medium">
+                {formatProductPrice(price)}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       <div>
         <h3 className="text-lg font-semibold mb-2">Size</h3>
         {sizes.length === 0 ? (
@@ -66,6 +89,14 @@ const TeePurchase = ({
           Choose a graphic and a size to add this tee to your cart.
         </p>
       )}
+
+      <button
+        onClick={onDownload}
+        disabled={!canDownload}
+        className="w-full py-2 text-sm !border rounded hover:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+      >
+        Download Design
+      </button>
     </div>
   );
 };

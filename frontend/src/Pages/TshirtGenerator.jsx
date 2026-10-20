@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { findTeeBase, formatProductPrice, teeColors } from "@forever/shared";
+import { findTeeBase, teeColors } from "@forever/shared";
 import { toast } from "../toast/toast";
 import TshirtCanvas from "../Components/TshirtCanvas";
 import TshirtControls from "../Components/TshirtControls";
@@ -14,6 +14,7 @@ import { useTeeDesign } from "../tee/useTeeDesign";
 import {
   DEFAULT_PURCHASE_QUANTITY,
   canBuyCustomTee,
+  designFileName,
   purchaseQuantity,
   uploadDesign,
 } from "../tee/purchase";
@@ -113,6 +114,23 @@ const TshirtGeneratorPage = () => {
     }
   };
 
+  // Download the same rendered design the Cart would receive. The button sits
+  // below Add to Cart, so this stays the secondary way out of the editor.
+  const handleDownload = async () => {
+    try {
+      const blob = await canvasRef.current?.exportBlob();
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = designFileName(blob.type);
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error(error?.message || "Could not export the design.");
+    }
+  };
+
   return (
     <div className="border-t">
       <div className="py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -134,12 +152,6 @@ const TshirtGeneratorPage = () => {
 
         {/* The Controls */}
         <div className="md:col-span-1 flex flex-col gap-6">
-          {baseTee && (
-            <p className="text-sm text-gray-500">
-              Designing onto {baseTee.name} · {formatProductPrice(baseTee.price)}
-            </p>
-          )}
-
           <TshirtControls
             design={design}
             colors={colors}
@@ -147,11 +159,11 @@ const TshirtGeneratorPage = () => {
             onScale={setScale}
             onColor={setColor}
             onReset={reset}
-            onExport={() => canvasRef.current?.exportBlob()}
-            canExport={blankReady}
           />
 
           <TeePurchase
+            productName={baseTee?.name}
+            price={baseTee?.price}
             sizes={sizes}
             size={size}
             onSize={setSize}
@@ -161,6 +173,8 @@ const TshirtGeneratorPage = () => {
             busy={busy}
             loading={loading}
             onAddToCart={handleAddToCart}
+            onDownload={handleDownload}
+            canDownload={blankReady}
           />
         </div>
       </div>
