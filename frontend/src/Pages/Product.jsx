@@ -3,8 +3,20 @@ import { useParams } from "react-router-dom";
 import { formatProductPrice } from "@forever/shared";
 import { useCatalogue } from "../catalogue/CatalogueContext";
 import { useCart } from "../cart/CartContext";
-import { assets } from "../assets/assets";
+import { REVIEW_COUNT, REVIEW_RATING, reviewsFor } from "../reviews/reviews";
+import StarRating from "../Components/StarRating";
+import ReviewList from "../reviews/ReviewList";
 import RelatedProducts from "../Components/RelatedProducts";
+
+const TAB = {
+  DELIVERY: "delivery",
+  REVIEWS: "reviews",
+};
+
+const TABS = [
+  { id: TAB.DELIVERY, label: "Delivery & returns" },
+  { id: TAB.REVIEWS, label: "Reviews" },
+];
 
 const Product = () => {
   const { productId } = useParams();
@@ -13,10 +25,13 @@ const Product = () => {
   const productsData = getById(productId);
   const [image, setImage] = useState("");
   const [size, setSize] = useState("");
+  const [tab, setTab] = useState(TABS[0].id);
+  const reviews = reviewsFor(productsData?._id);
 
   useEffect(() => {
     setSize("");
     setImage("");
+    setTab(TABS[0].id);
   }, [productId]);
 
   const shownImage = image || productsData?.image?.[0] || "";
@@ -57,13 +72,9 @@ const Product = () => {
           <h1 className="font-medium text-2xl mt-2">{productsData.name}</h1>
 
           <div className="flex items-center gap-1 mt-2">
-            <img src={assets.star_icon} alt="" className="w-3 5" />
-            <img src={assets.star_icon} alt="" className="w-3 5" />
-            <img src={assets.star_icon} alt="" className="w-3 5" />
-            <img src={assets.star_icon} alt="" className="w-3 5" />
-            <img src={assets.star_dull_icon} alt="" className="w-3 5" />
+            <StarRating rating={REVIEW_RATING} />
 
-            <p className="pl-2">(122)</p>
+            <p className="pl-2">({REVIEW_COUNT})</p>
           </div>
 
           <p className="mt-5 text-3xl font-medium">
@@ -115,30 +126,46 @@ const Product = () => {
         </div>
       </div>
 
-      {/* ---------------------- Products Description and review section ----------------------*/}
+      {/* ---------------------- Delivery and reviews ----------------------*/}
 
       <div className="mt-10">
         <div className="flex">
-          <b className="px-5 py-3 text-sm border">Description</b>
-          <p className="px-5 py-3 text-sm border">Reviews (122)</p>
+          {TABS.map(({ id, label }) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setTab(id)}
+              className={`px-5 py-3 text-sm border cursor-pointer ${
+                tab === id
+                  ? "font-semibold text-black"
+                  : "text-gray-500 hover:text-black"
+              }`}
+            >
+              {id === TAB.REVIEWS ? `${label} (${REVIEW_COUNT})` : label}
+            </button>
+          ))}
         </div>
 
-        <div className=" flex flex-col gap-4 border px-6 py-6 text-sm text-gray-500 ">
-          <p>
-            Ane-commerce website is an online platform that facilitates the
-            buying and selling of products or services over the internet. It
-            serves as a vietual marketplace where businesses and individuals.com
-            showcase ther produch, interact with customers, and conduct
-            fransactions without the need for a physical presence. E-commerce
-            websites have goned immense popularity due to their convenience,
-            accessibility, and the global reach they offer.
-          </p>
-          <p>
-            E-commerce websites typically display products or services along
-            with defailed descriptions, images, prices, and any ovalable
-            variations (eg, sizes colors). Each product uwaly has its ww
-            dedicated page with relevant infurroution
-          </p>
+        <div className="flex flex-col gap-4 border px-6 py-6 text-sm text-gray-500">
+          {tab === TAB.DELIVERY ? (
+            <>
+              <p>
+                Orders over $49 are delivered free; anything below that is
+                charged at checkout.
+              </p>
+              <p>
+                Returns and exchanges are accepted within 7 days of delivery.
+              </p>
+              <p>
+                Every product is original stock, checked before it is packed.
+              </p>
+              <p>
+                If something goes wrong, support is available around the clock.
+              </p>
+            </>
+          ) : (
+            <ReviewList reviews={reviews} />
+          )}
         </div>
       </div>
 
