@@ -2,6 +2,9 @@ node_modules
 *.env
 dist/
 
+# Archived assets kept locally only.
+/dead_asssets/
+
 # Private agent workspace: spec, tickets, tracker docs and domain docs.
 # Deliberately kept off the remote.
 /.scratch/
