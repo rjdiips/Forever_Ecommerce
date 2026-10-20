@@ -1,0 +1,281 @@
+import test, { before, after } from "node:test";
+import assert from "node:assert/strict";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+import UserModel from "../models/userModel.js";
+import { startAuthServer, stubUserModel } from "../test-support/authHttp.js";
+import { userAuth } from "../middlewares/userAuth.js";
+import {
+  signPasswordResetToken,
+  signSessionToken,
+  verifySessionToken,
+} from "../lib/authTokens.js";
+
+process.env.JWT_SECRET = "ticket-08-test-secret";
+
+const ORIGINAL_PASSWORD = "old-password";
+
+let auth;
+
+before(async () => {
+  auth = await startAuthServer({
+    // The user router has no route that `userAuth` protects, so a probe route
+    // lets the tests observe whether a Session token is accepted.
+    mount: (app) => {
+      app.get("/api/probe/me", userAuth, (req, res) => {
+        res.json({ success: true, userId: req.userId });
+      });
+    },
+  });
+});
+
+after(async () => {
+  await auth.close();
+});
+
+const makeUser = async (overrides = {}) =>
+  new UserModel({
+    name: "Ada",
+    email: "ada@example.com",
+    password: await bcrypt.hash(ORIGINAL_PASSWORD, 4),
+    tokenVersion: 0,
+    ...overrides,
+  });
+
+const resetPassword = (body, ip) =>
+  auth.request("/api/user/reset-password", {
+    method: "POST",
+    body,
+    ip,
+  });
+
+test("a valid Password reset link sets a new password and signs the User in", async (t) => {
+  const user = await makeUser();
+  const resetToken = signPasswordResetToken(user._id, 0);
+
+  stubUserModel(t, {
+    findById: async () => user,
+    save: async function () {
+      return this;
+    },
+  });
+
+  const response = await resetPassword(
+    { token: resetToken, password: "new-password" },
+    "198.51.100.81"
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.success, true);
+
+  // The password is re-hashed, never stored as plaintext.
+  assert.notEqual(user.password, "new-password");
+  assert.equal(await bcrypt.compare("new-password", user.password), true);
+  assert.equal(await bcrypt.compare(ORIGINAL_PASSWORD, user.password), false);
+
+  // The version is bumped, so the used link and old sessions stop working.
+  assert.equal(user.tokenVersion, 1);
+
+  // The response signs the User in with a Session token minted against the new
+  // version.
+  const session = verifySessionToken(response.body.data.token);
+  assert.equal(session.userId, String(user._id));
+  assert.equal(session.tokenVersion, 1);
+  assert.equal(session.purpose, "session");
+});
+
+test("an expired Password reset link is a clear 400 and changes nothing", async (t) => {
+  const user = await makeUser();
+  const expired = jwt.sign(
+    {
+      userId: String(user._id),
+      tokenVersion: user.tokenVersion,
+      purpose: "password-reset",
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: -10 }
+  );
+
+  const { save } = stubUserModel(t, {
+    findById: async () => user,
+    save: async function () {
+      return this;
+    },
+  });
+
+  const response = await resetPassword(
+    { token: expired, password: "new-password" },
+    "198.51.100.82"
+  );
+
+  assert.equal(response.status, 400);
+  assert.equal(response.body.success, false);
+  assert.match(response.body.message, /expired/i);
+  assert.equal(save.mock.callCount(), 0);
+  assert.equal(user.tokenVersion, 0);
+  assert.equal(await bcrypt.compare(ORIGINAL_PASSWORD, user.password), true);
+});
+
+test("a malformed, forged or wrong-purpose token is a clear 400", async (t) => {
+  const user = await makeUser();
+
+  const { findById, save } = stubUserModel(t, {
+    findById: async () => user,
+    save: async function () {
+      return this;
+    },
+  });
+
+  const sessionToken = signSessionToken(user._id, 0);
+  const responses = [
+    await resetPassword(
+      { token: "not-a-token", password: "new-password" },
+      "198.51.100.83"
+    ),
+    await resetPassword(
+      { token: sessionToken, password: "new-password" },
+      "198.51.100.83"
+    ),
+    await resetPassword({ password: "new-password" }, "198.51.100.83"),
+  ];
+
+  for (const response of responses) {
+    assert.equal(response.status, 400);
+    assert.equal(response.body.success, false);
+    assert.match(response.body.message, /invalid/i);
+  }
+
+  assert.equal(findById.mock.callCount(), 0);
+  assert.equal(save.mock.callCount(), 0);
+});
+
+test("a link minted for an older token version is refused", async (t) => {
+  const user = await makeUser({ tokenVersion: 1 });
+  const staleResetToken = signPasswordResetToken(user._id, 0);
+
+  const { save } = stubUserModel(t, {
+    findById: async () => user,
+    save: async function () {
+      return this;
+    },
+  });
+
+  const response = await resetPassword(
+    { token: staleResetToken, password: "new-password" },
+    "198.51.100.84"
+  );
+
+  assert.equal(response.status, 400);
+  assert.equal(response.body.success, false);
+  assert.match(response.body.message, /invalid|already been used/i);
+  assert.equal(save.mock.callCount(), 0);
+  assert.equal(user.tokenVersion, 1);
+});
+
+test("a weak password is a 400 and is not saved", async (t) => {
+  const user = await makeUser();
+  const resetToken = signPasswordResetToken(user._id, 0);
+
+  const { save } = stubUserModel(t, {
+    findById: async () => user,
+    save: async function () {
+      return this;
+    },
+  });
+
+  const response = await resetPassword(
+    { token: resetToken, password: "short" },
+    "198.51.100.85"
+  );
+
+  assert.equal(response.status, 400);
+  assert.equal(response.body.success, false);
+  assert.match(response.body.message, /at least 6 characters/i);
+  assert.equal(save.mock.callCount(), 0);
+  assert.equal(user.tokenVersion, 0);
+});
+
+test("a used link cannot be used a second time", async (t) => {
+  const user = await makeUser();
+  const resetToken = signPasswordResetToken(user._id, 0);
+
+  stubUserModel(t, {
+    findById: async () => user,
+    save: async function () {
+      return this;
+    },
+  });
+
+  const first = await resetPassword(
+    { token: resetToken, password: "new-password" },
+    "198.51.100.86"
+  );
+  const reuse = await resetPassword(
+    { token: resetToken, password: "another-password" },
+    "198.51.100.86"
+  );
+
+  assert.equal(first.status, 200);
+  assert.equal(reuse.status, 400);
+  assert.equal(reuse.body.success, false);
+  assert.match(reuse.body.message, /invalid|already been used/i);
+  assert.equal(await bcrypt.compare("new-password", user.password), true);
+});
+
+test("resetting the password revokes the old Session token", async (t) => {
+  const user = await makeUser();
+  const oldSession = signSessionToken(user._id, 0);
+  const resetToken = signPasswordResetToken(user._id, 0);
+
+  stubUserModel(t, {
+    findById: async () => user,
+    save: async function () {
+      return this;
+    },
+  });
+
+  const before = await auth.request("/api/probe/me", {
+    headers: { token: oldSession },
+  });
+  assert.equal(before.status, 200);
+
+  const response = await resetPassword(
+    { token: resetToken, password: "new-password" },
+    "198.51.100.87"
+  );
+  assert.equal(response.status, 200);
+
+  const oldAfterReset = await auth.request("/api/probe/me", {
+    headers: { token: oldSession },
+  });
+  assert.equal(oldAfterReset.status, 401);
+
+  const freshAfterReset = await auth.request("/api/probe/me", {
+    headers: { token: response.body.data.token },
+  });
+  assert.equal(freshAfterReset.status, 200);
+  assert.equal(freshAfterReset.body.userId, String(user._id));
+});
+
+test("a link for a User that no longer exists is refused", async (t) => {
+  const user = await makeUser();
+  const resetToken = signPasswordResetToken(user._id, 0);
+
+  const { save } = stubUserModel(t, {
+    findById: async () => null,
+    save: async function () {
+      return this;
+    },
+  });
+
+  const response = await resetPassword(
+    { token: resetToken, password: "new-password" },
+    "198.51.100.88"
+  );
+
+  assert.equal(response.status, 400);
+  assert.equal(response.body.success, false);
+  assert.match(response.body.message, /invalid|already been used/i);
+  assert.equal(save.mock.callCount(), 0);
+});

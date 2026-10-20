@@ -56,6 +56,14 @@ const forgotPassword = (ip) =>
     ip,
   });
 
+/** A rejected reset, which counts against the limiter before any database call. */
+const resetPassword = (ip) =>
+  auth.request("/api/user/reset-password", {
+    method: "POST",
+    body: { token: "not-a-token", password: "new-password" },
+    ip,
+  });
+
 test("login allows ten attempts per client IP, then answers 429", async (t) => {
   stubUserModel(t, { findOne: async () => null });
   const ip = "203.0.113.10";
@@ -119,6 +127,23 @@ test("forgot-password allows five attempts per client IP, then answers 429", asy
   const rejected = await forgotPassword(ip);
 
   assert.equal(rejected.status, 429);
+  assert.equal(rejected.body.success, false);
+  assert.equal(typeof rejected.body.message, "string");
+  assert.notEqual(rejected.body.message, "");
+});
+
+test("reset-password allows five attempts per client IP, then answers 429", async () => {
+  const ip = "203.0.113.14";
+
+  for (let attempt = 1; attempt <= 5; attempt += 1) {
+    const response = await resetPassword(ip);
+    assert.equal(response.status, 400, `attempt ${attempt} should be allowed`);
+  }
+
+  const rejected = await resetPassword(ip);
+
+  assert.equal(rejected.status, 429);
+  assert.deepEqual(Object.keys(rejected.body).sort(), ["message", "success"]);
   assert.equal(rejected.body.success, false);
   assert.equal(typeof rejected.body.message, "string");
   assert.notEqual(rejected.body.message, "");

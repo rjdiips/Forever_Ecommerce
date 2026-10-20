@@ -1,14 +1,18 @@
 import UserModel from "../models/userModel.js";
 import validator from "validator";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { HttpError } from "../lib/http.js";
 import { log } from "../lib/log.js";
 import { getFrontendUrl } from "../config/frontendUrl.js";
 import { emailService } from "../lib/email.js";
 import {
+  TOKEN_PURPOSE,
+  isCurrentToken,
   signAdminSessionToken,
   signPasswordResetToken,
   signSessionToken,
+  verifyPasswordResetToken,
 } from "../lib/authTokens.js";
 
 const createToken = (user) =>
@@ -28,6 +32,17 @@ const DUMMY_PASSWORD_HASH =
 
 /** The one failure message for a bad email, a bad password, or both. */
 const INVALID_CREDENTIALS_MESSAGE = "Invalid email or password";
+
+/** A reset link that is malformed, forged, or already used. */
+const INVALID_RESET_LINK_MESSAGE =
+  "This password reset link is invalid or has already been used. Please request a new one.";
+
+/** A reset link that is well formed but past its 30-minute lifetime. */
+const EXPIRED_RESET_LINK_MESSAGE =
+  "This password reset link has expired. Please request a new one.";
+
+/** The same minimum the sign-up form uses. */
+const MINIMUM_PASSWORD_LENGTH = 6;
 
 // Route for user login
 export const loginUser = async (req) => {
@@ -115,6 +130,60 @@ export const requestPasswordReset = async (req) => {
   } catch (error) {
     log.error("Password reset email failed", { error: error?.message });
   }
+};
+
+// Route for a User setting a new password from a Password reset link
+export const resetPassword = async (req) => {
+  const { token, password } = req.body ?? {};
+
+  if (typeof token !== "string" || token === "") {
+    throw new HttpError(400, INVALID_RESET_LINK_MESSAGE);
+  }
+
+  let payload;
+
+  try {
+    payload = verifyPasswordResetToken(token);
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      throw new HttpError(400, EXPIRED_RESET_LINK_MESSAGE);
+    }
+
+    throw new HttpError(400, INVALID_RESET_LINK_MESSAGE);
+  }
+
+  const user =
+    payload.userId === undefined || payload.userId === null
+      ? null
+      : await UserModel.findById(payload.userId);
+
+  // The purpose and the User's current tokenVersion must both match. A used
+  // link fails here because the successful reset bumped the version.
+  if (!isCurrentToken(payload, user, TOKEN_PURPOSE.PASSWORD_RESET)) {
+    throw new HttpError(400, INVALID_RESET_LINK_MESSAGE);
+  }
+
+  if (
+    typeof password !== "string" ||
+    password.length < MINIMUM_PASSWORD_LENGTH
+  ) {
+    throw new HttpError(
+      400,
+      `Password should be at least ${MINIMUM_PASSWORD_LENGTH} characters`
+    );
+  }
+
+  // Re-hash the new password; the plaintext is never stored.
+  const salt = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(password, salt);
+
+  // Bumping the version invalidates this reset link and every existing Session
+  // token in one save.
+  user.tokenVersion = (user.tokenVersion ?? 0) + 1;
+  await user.save();
+
+  // Sign the User in with a Session token minted against the new version.
+  return { token: signSessionToken(user._id, user.tokenVersion) };
 };
 
 // Route for admin login
