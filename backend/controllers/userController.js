@@ -1,7 +1,11 @@
 import UserModel from "../models/userModel.js";
 import validator from "validator";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import { waitUntil } from "@vercel/functions";
+import {
+  MIN_PASSWORD_LENGTH,
+  passwordTooShortMessage,
+} from "@forever/shared";
 import { HttpError } from "../lib/http.js";
 import { log } from "../lib/log.js";
 import { getFrontendUrl } from "../config/frontendUrl.js";
@@ -9,13 +13,14 @@ import { emailService } from "../lib/email.js";
 import {
   TOKEN_PURPOSE,
   isCurrentToken,
+  isTokenExpiredError,
   signAdminSessionToken,
   signPasswordResetToken,
   signSessionToken,
   verifyPasswordResetToken,
 } from "../lib/authTokens.js";
 
-const createToken = (user) =>
+const createSessionToken = (user) =>
   signSessionToken(user._id, user.tokenVersion ?? 0);
 
 /**
@@ -41,9 +46,6 @@ const INVALID_RESET_LINK_MESSAGE =
 const EXPIRED_RESET_LINK_MESSAGE =
   "This password reset link has expired. Please request a new one.";
 
-/** The same minimum the sign-up form uses. */
-const MINIMUM_PASSWORD_LENGTH = 6;
-
 // Route for user login
 export const loginUser = async (req) => {
   const { email, password } = req.body;
@@ -63,7 +65,7 @@ export const loginUser = async (req) => {
     throw new HttpError(400, INVALID_CREDENTIALS_MESSAGE);
   }
 
-  const token = createToken(user);
+  const token = createSessionToken(user);
 
   return { token, user };
 };
@@ -84,8 +86,8 @@ export const registerUser = async (req) => {
     throw new HttpError(400, "Please enter a valid email");
   }
 
-  if (password.length < 6) {
-    throw new HttpError(400, "Password should be at least 6 characters");
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    throw new HttpError(400, passwordTooShortMessage());
   }
 
   // Hashing the password
@@ -100,7 +102,7 @@ export const registerUser = async (req) => {
 
   const savedUser = await newUser.save();
 
-  const token = createToken(savedUser);
+  const token = createSessionToken(savedUser);
 
   return { user: savedUser, token };
 };
@@ -126,7 +128,17 @@ export const requestPasswordReset = async (req) => {
     const token = signPasswordResetToken(user._id, user.tokenVersion ?? 0);
     const resetUrl = `${getFrontendUrl()}/reset-password?token=${encodeURIComponent(token)}`;
 
-    await emailService.sendPasswordResetEmail({ to: user.email, resetUrl });
+    // Dispatch without making the response wait for the provider. An unknown
+    // email already returns immediately, so awaiting delivery here would be a
+    // timing oracle for whether the account exists. `waitUntil` keeps the work
+    // alive in the deployed function; failures are logged and never surface.
+    const delivery = emailService
+      .sendPasswordResetEmail({ to: user.email, resetUrl })
+      .catch((error) => {
+        log.error("Password reset email failed", { error: error?.message });
+      });
+
+    waitUntil(delivery);
   } catch (error) {
     log.error("Password reset email failed", { error: error?.message });
   }
@@ -145,7 +157,7 @@ export const resetPassword = async (req) => {
   try {
     payload = verifyPasswordResetToken(token);
   } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
+    if (isTokenExpiredError(error)) {
       throw new HttpError(400, EXPIRED_RESET_LINK_MESSAGE);
     }
 
@@ -165,25 +177,43 @@ export const resetPassword = async (req) => {
 
   if (
     typeof password !== "string" ||
-    password.length < MINIMUM_PASSWORD_LENGTH
+    password.length < MIN_PASSWORD_LENGTH
   ) {
-    throw new HttpError(
-      400,
-      `Password should be at least ${MINIMUM_PASSWORD_LENGTH} characters`
-    );
+    throw new HttpError(400, passwordTooShortMessage());
   }
 
   // Re-hash the new password; the plaintext is never stored.
   const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(password, salt);
+  const hashedPassword = await bcrypt.hash(password, salt);
 
-  // Bumping the version invalidates this reset link and every existing Session
-  // token in one save.
-  user.tokenVersion = (user.tokenVersion ?? 0) + 1;
-  await user.save();
+  // Redeem atomically: the update only matches while the link's version is
+  // still the User's current version. Two requests holding the same link both
+  // pass the pre-check above, but only one can win this conditional write; the
+  // other gets null and the same clear "already used" answer. The increment
+  // also invalidates every existing Session token in the same write.
+  const currentVersion = user.tokenVersion ?? 0;
+  const versionFilter =
+    currentVersion === 0
+      ? { $or: [{ tokenVersion: 0 }, { tokenVersion: { $exists: false } }] }
+      : { tokenVersion: currentVersion };
+
+  const updatedUser = await UserModel.findOneAndUpdate(
+    { _id: user._id, ...versionFilter },
+    {
+      $set: { password: hashedPassword },
+      $inc: { tokenVersion: 1 },
+    },
+    { new: true }
+  );
+
+  if (!updatedUser) {
+    throw new HttpError(400, INVALID_RESET_LINK_MESSAGE);
+  }
 
   // Sign the User in with a Session token minted against the new version.
-  return { token: signSessionToken(user._id, user.tokenVersion) };
+  return {
+    token: signSessionToken(updatedUser._id, updatedUser.tokenVersion),
+  };
 };
 
 // Route for admin login

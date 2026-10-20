@@ -1,7 +1,8 @@
-import jwt from "jsonwebtoken";
-
 import { HttpError } from "../lib/http.js";
-import { verifyAdminSessionToken } from "../lib/authTokens.js";
+import {
+  isTokenExpiredError,
+  verifyAdminSessionToken,
+} from "../lib/authTokens.js";
 
 /** Expiry gets its own message so the client knows signing in again will help. */
 const EXPIRED_MESSAGE = "Admin session expired, please log in again";
@@ -27,12 +28,10 @@ export const adminAuth = (req, res, next) => {
     verifyAdminSessionToken(token);
     next();
   } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
+    if (isTokenExpiredError(error)) {
       return next(new HttpError(401, EXPIRED_MESSAGE));
     }
 
     return next(new HttpError(401, INVALID_MESSAGE));
   }
 };
-
-export default adminAuth;

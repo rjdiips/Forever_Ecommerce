@@ -10,10 +10,10 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import {
-  SESSION_EXPIRED_MESSAGE,
   SESSION_EXPIRED_TOAST_ID,
   isLoginPage,
   isRejectedSession,
+  sessionRejectionMessage,
 } from "./sessionExpiry";
 
 const AuthContext = createContext(null);
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
           // The storage effect also removes it; doing it here stops a reload
           // during the redirect from restoring the rejected token.
           localStorage.removeItem("token");
-          toast.error(SESSION_EXPIRED_MESSAGE, {
+          toast.error(sessionRejectionMessage(error), {
             toastId: SESSION_EXPIRED_TOAST_ID,
           });
 

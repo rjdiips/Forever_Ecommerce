@@ -3,6 +3,11 @@
  *
  * Plain ESM with JSDoc: consumed straight from source, with no build step.
  */
+export {
+  GENERIC_PASSWORD_RESET_CONFIRMATION,
+  MIN_PASSWORD_LENGTH,
+  passwordTooShortMessage,
+} from "./auth.js";
 export { requireApiBaseUrl } from "./config.js";
 export { CURRENCY, formatMoney, fromCents, toCents } from "./money.js";
 export { DELIVERY_FEE } from "./delivery.js";

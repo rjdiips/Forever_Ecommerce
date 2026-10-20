@@ -1,17 +1,6 @@
-import { Resend } from "resend";
 import { log } from "../lib/log.js";
 import { HttpError } from "../lib/http.js";
-
-// The Resend client is null when the key is absent, so the module still loads and
-// a missing key becomes a per-request failure rather than a boot crash.
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
-
-// `onboarding@resend.dev` only delivers to the Resend account owner. To reach
-// real subscribers, verify a domain in Resend and set RESEND_FROM_EMAIL to an
-// address on it.
-const from = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+import { resendClient, resendFrom } from "../lib/resend.js";
 
 // Subscribe a newsletter email --> /api/subscribe
 export const subscribe = async (req) => {
@@ -21,15 +10,15 @@ export const subscribe = async (req) => {
     throw new HttpError(400, "Email is required.");
   }
 
-  if (!resend) {
+  if (!resendClient) {
     throw new HttpError(
       500,
       "RESEND_API_KEY is not set; cannot send subscription email"
     );
   }
 
-  const { error } = await resend.emails.send({
-    from,
+  const { error } = await resendClient.emails.send({
+    from: resendFrom(),
     to: email,
     subject: "🎉 Thank You for Subscribing!",
     html: `

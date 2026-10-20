@@ -2,6 +2,7 @@ import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import { GENERIC_PASSWORD_RESET_CONFIRMATION } from "@forever/shared";
 
 import { startAuthServer, stubUserModel } from "../test-support/authHttp.js";
 import { emailService } from "../lib/email.js";
@@ -55,7 +56,53 @@ test("a known and an unknown email get the same generic confirmation", async (t)
   assert.equal(known.body.success, true);
   assert.equal(unknown.body.success, true);
   assert.deepEqual(known.body, unknown.body);
+  assert.equal(known.body.message, GENERIC_PASSWORD_RESET_CONFIRMATION);
   assert.equal(send.mock.callCount(), 1);
+});
+
+test("a known account's response does not wait for the email provider", async (t) => {
+  const user = makeUser();
+
+  stubUserModel(t, {
+    findOne: async ({ email }) => (email === user.email ? user : null),
+  });
+
+  let release;
+  const sending = new Promise((resolve) => {
+    release = resolve;
+  });
+  const send = t.mock.method(
+    emailService,
+    "sendPasswordResetEmail",
+    () => sending
+  );
+
+  let timer;
+
+  try {
+    const outcome = await Promise.race([
+      requestReset(user.email, "198.51.100.65").then((response) => ({
+        response,
+      })),
+      new Promise((resolve) => {
+        timer = setTimeout(() => resolve({ timedOut: true }), 1000);
+      }),
+    ]);
+
+    // An unknown email returns immediately. If a known one waited for Resend,
+    // that difference would reveal which accounts exist.
+    assert.equal(
+      outcome.timedOut,
+      undefined,
+      "the response waited for the email provider"
+    );
+    assert.equal(outcome.response.status, 200);
+    assert.equal(send.mock.callCount(), 1);
+  } finally {
+    clearTimeout(timer);
+    release();
+    await sending;
+  }
 });
 
 test("a known account is emailed a 30-minute Password reset link", async (t) => {
@@ -125,6 +172,10 @@ test("an email failure is logged and the response stays generic", async (t) => {
 
   const known = await requestReset(user.email, "198.51.100.64");
   const unknown = await requestReset("nobody@example.com", "198.51.100.64");
+
+  // Delivery is dispatched without blocking the response, so let its failure
+  // handler run before checking the log.
+  await new Promise((resolve) => setImmediate(resolve));
 
   assert.equal(known.status, 200);
   assert.equal(unknown.status, 200);
