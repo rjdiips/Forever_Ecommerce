@@ -33,6 +33,17 @@ test("an ordinary product still needs no colour", async () => {
   await assert.doesNotReject(() => new ProductModel(product()).validate());
 });
 
+test("a product must carry a description", async () => {
+  await assert.rejects(
+    () => new ProductModel(product({ description: undefined })).validate(),
+    (error) => error.errors.description !== undefined
+  );
+
+  await assert.doesNotReject(() =>
+    new ProductModel(product({ description: "A tee" })).validate()
+  );
+});
+
 test("a base saved before colours existed reads back with no colour", () => {
   // Documents written before the colour existed skip validation when read, so
   // the field must not be defaulted for them.
