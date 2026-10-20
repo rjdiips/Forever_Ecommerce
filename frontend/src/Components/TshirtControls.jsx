@@ -1,6 +1,8 @@
+import { useCallback, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import { DEFAULT_CUSTOM_GRAPHIC_SCALE, PRESETS } from "../tee/presets";
 import { designFileName } from "../tee/purchase";
+import { downscaleGraphicFile } from "../tee/upload";
 
 const TshirtControls = ({
   design,
@@ -12,10 +14,59 @@ const TshirtControls = ({
   onExport,
   canExport = true,
 }) => {
-  const handleUpload = (event) => {
+  // The editor owns the object URL of an uploaded graphic so it can be revoked
+  // when the draft moves on. Presets are bundled URLs and are never revoked.
+  const uploadUrlRef = useRef(null);
+  const uploadRequestRef = useRef(0);
+
+  const releaseUploadUrl = useCallback(() => {
+    if (uploadUrlRef.current) {
+      URL.revokeObjectURL(uploadUrlRef.current);
+      uploadUrlRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => releaseUploadUrl();
+  }, [releaseUploadUrl]);
+
+  const selectGraphic = (src, scale) => {
+    // A pending downscale must not install a graphic after the shopper has
+    // already chosen a preset or removed the graphic.
+    uploadRequestRef.current += 1;
+    releaseUploadUrl();
+    onSelectGraphic(src, scale);
+  };
+
+  const handleUpload = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    onSelectGraphic(URL.createObjectURL(file), DEFAULT_CUSTOM_GRAPHIC_SCALE);
+
+    const request = uploadRequestRef.current + 1;
+    uploadRequestRef.current = request;
+
+    try {
+      const url = await downscaleGraphicFile(file);
+      if (request !== uploadRequestRef.current) {
+        URL.revokeObjectURL(url);
+        return;
+      }
+
+      releaseUploadUrl();
+      uploadUrlRef.current = url;
+      onSelectGraphic(url, DEFAULT_CUSTOM_GRAPHIC_SCALE);
+    } catch (error) {
+      toast.error(error?.message || "Could not use that image.");
+    } finally {
+      // Let the same file be chosen again after a failed attempt.
+      event.target.value = "";
+    }
+  };
+
+  const handleReset = () => {
+    uploadRequestRef.current += 1;
+    releaseUploadUrl();
+    onReset();
   };
 
   const handleDownload = async () => {
@@ -60,16 +111,20 @@ const TshirtControls = ({
           {PRESETS.map((preset) => (
             <img
               key={preset.id}
-              src={preset.src}
+              src={preset.thumb}
               alt={preset.id}
-              onClick={() => onSelectGraphic(preset.src, preset.defaultScale)}
+              width={48}
+              height={48}
+              loading="lazy"
+              decoding="async"
+              onClick={() => selectGraphic(preset.src, preset.defaultScale)}
               className={`w-12 h-12 !border cursor-pointer object-contain p-1 ${
                 design.graphic === preset.src ? "ring-2 ring-black" : ""
               }`}
             />
           ))}
           <button
-            onClick={() => onSelectGraphic(null)}
+            onClick={() => selectGraphic(null)}
             className="h-12 p-2 text-sm !border rounded text-red-500 hover:bg-red-50"
           >
             Remove
@@ -136,7 +191,7 @@ const TshirtControls = ({
         Download Design
       </button>
       <button
-        onClick={onReset}
+        onClick={handleReset}
         className="w-full py-2 text-sm !border rounded hover:bg-gray-100"
       >
         Reset

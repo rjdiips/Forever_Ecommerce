@@ -7,7 +7,7 @@ const cloudinary =
 describe("teeBlankUrl", () => {
   it("asks Cloudinary for a square, auto-formatted blank", () => {
     expect(teeBlankUrl(cloudinary)).toBe(
-      "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,w_1600,h_1600,c_fill/v1699999999/tee.png"
+      "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,w_1200,h_1200,c_fill/v1699999999/tee.png"
     );
   });
 

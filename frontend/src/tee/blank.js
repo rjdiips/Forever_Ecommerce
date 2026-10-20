@@ -6,8 +6,9 @@
 // upload is never changed. A URL Cloudinary does not serve has no transform to
 // apply, so it is requested as-is; a base with no image has no URL at all.
 
-/** The Cloudinary transform that makes every blank a square. */
-const BLANK_TRANSFORM = "f_auto,q_auto,w_1600,h_1600,c_fill";
+// The canvas is 1000x1000 (geometry.js); 1200 leaves a little headroom for
+// high-density displays without asking Cloudinary for a 2.5 MP image.
+const BLANK_TRANSFORM = "f_auto,q_auto,w_1200,h_1200,c_fill";
 
 /** A Cloudinary image delivery URL, up to and including `/image/upload/`. */
 const CLOUDINARY_UPLOAD = /^https?:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\//;

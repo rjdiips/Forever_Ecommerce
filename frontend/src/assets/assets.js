@@ -72,11 +72,19 @@ import contact_img from "./contact_img.png";
 import stripe_logo from "./stripe_logo.png";
 import cross_icon from "./cross_icon.png";
 
-import preset1 from "./presets/off-road-car-palm.png";
-import preset2 from "./presets/yin-yang.png";
-import preset3 from "./presets/hustle.png";
-import preset4 from "./presets/artistic-portrait.png";
-import preset5 from "./presets/cat-silhouette.png";
+// Presets are canvas-sized WebP copies, plus tiny thumbnails for the picker.
+// The originals are deliberately not imported: a 4096px PNG is decoded in full
+// even when it is shown at 48px. See `frontend/src/tee/presets.test.js`.
+import preset1 from "./presets/off-road-car-palm.webp";
+import preset2 from "./presets/yin-yang.webp";
+import preset3 from "./presets/hustle.webp";
+import preset4 from "./presets/artistic-portrait.webp";
+import preset5 from "./presets/cat-silhouette.webp";
+import preset1Thumb from "./presets/thumbs/off-road-car-palm.webp";
+import preset2Thumb from "./presets/thumbs/yin-yang.webp";
+import preset3Thumb from "./presets/thumbs/hustle.webp";
+import preset4Thumb from "./presets/thumbs/artistic-portrait.webp";
+import preset5Thumb from "./presets/thumbs/cat-silhouette.webp";
 
 export const assets = {
   logo,
@@ -101,6 +109,11 @@ export const assets = {
   preset3,
   preset4,
   preset5,
+  preset1Thumb,
+  preset2Thumb,
+  preset3Thumb,
+  preset4Thumb,
+  preset5Thumb,
 };
 
 export const products1 = [
