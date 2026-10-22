@@ -19,7 +19,9 @@ const CatalogueContext = createContext(null);
 // and the search query. Components never scan a product array themselves.
 export const CatalogueProvider = ({ children }) => {
   const [allProducts, setAllProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Three states, not a boolean: a failed request must be able to end the
+  // rails' placeholder instead of leaving them shimmering forever.
+  const [status, setStatus] = useState("loading"); // loading | ready | error
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
 
@@ -32,16 +34,16 @@ export const CatalogueProvider = ({ children }) => {
         if (cancelled) return;
         if (response.data.success) {
           setAllProducts(response.data.data.products ?? []);
+          setStatus("ready");
         } else {
+          setStatus("error");
           toast.error(response.data.message);
         }
       })
       .catch((error) => {
         if (cancelled) return;
+        setStatus("error");
         toast.error(error.response?.data?.message || error.message);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
       });
 
     return () => {
@@ -80,7 +82,8 @@ export const CatalogueProvider = ({ children }) => {
       products,
       // The full list, for the Cart's price lookup and the tee generator's base.
       allProducts,
-      loading,
+      loading: status === "loading",
+      error: status === "error",
       getById,
       relatedTo,
       search,
@@ -91,7 +94,7 @@ export const CatalogueProvider = ({ children }) => {
     [
       products,
       allProducts,
-      loading,
+      status,
       getById,
       relatedTo,
       search,
