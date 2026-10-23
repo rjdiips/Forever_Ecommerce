@@ -151,7 +151,11 @@ const Collection = () => {
         <div className="min-w-0">
           <div className="flex flex-col gap-4 border-b border-gray-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[9px] uppercase tracking-[0.24em] text-gray-500 tabular-nums">
-              {loading ? "Loading pieces" : `${filteredProducts.length} on view`}
+              {loading
+                ? "Loading pieces"
+                : `${filteredProducts.length} ${
+                    filteredProducts.length === 1 ? "piece" : "pieces"
+                  }`}
               {hasFilters && (
                 <span className="ml-2 text-[#b8838e]">/ filtered</span>
               )}
