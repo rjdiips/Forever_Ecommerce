@@ -14,7 +14,7 @@ const SORT_OPTIONS = [
 
 const ProductPlate = ({ product }) => (
   <Link to={`/product/${product._id}`} className="group block">
-    <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+    <div className="relative aspect-[390/450] overflow-hidden bg-gray-100">
       <img
         src={product.image?.[0]}
         alt={product.name}
@@ -196,7 +196,7 @@ const Collection = () => {
               {Array.from({ length: 9 }, (_, index) => (
                 <ProductSkeleton
                   key={index}
-                  imageClassName="aspect-[3/4]"
+                  imageClassName="aspect-[390/450]"
                 />
               ))}
             </div>
