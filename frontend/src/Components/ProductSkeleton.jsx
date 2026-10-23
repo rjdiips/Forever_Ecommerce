@@ -1,9 +1,10 @@
 // Mirrors ProductItem's shape so a rail keeps its height while the catalogue
-// request and the Cloudinary images are in flight. The image box is square to
-// match the product photos; the two text bars stand in for name and price.
-const ProductSkeleton = () => (
+// request and the Cloudinary images are in flight. The image box defaults to a
+// square to match the homepage product photos; the collection passes its own
+// 3:4 ratio so its loading grid matches the final plates.
+const ProductSkeleton = ({ imageClassName = "aspect-square" }) => (
   <div aria-hidden="true" className="animate-pulse motion-reduce:animate-none">
-    <div className="aspect-square w-full rounded bg-gray-200" />
+    <div className={`${imageClassName} w-full rounded bg-gray-200`} />
     <div className="mt-3 h-3.5 w-4/5 rounded bg-gray-200" />
     <div className="mt-2 h-3.5 w-1/3 rounded bg-gray-200" />
   </div>

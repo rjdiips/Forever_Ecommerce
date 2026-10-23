@@ -1,210 +1,226 @@
-import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { CATEGORIES, SUB_CATEGORIES } from "@forever/shared";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { formatProductPrice } from "@forever/shared";
 import { useCatalogue } from "../catalogue/CatalogueContext";
-import { assets } from "../assets/assets";
-import Title from "../Components/Title";
-import ProductItem from "../Components/ProductItem";
+import CollectionSidebar from "../Components/CollectionSidebar";
+import ProductSkeleton from "../Components/ProductSkeleton";
 import SearchBar from "../Components/SearchBar";
 
+const SORT_OPTIONS = [
+  { value: "relevant", label: "Relevant" },
+  { value: "low-high", label: "Price: low to high" },
+  { value: "high-low", label: "Price: high to low" },
+];
+
+const ProductPlate = ({ product }) => (
+  <Link to={`/product/${product._id}`} className="group block">
+    <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+      <img
+        src={product.image?.[0]}
+        alt={product.name}
+        loading="lazy"
+        className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
+      />
+    </div>
+
+    <div className="mt-3.5 flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <p className="text-[8px] uppercase tracking-[0.2em] text-gray-400">
+          {product.category} / {product.subCategory}
+        </p>
+        <p className="mt-1.5 text-[14px] leading-snug text-gray-800">
+          {product.name}
+        </p>
+      </div>
+      <p className="shrink-0 text-[13px] font-medium">
+        {formatProductPrice(product.price)}
+      </p>
+    </div>
+
+    <span className="mt-2.5 inline-flex items-center gap-2 text-[8px] uppercase tracking-[0.2em] text-gray-400 transition-colors group-hover:text-[#111]">
+      View piece
+      <span
+        aria-hidden="true"
+        className="transition-transform duration-300 group-hover:translate-x-1"
+      >
+        →
+      </span>
+    </span>
+  </Link>
+);
+
+const EmptyState = ({ onClear }) => (
+  <div className="mt-12 border-y border-gray-200 py-16 text-center">
+    <p className="text-[9px] uppercase tracking-[0.3em] text-[#b8838e]">
+      Forever / Nothing here
+    </p>
+    <p className="editorial-display mt-3 text-2xl text-[#111]">
+      No pieces match those filters.
+    </p>
+    <button
+      type="button"
+      onClick={onClear}
+      className="mt-6 border-b border-[#111] pb-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] transition-opacity hover:opacity-60"
+    >
+      Reset view
+    </button>
+  </div>
+);
+
 const Collection = () => {
-  const { products, search, showSearch, setShowSearch } = useCatalogue();
-  const [showFilter, setShowFilter] = useState(false);
-  const [filterProducts, setFilterProducts] = useState([]);
+  const { products, loading, error, search, showSearch, setSearch, setShowSearch } =
+    useCatalogue();
   const [category, setCategory] = useState([]);
   const [subCategory, setSubCategory] = useState([]);
-  const [sortType, setSortType] = useState("relevent");
+  const [sortType, setSortType] = useState("relevant");
   const location = useLocation();
 
-  const toggleCategory = (e) => {
-    const value = e.target.value;
-
-    category.includes(value)
-      ? setCategory((prev) => prev.filter((item) => item !== value))
-      : setCategory((prev) => [...prev, value]);
+  const toggleCategory = (value) => {
+    setCategory((previous) =>
+      previous.includes(value)
+        ? previous.filter((item) => item !== value)
+        : [...previous, value]
+    );
   };
 
-  const toggleSubCategory = (e) => {
-    const value = e.target.value;
-
-    subCategory.includes(value)
-      ? setSubCategory((prev) => prev.filter((item) => item !== value))
-      : setSubCategory((prev) => [...prev, value]);
+  const toggleSubCategory = (value) => {
+    setSubCategory((previous) =>
+      previous.includes(value)
+        ? previous.filter((item) => item !== value)
+        : [...previous, value]
+    );
   };
 
-  const applyFilter = () => {
-    if (!products || products.length === 0) return; // Ensure products are available
+  const clearFilters = () => {
+    setCategory([]);
+    setSubCategory([]);
+  };
 
-    let productsCopy = products.slice(); // Create a shallow copy of products
+  const resetView = () => {
+    clearFilters();
+    setSearch("");
+  };
 
-    if (showSearch && search) {
-      productsCopy = productsCopy.filter((item) =>
-        item.name.toLowerCase().includes(search.toLowerCase().trim())
+  // The grid is derived, not copied into state by effects, so a filter or sort
+  // change paints once and the catalogue's display order stays the default.
+  const filteredProducts = useMemo(() => {
+    let list = products.slice();
+    const query = showSearch ? search.trim().toLowerCase() : "";
+
+    if (query) {
+      list = list.filter((item) =>
+        item.name.toLowerCase().includes(query)
       );
     }
-
     if (category.length > 0) {
-      productsCopy = productsCopy.filter((item) =>
-        category.includes(item.category)
-      );
+      list = list.filter((item) => category.includes(item.category));
     }
     if (subCategory.length > 0) {
-      productsCopy = productsCopy.filter((item) =>
-        subCategory.includes(item.subCategory)
-      );
+      list = list.filter((item) => subCategory.includes(item.subCategory));
+    }
+    if (sortType === "low-high") {
+      list.sort((a, b) => a.price - b.price);
+    } else if (sortType === "high-low") {
+      list.sort((a, b) => b.price - a.price);
     }
 
-    setFilterProducts(productsCopy); // Update the filtered products state
-  };
+    return list;
+  }, [products, search, showSearch, category, subCategory, sortType]);
 
-  const sortProducts = () => {
-    if (filterProducts.length === 0) return; // Ensure there are products to sort
-
-    let filteredProdCopy = [...filterProducts]; // Create a shallow copy of filtered products
-
-    switch (sortType) {
-      case "low-high":
-        setFilterProducts(filteredProdCopy.sort((a, b) => a.price - b.price));
-        break;
-      case "high-low":
-        setFilterProducts(filteredProdCopy.sort((a, b) => b.price - a.price));
-        break;
-
-      default:
-        setFilterProducts(() => {
-          applyFilter();
-        });
-
-        break;
-    }
-
-    setFilterProducts(filteredProdCopy); // Update the filtered products state
-  };
-
-  useEffect(() => {
-    applyFilter();
-  }, [category, subCategory, search, showSearch, products]);
-
-  useEffect(() => {
-    sortProducts();
-  }, [sortType]);
-
+  // The Navbar can hand the page an open search field.
   useEffect(() => {
     if (location.state?.openSearch) {
       setShowSearch(true);
     }
   }, [location.state, setShowSearch]);
 
+  const hasFilters = category.length + subCategory.length > 0;
+
   return (
-    <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t">
-      {/* Filter Option */}
-
-      <div className="min-w-52">
-        <p
-          onClick={() => {
-            setShowFilter(!showFilter);
-          }}
-          className="my-2 text-xl flex items-center cursor-pointer gap-2"
-        >
-          {" "}
-          Filters
-          <img
-            src={assets.dropdown_icon}
-            alt=""
-            className={`h-3 sm:hidden ${showFilter ? "rotate-90" : ""}`}
-          />
+    <section className="pt-6 sm:pt-10">
+      <div className="flex items-center justify-between border-t border-[#111] pt-4">
+        <p className="text-[9px] uppercase tracking-[0.3em] text-[#b8838e]">
+          Forever / Collection
         </p>
-
-        {/* Category Filter */}
-        <div
-          className={`border border-gray-300 pl-5 py-3 mt-6 ${
-            showFilter ? "" : "hidden"
-          } 
-            sm:block`}
-        >
-          <p className="mb-3 text-sm font-medium">CATEGORIES</p>
-
-          <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
-            {CATEGORIES.map((value) => (
-              <p key={value} className="flex gap-2">
-                <input
-                  type="checkbox"
-                  className="w-3"
-                  value={value}
-                  onChange={toggleCategory}
-                />
-                {value.toUpperCase()}
-              </p>
-            ))}
-          </div>
-        </div>
-
-        {/* Sub Catrgory Filter */}
-        <div
-          className={`border border-gray-300 pl-5 py-3 my-5 ${
-            showFilter ? "" : "hidden"
-          } 
-            sm:block`}
-        >
-          <p className="mb-3 text-sm font-medium">TYPES</p>
-
-          <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
-            {SUB_CATEGORIES.map((value) => (
-              <p key={value} className="flex gap-2">
-                <input
-                  type="checkbox"
-                  className="w-3"
-                  value={value}
-                  onChange={toggleSubCategory}
-                />
-                {value}
-              </p>
-            ))}
-          </div>
-        </div>
+        <p className="text-[9px] uppercase tracking-[0.24em] text-gray-500 tabular-nums">
+          {loading
+            ? "Loading pieces"
+            : `${filteredProducts.length} ${
+                filteredProducts.length === 1 ? "piece" : "pieces"
+              }`}
+        </p>
       </div>
 
-      {/* Right Side --> Product List */}
+      <div className="mt-8 grid gap-10 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-14">
+        <CollectionSidebar
+          category={category}
+          subCategory={subCategory}
+          toggleCategory={toggleCategory}
+          toggleSubCategory={toggleSubCategory}
+          clearFilters={clearFilters}
+          activeFilterCount={category.length + subCategory.length}
+        />
 
-      <div className="flex-1">
-        {/* Title */}
-        <div className="mb-4 flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between sm:text-xl lg:text-2xl">
-          <Title text1={"ALL"} text2={"COLLECTIONS"} />
+        <div className="min-w-0">
+          <div className="flex flex-col gap-4 border-b border-gray-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[9px] uppercase tracking-[0.24em] text-gray-500 tabular-nums">
+              {loading ? "Loading pieces" : `${filteredProducts.length} on view`}
+              {hasFilters && (
+                <span className="ml-2 text-[#b8838e]">/ filtered</span>
+              )}
+            </p>
 
-          <div className="flex flex-wrap items-center gap-3 sm:justify-end">
-            {/* Search sits with the collection controls, not above the page. */}
-            <SearchBar resultCount={filterProducts.length} />
+            <div className="flex flex-wrap items-center gap-3">
+              <SearchBar resultCount={filteredProducts.length} />
 
-            {/* Product Sort */}
-            <select
-              onChange={(e) => {
-                setSortType(e.target.value);
-              }}
-              value={sortType}
-              className="h-9 border border-gray-300 bg-white px-2 text-sm"
-            >
-              <option value="relevent">Sort by: Relevent</option>
-              <option value="low-high">Sort by: Low to High</option>
-              <option value="high-low">Sort by: High to Low</option>
-            </select>
+              <label htmlFor="collection-sort" className="sr-only">
+                Sort products
+              </label>
+              <select
+                id="collection-sort"
+                value={sortType}
+                onChange={(event) => setSortType(event.target.value)}
+                className="h-9 border border-gray-300 bg-white px-3 text-[10px] uppercase tracking-[0.14em] text-gray-600 focus:border-[#111] focus:outline-none"
+              >
+                {SORT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-        </div>
 
-        {/* Product List */}
-
-        <div className="grid grid-cols-2  lg:grid-cols-3 xl:grid-cols-4 gap-4 gap-y-6">
-          {filterProducts.map((product) => (
-            <ProductItem
-              key={product._id}
-              id={product._id}
-              image={product.image}
-              name={product.name}
-              price={product.price}
-            />
-          ))}
+          {error ? (
+            <div className="mt-12 border-y border-gray-200 py-16 text-center">
+              <p className="text-[9px] uppercase tracking-[0.3em] text-[#b8838e]">
+                Forever / Offline
+              </p>
+              <p className="editorial-display mt-3 text-2xl text-[#111]">
+                The collection is unavailable right now.
+              </p>
+            </div>
+          ) : loading ? (
+            <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-9 lg:gap-x-5">
+              {Array.from({ length: 9 }, (_, index) => (
+                <ProductSkeleton
+                  key={index}
+                  imageClassName="aspect-[3/4]"
+                />
+              ))}
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <EmptyState onClear={resetView} />
+          ) : (
+            <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-9 lg:gap-x-5">
+              {filteredProducts.map((product) => (
+                <ProductPlate key={product._id} product={product} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
