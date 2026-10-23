@@ -137,21 +137,8 @@ const Collection = () => {
   const hasFilters = category.length + subCategory.length > 0;
 
   return (
-    <section className="pt-6 sm:pt-10">
-      <div className="flex items-center justify-between border-t border-[#111] pt-4">
-        <p className="text-[9px] uppercase tracking-[0.3em] text-[#b8838e]">
-          Forever / Collection
-        </p>
-        <p className="text-[9px] uppercase tracking-[0.24em] text-gray-500 tabular-nums">
-          {loading
-            ? "Loading pieces"
-            : `${filteredProducts.length} ${
-                filteredProducts.length === 1 ? "piece" : "pieces"
-              }`}
-        </p>
-      </div>
-
-      <div className="mt-8 grid gap-10 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-14">
+    <section className="border-t pt-6 sm:pt-10">
+      <div className="grid gap-10 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-14">
         <CollectionSidebar
           category={category}
           subCategory={subCategory}
