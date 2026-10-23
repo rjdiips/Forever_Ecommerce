@@ -7,7 +7,7 @@ const HomeProductCard = ({ product }) => (
     to={`/product/${product._id}`}
     className="group block text-gray-700"
   >
-    <div className="relative aspect-square overflow-hidden bg-gray-100">
+    <div className="relative aspect-[390/450] overflow-hidden bg-gray-100">
       <img
         src={product.image?.[0]}
         alt={product.name}
@@ -27,7 +27,7 @@ export const ViewAllCard = () => (
   <Link
     to="/collection"
     aria-label="View the full collection"
-    className="group flex h-full min-h-full aspect-[3/4] flex-col items-center justify-center px-4 text-center"
+    className="group flex h-full min-h-full aspect-[390/450] flex-col items-center justify-center px-4 text-center"
   >
     <span className="editorial-display text-2xl leading-none text-[#111] sm:text-3xl">
       View all

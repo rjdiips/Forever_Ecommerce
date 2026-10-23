@@ -194,10 +194,7 @@ const Collection = () => {
           ) : loading ? (
             <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-9 lg:gap-x-5">
               {Array.from({ length: 9 }, (_, index) => (
-                <ProductSkeleton
-                  key={index}
-                  imageClassName="aspect-[390/450]"
-                />
+                <ProductSkeleton key={index} />
               ))}
             </div>
           ) : filteredProducts.length === 0 ? (
