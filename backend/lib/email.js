@@ -7,7 +7,7 @@
  * without a Resend key.
  */
 import { log } from "./log.js";
-import { resendClient, resendFrom } from "./resend.js";
+import { sendEmail } from "./emailProvider.js";
 import { TOKEN_LIFETIME_SECONDS } from "./authTokens.js";
 
 /** The lifetime to promise in the email, derived from the token module. */
@@ -53,30 +53,16 @@ export const buildPasswordResetEmail = ({ resetUrl }) => {
 export const emailService = {
   /**
    * Send a Password reset link. Throws when no provider is configured or when
-   * Resend rejects the message; the caller decides whether that is fatal (for a
-   * reset request it must never change the response).
+   * the provider rejects the message; the caller decides whether that is fatal
+   * (for a reset request it must never change the response).
    *
    * @param {{ to: string, resetUrl: string }} options
    * @returns {Promise<void>}
    */
   async sendPasswordResetEmail({ to, resetUrl }) {
-    if (!resendClient) {
-      throw new Error(
-        "RESEND_API_KEY is not set; cannot send the password reset email"
-      );
-    }
+    const { subject, text, html } = buildPasswordResetEmail({ resetUrl });
 
-    const { error } = await resendClient.emails.send({
-      from: resendFrom(),
-      to,
-      ...buildPasswordResetEmail({ resetUrl }),
-    });
-
-    if (error) {
-      throw new Error(
-        `Resend rejected the password reset email: ${error.message}`
-      );
-    }
+    await sendEmail({ to, subject, text, html });
 
     log.info("Password reset email sent");
   },

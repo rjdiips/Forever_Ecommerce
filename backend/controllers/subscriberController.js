@@ -1,6 +1,7 @@
+import validator from "validator";
 import { log } from "../lib/log.js";
 import { HttpError } from "../lib/http.js";
-import { resendClient, resendFrom } from "../lib/resend.js";
+import { sendEmail } from "../lib/emailProvider.js";
 
 // Subscribe a newsletter email --> /api/subscribe
 export const subscribe = async (req) => {
@@ -10,15 +11,11 @@ export const subscribe = async (req) => {
     throw new HttpError(400, "Email is required.");
   }
 
-  if (!resendClient) {
-    throw new HttpError(
-      500,
-      "RESEND_API_KEY is not set; cannot send subscription email"
-    );
+  if (typeof email !== "string" || !validator.isEmail(email)) {
+    throw new HttpError(400, "Please enter a valid email");
   }
 
-  const { error } = await resendClient.emails.send({
-    from: resendFrom(),
+  await sendEmail({
     to: email,
     subject: "🎉 Thank You for Subscribing!",
     html: `
@@ -31,13 +28,6 @@ export const subscribe = async (req) => {
       </div>
     `,
   });
-
-  if (error) {
-    throw new HttpError(
-      500,
-      `Resend rejected the subscription email: ${error.message}`
-    );
-  }
 
   log.info("Subscription email sent");
 };
