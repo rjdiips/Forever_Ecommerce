@@ -27,7 +27,7 @@ export const ViewAllCard = () => (
   <Link
     to="/collection"
     aria-label="View the full collection"
-    className="group flex h-full min-h-full aspect-[390/450] flex-col items-center justify-center px-4 text-center"
+    className="group flex h-full w-full flex-col items-center justify-center px-4 text-center"
   >
     <span className="editorial-display text-2xl leading-none text-[#111] sm:text-3xl">
       View all
