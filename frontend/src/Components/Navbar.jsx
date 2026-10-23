@@ -165,13 +165,19 @@ const Navbar = () => {
 
           <Link
             to="/cart"
-            aria-label={`Cart, ${count} item${count === 1 ? "" : "s"}`}
+            aria-label={
+              count === 0
+                ? "Cart, empty"
+                : `Cart, ${count} item${count === 1 ? "" : "s"}`
+            }
             className="relative transition-opacity hover:opacity-60 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-gray-700"
           >
             <img src={assets.cart_icon} alt="" className="w-5 min-w-5" />
-            <span className="absolute -bottom-1.5 -right-1.5 grid h-4 min-w-4 place-items-center bg-[#111] px-0.5 text-[8px] leading-none text-white tabular-nums">
-              {count}
-            </span>
+            {count > 0 && (
+              <span className="absolute -bottom-1.5 -right-1.5 grid h-4 min-w-4 place-items-center bg-[#111] px-0.5 text-[8px] leading-none text-white tabular-nums">
+                {count}
+              </span>
+            )}
           </Link>
 
           <button

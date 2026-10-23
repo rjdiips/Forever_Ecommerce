@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="80 34 240 266">
+  <!-- Empty-bag illustration in the storefront palette: the hero's blush plate,
+       hairline #111 outlines, and the rose dot the wordmark ends on. -->
+  <defs>
+    <filter id="empty-cart-shadow" x="-30%" y="-60%" width="160%" height="260%">
+      <feGaussianBlur stdDeviation="5" />
+    </filter>
+  </defs>
+
+  <circle cx="200" cy="150" r="106" fill="#f3e3e1" />
+
+  <ellipse
+    cx="200"
+    cy="274"
+    rx="74"
+    ry="8"
+    fill="#111"
+    opacity="0.08"
+    filter="url(#empty-cart-shadow)"
+  />
+
+  <!-- Handle sits behind the bag body. -->
+  <path
+    d="M170 128 V106 a30 30 0 0 1 60 0 V128"
+    fill="none"
+    stroke="#111"
+    stroke-width="2"
+    stroke-linecap="round"
+  />
+
+  <!-- A tapered paper tote, so the silhouette reads as a bag and not a box. -->
+  <path
+    d="M134 128 H266 L252 250 a10 10 0 0 1 -10 9 H158 a10 10 0 0 1 -10 -9 Z"
+    fill="#ffffff"
+    stroke="#111"
+    stroke-width="2"
+    stroke-linejoin="round"
+  />
+
+  <!-- The crease line a paper bag folds on. -->
+  <path d="M144 152 H256" stroke="#d1d5db" stroke-width="1.5" />
+
+  <circle cx="200" cy="212" r="5" fill="#b8838e" />
+</svg>

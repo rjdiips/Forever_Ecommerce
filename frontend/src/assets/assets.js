@@ -15,6 +15,7 @@ import about_img from "./about_img.webp";
 import contact_img from "./contact_img.webp";
 import stripe_logo from "./stripe_logo.png";
 import cross_icon from "./cross_icon.png";
+import empty_cart from "./empty_cart.svg";
 
 // Presets are canvas-sized WebP copies, plus tiny thumbnails for the picker.
 // The originals are deliberately not imported: a 4096px PNG is decoded in full
@@ -48,6 +49,7 @@ export const assets = {
   contact_img,
   stripe_logo,
   cross_icon,
+  empty_cart,
   preset1,
   preset2,
   preset3,

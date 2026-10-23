@@ -36,7 +36,7 @@ Unlike a UI-only store demo, Forever has real accounts, server-persisted carts, 
   - Export crops to the tee's visible bounds, then tries successive WebP quality levels to stay within a 500 KB budget (falling back to PNG where WebP is unavailable).
   - Uploaded designs are validated server-side and stored in Cloudinary.
   - A custom tee is a cart line identified by product + size + **design**, so two designs of the same tee and size remain separate lines.
-- **Cart** — guest carts work in memory; signed-in carts persist to MongoDB and reload across sessions. Quantity updates, removal, live subtotal, delivery fee, item count badge, and custom-design previews.
+- **Cart** — guest carts work in memory; signed-in carts persist to MongoDB and reload across sessions. Quantity updates, removal, live subtotal, delivery fee, item count badge, custom-design previews, and an illustrated empty-bag state that points shoppers back to the collection instead of showing a $0.00 checkout.
 - **Checkout** — delivery-address form with **Cash on Delivery** or **Stripe Checkout**. COD clears the cart immediately; Stripe clears it only after the payment is verified.
 - **Order history** — every order shows its items, custom design thumbnails, size, quantity, unit price, payment method, status, and a refreshable "track order" view.
 - **Accounts** — register, sign in, sign out, persist the session across reloads, and handle expiry gracefully by clearing the token and returning to login.

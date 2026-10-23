@@ -30,6 +30,9 @@ const CartContext = createContext(null);
 // stays independent of both.
 export const CartProvider = ({ token, products = [], backendUrl, children }) => {
   const [lines, setLines] = useState([]);
+  // A signed-in cart arrives over the network; the storefront needs to know the
+  // bag is still loading so it does not announce "empty" before the lines land.
+  const [loading, setLoading] = useState(false);
 
   const priceOf = useMemo(() => priceOfFromProducts(products), [products]);
 
@@ -38,10 +41,12 @@ export const CartProvider = ({ token, products = [], backendUrl, children }) => 
   useEffect(() => {
     if (!token) {
       setLines([]);
+      setLoading(false);
       return undefined;
     }
 
     let cancelled = false;
+    setLoading(true);
     axios
       .post(`${backendUrl}/api/cart/get`, {}, { headers: { token } })
       .then((response) => {
@@ -51,6 +56,9 @@ export const CartProvider = ({ token, products = [], backendUrl, children }) => 
       })
       .catch((error) => {
         toast.error(error.response?.data?.message || error.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
 
     return () => {
@@ -137,12 +145,13 @@ export const CartProvider = ({ token, products = [], backendUrl, children }) => 
       deliveryFee: DELIVERY_FEE,
       total: cartTotal(subtotalCents, DELIVERY_FEE),
       count: itemCount,
+      loading,
       add,
       update,
       remove,
       clear,
     }),
-    [lineItems, subtotalCents, itemCount, add, update, remove, clear]
+    [lineItems, subtotalCents, itemCount, loading, add, update, remove, clear]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
