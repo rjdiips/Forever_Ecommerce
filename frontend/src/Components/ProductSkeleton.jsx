@@ -10,11 +10,12 @@ const ProductSkeleton = () => (
 );
 
 // The rail asks how many cards it will eventually show, so the placeholder
-// occupies the same grid and the same height as the real products.
-export const ProductGridSkeleton = ({ count }) => (
+// occupies the same grid and the same height as the real products. The
+// className lets the homepage rail mirror its wider vertical rhythm.
+export const ProductGridSkeleton = ({ count, className = "" }) => (
   <div
     role="status"
-    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6"
+    className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6 ${className}`}
   >
     {Array.from({ length: count }, (_, index) => (
       <ProductSkeleton key={index} />

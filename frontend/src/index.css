@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Prata&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500&family=Outfit:wght@100..900&family=Prata&display=swap');
 
 @import 'tailwindcss';
 
@@ -16,9 +16,110 @@ a.active hr {
   font-style: normal;
 }
 
+/* The C1 wordmark treatment: condensed uppercase for section headings and the
+   chrome, with a heavier cut for navigation and footer labels. */
+.editorial-display {
+  font-family: 'Oswald', 'Arial Narrow', sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.editorial-display-strong {
+  font-family: 'Oswald', 'Arial Narrow', sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+/* Hero entrance: the two heading lines rise out of their own mask, then the
+   shop link follows. */
+@keyframes hero-mask {
+  from {
+    transform: translateY(110%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.hero-mask {
+  animation: hero-mask 1000ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.hero-rise {
+  animation: hero-rise 800ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.menu-in {
+  animation: menu-in 220ms ease-out both;
+}
+
 @media (max-width: 640px) {
   a.active {
     background-color: black;
     color: white;
+  }
+}
+
+/* Search field entrance and exit. The exit duration is mirrored by EXIT_MS in
+   Components/SearchBar.jsx; keep the two in step. */
+@keyframes search-field-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes search-field-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-0.15rem);
+  }
+}
+
+.search-field-enter {
+  animation: search-field-in 180ms ease-out;
+}
+
+.search-field-exit {
+  animation: search-field-out 140ms ease-in forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-mask,
+  .hero-rise,
+  .menu-in,
+  .search-field-enter,
+  .search-field-exit {
+    animation: none;
   }
 }

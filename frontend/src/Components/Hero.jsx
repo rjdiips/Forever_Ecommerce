@@ -1,32 +1,64 @@
-import React from "react";
+import { Link } from "react-router-dom";
 import { assets } from "../assets/assets";
 
-const Hero = () => {
-  return (
-    <div className="flex flex-col sm:flex-row !border border-gray-400 ">
-      {/* Hero Left Side */}
-      <div className="w-full sm:w-1/2 flex items-center justify-center py-10 sm:py-0">
-        <div className="text-[#414141]">
-          <div className="flex items-center gap-2 ">
-            <p className="w-8 md:w-11 h-[2px] bg-[#414141]"></p>
-            <p className="font-medium text-sm md:text-base ">OUR BESTSELLERS</p>
-          </div>
-          <h1 className="prata-regular text-3xl sm:py-3 lg:text-5xl leading-relaxed ">
-            {" "}
-            Latest Arrivals
-          </h1>
-          <div className="flex items-center gap-2">
-            <p className="font-semibold text-sm md:text-base ">SHOP NOW</p>
-            <p className="w-8 md:w-11 h-[1px] bg-[#414141]"></p>
-          </div>
-        </div>
+const ROSE = "#b8838e";
+
+const Hero = () => (
+  <section
+    className="grid bg-white shadow-[7px_7px_0_rgba(17,17,17,0.06)] sm:grid-cols-2"
+    style={{ border: "1px solid #111" }}
+  >
+    <div className="flex items-center justify-center px-6 py-16 sm:py-20">
+      <div className="max-w-sm">
+        <h1 className="editorial-display text-5xl leading-[0.92] text-[#111] sm:text-6xl lg:text-7xl">
+          <span className="block overflow-hidden">
+            <span
+              className="hero-mask block"
+              style={{ animationDelay: "120ms" }}
+            >
+              Latest
+            </span>
+          </span>
+          <span className="block overflow-hidden">
+            <span
+              className="hero-mask block"
+              style={{ animationDelay: "220ms" }}
+            >
+              Arrivals
+              <span
+                aria-hidden="true"
+                className="ml-2 inline-block h-2.5 w-2.5 rounded-full align-baseline sm:h-3 sm:w-3"
+                style={{ backgroundColor: ROSE }}
+              />
+            </span>
+          </span>
+        </h1>
+
+        <p className="mt-4 text-[9px] uppercase tracking-[0.32em] text-[#b8838e]">
+          Forever / New season
+        </p>
+
+        <Link
+          to="/collection"
+          className="group/link hero-rise mt-9 inline-flex flex-col items-start gap-3"
+          style={{ animationDelay: "380ms" }}
+        >
+          <span className="text-[9px] font-semibold uppercase tracking-[0.26em]">
+            Shop now
+          </span>
+          <span className="h-px w-12 bg-[#414141] transition-[width] duration-500 group-hover/link:w-20" />
+        </Link>
       </div>
-
-      {/* Hero Right Side */}
-
-      <img src={assets.hero_img} alt="" className="w-full sm:w-1/2" />
     </div>
-  );
-};
+
+    <div className="group relative min-h-80 overflow-hidden bg-[#f3e3e1]">
+      <img
+        src={assets.hero_img}
+        alt="Model wearing the latest arrivals"
+        className="h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.04]"
+      />
+    </div>
+  </section>
+);
 
 export default Hero;

@@ -5,6 +5,7 @@ import { useCatalogue } from "../catalogue/CatalogueContext";
 import { assets } from "../assets/assets";
 import Title from "../Components/Title";
 import ProductItem from "../Components/ProductItem";
+import SearchBar from "../Components/SearchBar";
 
 const Collection = () => {
   const { products, search, showSearch, setShowSearch } = useCatalogue();
@@ -167,21 +168,26 @@ const Collection = () => {
 
       <div className="flex-1">
         {/* Title */}
-        <div className="flex justify-between text-sm sm:text-xl lg:text-2xl mb-4">
+        <div className="mb-4 flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between sm:text-xl lg:text-2xl">
           <Title text1={"ALL"} text2={"COLLECTIONS"} />
 
-          {/* Product Sort */}
-          <select
-            onChange={(e) => {
-              setSortType(e.target.value);
-            }}
-            value={sortType}
-            className="border border-gray-300 text-sm px-2"
-          >
-            <option value="relevent">Sort by: Relevent</option>
-            <option value="low-high">Sort by: Low to High</option>
-            <option value="high-low">Sort by: High to Low</option>
-          </select>
+          <div className="flex flex-wrap items-center gap-3 sm:justify-end">
+            {/* Search sits with the collection controls, not above the page. */}
+            <SearchBar resultCount={filterProducts.length} />
+
+            {/* Product Sort */}
+            <select
+              onChange={(e) => {
+                setSortType(e.target.value);
+              }}
+              value={sortType}
+              className="h-9 border border-gray-300 bg-white px-2 text-sm"
+            >
+              <option value="relevent">Sort by: Relevent</option>
+              <option value="low-high">Sort by: Low to High</option>
+              <option value="high-low">Sort by: High to Low</option>
+            </select>
+          </div>
         </div>
 
         {/* Product List */}
