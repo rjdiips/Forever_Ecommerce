@@ -75,6 +75,21 @@ a.active hr {
   animation: menu-in 220ms ease-out both;
 }
 
+/* The product plate cross-fades when a thumbnail or related piece is chosen.
+   The outgoing image stays behind it, so the frame never flashes empty. */
+@keyframes plate-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.plate-in {
+  animation: plate-in 320ms ease-out both;
+}
+
 @media (max-width: 640px) {
   a.active {
     background-color: black;
@@ -118,6 +133,7 @@ a.active hr {
   .hero-mask,
   .hero-rise,
   .menu-in,
+  .plate-in,
   .search-field-enter,
   .search-field-exit {
     animation: none;

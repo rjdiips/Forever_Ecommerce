@@ -52,6 +52,15 @@ const ProductPage = ({ product }) => {
     ? pickedImage
     : images[0] ?? "";
 
+  // The product route is reused when a related piece is opened, so the plate
+  // swaps while the page stays mounted. Hold the outgoing image under the
+  // incoming one and let the incoming one fade over it.
+  const [plate, setPlate] = useState({ current: "", previous: "" });
+
+  if (activeImage !== plate.current) {
+    setPlate({ current: activeImage, previous: plate.current });
+  }
+
   // Buy Now is Add to cart plus the checkout step. The size guard matches the
   // cart's own, so the toast is the same one the cart would raise.
   const buyNow = async () => {
@@ -130,13 +139,22 @@ const ProductPage = ({ product }) => {
             )}
 
             <div className="relative min-w-0 flex-1 overflow-hidden bg-gray-100">
+              {plate.previous && (
+                <img
+                  src={productImage(plate.previous, 780)}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 z-0 h-full w-full object-cover"
+                />
+              )}
               <img
-                src={productImage(activeImage, 780)}
+                key={plate.current}
+                src={productImage(plate.current, 780)}
                 alt={product.name}
-                className="aspect-[390/450] h-full w-full object-cover"
+                className="plate-in relative z-10 aspect-[390/450] h-full w-full object-cover"
               />
               {images.length > 1 && (
-                <p className="absolute left-4 top-4 bg-white/90 px-2.5 py-1 text-[8px] uppercase tracking-[0.22em] text-[#111] tabular-nums">
+                <p className="absolute left-4 top-4 z-20 bg-white/90 px-2.5 py-1 text-[8px] uppercase tracking-[0.22em] text-[#111] tabular-nums">
                   {String(activeIndex + 1).padStart(2, "0")} /{" "}
                   {String(images.length).padStart(2, "0")}
                 </p>
