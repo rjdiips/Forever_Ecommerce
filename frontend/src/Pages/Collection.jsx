@@ -28,7 +28,7 @@ const ProductPlate = ({ product }) => (
         <p className="text-[8px] uppercase tracking-[0.2em] text-gray-400">
           {product.category} / {product.subCategory}
         </p>
-        <p className="mt-1.5 text-[14px] leading-snug text-gray-800">
+        <p className="mt-1.5 break-words text-[14px] leading-snug text-gray-800">
           {product.name}
         </p>
       </div>

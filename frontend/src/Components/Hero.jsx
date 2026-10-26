@@ -8,9 +8,12 @@ const Hero = () => (
     className="grid bg-white shadow-[7px_7px_0_rgba(17,17,17,0.06)] sm:grid-cols-2"
     style={{ border: "1px solid #111" }}
   >
-    <div className="flex items-center justify-center px-6 py-16 sm:py-20">
-      <div className="max-w-sm">
-        <h1 className="editorial-display text-5xl leading-[0.92] text-[#111] sm:text-6xl lg:text-7xl">
+    <div className="flex min-w-0 items-center justify-center px-6 py-16 sm:py-20">
+      <div className="min-w-0 max-w-sm">
+        {/* The heading's longest word sets the hero's minimum width, so below
+            ~384px it scales with the viewport instead of forcing the page wider
+            (or breaking "Arrivals" mid-word). At 390px and up it is 48px. */}
+        <h1 className="editorial-display break-words text-[min(3rem,12.5vw)] leading-[0.92] text-[#111] sm:text-6xl lg:text-7xl">
           <span className="block overflow-hidden">
             <span
               className="hero-mask block"

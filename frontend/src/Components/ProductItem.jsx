@@ -29,7 +29,7 @@ const ProductItem = ({ id, image, name, price }) => {
           <div className="absolute inset-0 animate-pulse bg-gray-200 motion-reduce:animate-none" />
         )}
       </div>
-      <p className="pt-3 pb-1 text-sm">{name}</p>
+      <p className="break-words pt-3 pb-1 text-sm">{name}</p>
       <p className="text-sm font-medium">{formatProductPrice(price)}</p>
     </Link>
   );

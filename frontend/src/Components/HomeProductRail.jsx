@@ -16,7 +16,7 @@ const HomeProductCard = ({ product }) => (
       />
     </div>
     <div className="relative mt-3 pb-2">
-      <p className="text-sm">{product.name}</p>
+      <p className="break-words text-sm">{product.name}</p>
       <span className="absolute bottom-0 left-0 h-px w-0 bg-gray-700 transition-[width] duration-500 group-hover:w-10" />
     </div>
     <p className="text-sm font-medium">{formatProductPrice(product.price)}</p>
