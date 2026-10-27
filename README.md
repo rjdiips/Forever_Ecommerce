@@ -41,7 +41,7 @@ Unlike a UI-only store demo, Forever has real accounts, server-persisted carts, 
 - **Order history** — every order shows its items, custom design thumbnails, size, quantity, unit price, payment method, status, and a refreshable "track order" view.
 - **Accounts** — register, sign in, sign out, persist the session across reloads, and handle expiry gracefully by clearing the token and returning to login.
 - **Password reset** — request a link by email, set a new password once, and get signed in automatically. Reset links are short-lived and single-use.
-- **Newsletter** — subscription endpoint that sends a welcome email through Brevo (falling back to Resend), with a confetti confirmation in the UI.
+- **Newsletter** — subscription endpoint that sends a welcome email through Brevo, with a confetti confirmation in the UI.
 - **Supporting pages** — About, Contact, footer, and newsletter calls to action.
 - **Responsive UI** — mobile navigation, collapsible filters, and layouts that adapt from phone to desktop.
 - **Production analytics** — Vercel Web Analytics, proxied through `/va` in production so ad blockers do not match the default insights URL.
@@ -74,7 +74,7 @@ Unlike a UI-only store demo, Forever has real accounts, server-persisted carts, 
 | --- | --- |
 | Storefront & admin | React 19, Vite 6, Tailwind CSS 4, React Router 7, Context API, Axios, React Toastify |
 | API | Node.js, Express 4, Mongoose 8, JWT, bcrypt, express-rate-limit, Multer, validator |
-| Data & services | MongoDB Atlas, Cloudinary, Stripe Checkout, Resend |
+| Data & services | MongoDB Atlas, Cloudinary, Stripe Checkout, Brevo |
 | Shared domain | `@forever/shared` — plain ESM, JSDoc, Node's built-in test runner |
 | Testing | Node `node:test` (shared + API), Vitest (storefront), ESLint |
 | Deployment | Three Vercel projects (storefront, admin, API function), Vercel Web Analytics |
@@ -89,7 +89,7 @@ Admin (React/Vite) ───────┼──► Express API ──► Mongo
                           │        │
                           │        ├──► Cloudinary  (product images + tee designs)
                           │        ├──► Stripe      (card checkout)
-                          │        └──► Brevo/Resend (password reset + newsletter)
+                          │        └──► Brevo        (password reset + newsletter)
                           │
                           └── @forever/shared  (imported by all three apps)
 ```
@@ -169,7 +169,7 @@ Forever_Ecommerce/
 
 - Node.js 20+ and npm 10+
 - A MongoDB Atlas connection string
-- Optional: Cloudinary, Stripe, and Resend accounts for uploads, card payments, and email
+- Optional: Cloudinary and Stripe accounts for uploads and card payments, and a Brevo account for email
 
 ### 1. Clone and install
 
@@ -196,14 +196,12 @@ Create `backend/.env`:
 | `CLOUDINARY_API_KEY` | Yes, for uploads | Cloudinary API key |
 | `CLOUDINARY_API_SECRET` | Yes, for uploads | Cloudinary API secret |
 | `STRIPE_SECRET_KEY` | Yes, for card checkout | Stripe secret key |
-| `BREVO_API_KEY` | Optional | Preferred email provider: sends password-reset and newsletter emails |
+| `BREVO_API_KEY` | Required for email | Sends password-reset and newsletter emails |
 | `BREVO_FROM_EMAIL` | With `BREVO_API_KEY` | Sender address verified in Brevo; a single verified address needs no domain |
 | `BREVO_FROM_NAME` | Optional | Sender display name for Brevo, defaults to `Forever` |
-| `RESEND_API_KEY` | Optional | Fallback email provider, used when `BREVO_API_KEY` is unset |
-| `RESEND_FROM_EMAIL` | Optional | Verified Resend sender; falls back to `onboarding@resend.dev`, which only delivers to the account owner |
 | `PORT` | Optional | API port, defaults to `4000` |
 
-The API refuses to start without `FRONTEND_URL`, so it can never email a broken reset link. Email needs `BREVO_API_KEY` plus `BREVO_FROM_EMAIL`, or `RESEND_API_KEY`; without either, sending is disabled and the server still starts.
+The API refuses to start without `FRONTEND_URL`, so it can never email a broken reset link. Email needs `BREVO_API_KEY` plus `BREVO_FROM_EMAIL`; without them, sending fails with a clear configuration error.
 
 ### 3. Configure the frontend apps
 

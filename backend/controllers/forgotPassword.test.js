@@ -89,7 +89,7 @@ test("a known account's response does not wait for the email provider", async (t
       }),
     ]);
 
-    // An unknown email returns immediately. If a known one waited for Resend,
+    // An unknown email returns immediately. If a known one waited for Brevo,
     // that difference would reveal which accounts exist.
     assert.equal(
       outcome.timedOut,

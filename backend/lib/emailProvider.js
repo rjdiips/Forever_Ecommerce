@@ -1,66 +1,48 @@
 /**
  * The API's outbound email provider.
  *
- * Brevo is preferred when configured because it verifies a single sender
- * address, so production email works without owning a domain. Resend stays as a
- * fallback for deployments that already have a verified domain there.
+ * Brevo verifies a single sender address, so production email works without
+ * owning a domain.
  *
  * Callers hand this module a message and get one kind of failure back; they
  * never touch a provider SDK or know which provider is active.
  */
-import { Resend } from "resend";
 
 const BREVO_ENDPOINT = "https://api.brevo.com/v3/smtp/email";
-
-/**
- * `onboarding@resend.dev` only delivers to the Resend account owner. To reach
- * real recipients on the fallback provider, verify a domain in Resend and set
- * `RESEND_FROM_EMAIL` to an address on it.
- */
-const RESEND_FALLBACK_FROM = "onboarding@resend.dev";
 
 /**
  * @typedef {{ to: string, subject: string, html: string, text?: string }} EmailMessage
  *
  * @typedef {{ name: "brevo", apiKey: string, fromEmail: string, fromName: string }} BrevoProvider
- * @typedef {{ name: "resend", apiKey: string, fromEmail: string }} ResendProvider
- * @typedef {BrevoProvider | ResendProvider} EmailProvider
+ * @typedef {BrevoProvider} EmailProvider
  */
 
 /**
  * Pick the provider to send with.
  *
- * Reads the environment on every call so a test can pass its own map and a
+ * Reads the environment on every call so a test can pass its own map and the
  * provider can be changed without reloading the module.
  *
  * @param {Record<string, string | undefined>} [env]
  * @returns {EmailProvider | null}
  */
 export const resolveEmailProvider = (env = process.env) => {
-  if (env.BREVO_API_KEY) {
-    if (!env.BREVO_FROM_EMAIL) {
-      throw new Error(
-        "BREVO_FROM_EMAIL is not set; it must be the address verified as a sender in Brevo"
-      );
-    }
-
-    return {
-      name: "brevo",
-      apiKey: env.BREVO_API_KEY,
-      fromEmail: env.BREVO_FROM_EMAIL,
-      fromName: env.BREVO_FROM_NAME || "Forever",
-    };
+  if (!env.BREVO_API_KEY) {
+    return null;
   }
 
-  if (env.RESEND_API_KEY) {
-    return {
-      name: "resend",
-      apiKey: env.RESEND_API_KEY,
-      fromEmail: env.RESEND_FROM_EMAIL || RESEND_FALLBACK_FROM,
-    };
+  if (!env.BREVO_FROM_EMAIL) {
+    throw new Error(
+      "BREVO_FROM_EMAIL is not set; it must be the address verified as a sender in Brevo"
+    );
   }
 
-  return null;
+  return {
+    name: "brevo",
+    apiKey: env.BREVO_API_KEY,
+    fromEmail: env.BREVO_FROM_EMAIL,
+    fromName: env.BREVO_FROM_NAME || "Forever",
+  };
 };
 
 /**
@@ -127,32 +109,9 @@ const sendWithBrevo = async (provider, message) => {
 };
 
 /**
- * @param {ResendProvider} provider
- * @param {EmailMessage} message
- * @returns {Promise<{ id?: string }>}
- */
-const sendWithResend = async (provider, message) => {
-  const client = new Resend(provider.apiKey);
-
-  const { data, error } = await client.emails.send({
-    from: provider.fromEmail,
-    to: message.to,
-    subject: message.subject,
-    html: message.html,
-    ...(message.text ? { text: message.text } : {}),
-  });
-
-  if (error) {
-    throw new Error(`Resend rejected the email: ${error.message}`);
-  }
-
-  return { id: data?.id };
-};
-
-/**
- * Send one email through whichever provider is configured.
+ * Send one email through Brevo.
  *
- * Throws when no provider is configured or when the provider rejects the
+ * Throws when the provider is not configured or when Brevo rejects the
  * message; the message is safe to log (it never contains the API key).
  *
  * @param {EmailMessage} message
@@ -164,12 +123,10 @@ export const sendEmail = (message) => {
   if (!provider) {
     return Promise.reject(
       new Error(
-        "No email provider is configured; set BREVO_API_KEY (with BREVO_FROM_EMAIL) or RESEND_API_KEY"
+        "No email provider is configured; set BREVO_API_KEY (with BREVO_FROM_EMAIL)"
       )
     );
   }
 
-  return provider.name === "brevo"
-    ? sendWithBrevo(provider, message)
-    : sendWithResend(provider, message);
+  return sendWithBrevo(provider, message);
 };

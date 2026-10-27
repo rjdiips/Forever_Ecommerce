@@ -31,11 +31,10 @@ const withEnv = (t, values) => {
   });
 };
 
-test("Brevo is preferred over Resend when both are configured", () => {
+test("the Brevo key resolves the provider", () => {
   const provider = resolveEmailProvider({
     BREVO_API_KEY: "brevo-key",
     BREVO_FROM_EMAIL: "shop@gmail.com",
-    RESEND_API_KEY: "resend-key",
   });
 
   assert.deepEqual(provider, {
@@ -63,26 +62,17 @@ test("a Brevo key without a sender address is a configuration error", () => {
   );
 });
 
-test("Resend is used when only Resend is configured", () => {
-  const provider = resolveEmailProvider({
-    RESEND_API_KEY: "resend-key",
-    RESEND_FROM_EMAIL: "mail@forever.com",
-  });
-
-  assert.deepEqual(provider, {
-    name: "resend",
-    apiKey: "resend-key",
-    fromEmail: "mail@forever.com",
-  });
+test("a leftover Resend key does not configure a provider", () => {
+  assert.equal(
+    resolveEmailProvider({
+      RESEND_API_KEY: "resend-key",
+      RESEND_FROM_EMAIL: "mail@forever.com",
+    }),
+    null
+  );
 });
 
-test("Resend falls back to the test sender when no from address is set", () => {
-  const provider = resolveEmailProvider({ RESEND_API_KEY: "resend-key" });
-
-  assert.equal(provider.fromEmail, "onboarding@resend.dev");
-});
-
-test("no provider is resolved when neither key is set", () => {
+test("no provider is resolved without a Brevo key", () => {
   assert.equal(resolveEmailProvider({}), null);
 });
 
@@ -121,7 +111,6 @@ test("sendEmail posts through Brevo and returns the message id", async (t) => {
   withEnv(t, {
     BREVO_API_KEY: "brevo-key",
     BREVO_FROM_EMAIL: "shop@gmail.com",
-    RESEND_API_KEY: undefined,
   });
 
   const originalFetch = globalThis.fetch;
@@ -173,7 +162,19 @@ test("a rejected Brevo send surfaces the provider's explanation", async (t) => {
   );
 });
 
-test("sendEmail names the keys to set when no provider is configured", async (t) => {
+test("a leftover Resend key cannot send an email", async (t) => {
+  withEnv(t, {
+    BREVO_API_KEY: undefined,
+    RESEND_API_KEY: "resend-key",
+  });
+
+  await assert.rejects(
+    sendEmail({ to: "reader@example.com", subject: "Hello", html: "<p>Hi</p>" }),
+    /BREVO_API_KEY/
+  );
+});
+
+test("sendEmail names the Brevo keys to set when no provider is configured", async (t) => {
   withEnv(t, {
     BREVO_API_KEY: undefined,
     RESEND_API_KEY: undefined,

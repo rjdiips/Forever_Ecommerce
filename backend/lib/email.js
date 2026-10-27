@@ -4,7 +4,7 @@
  * Sending is kept behind {@link emailService} so callers never touch the
  * provider and tests can stub one method instead of reaching the network. The
  * message itself is built by a pure function, so its contents are testable
- * without a Resend key.
+ * without a Brevo key.
  */
 import { log } from "./log.js";
 import { sendEmail } from "./emailProvider.js";
