@@ -18,6 +18,10 @@ import {
 
 const AuthContext = createContext(null);
 
+// Persisted across reloads so the "session expired" toast is shown at most once
+// per expired session. Cleared when the user logs in again.
+export const SESSION_EXPIRED_NOTIFIED_KEY = "forever_session_expired_notified";
+
 // The storefront's auth: the token that identifies a logged-in user, read from
 // localStorage so a reload stays signed in. Nothing else belongs here — the
 // catalogue owns products and search, config owns the API base URL, and pages
@@ -51,14 +55,24 @@ export const AuthProvider = ({ children }) => {
       (response) => response,
       (error) => {
         if (isRejectedSession(error)) {
+          const alreadyNotified =
+            localStorage.getItem(SESSION_EXPIRED_NOTIFIED_KEY) === "true";
+
           setToken("");
           // The storage effect also removes it; doing it here stops a reload
           // during the redirect from restoring the rejected token.
           localStorage.removeItem("token");
-          toast.error(sessionRejectionMessage(error), {
-            title: "Please sign in again.",
-            toastId: SESSION_EXPIRED_TOAST_ID,
-          });
+
+          // Only toast once per expired session. The flag survives reloads so
+          // the user isn't greeted with the same error on every refresh. It is
+          // cleared when the user successfully logs in again.
+          if (!alreadyNotified) {
+            localStorage.setItem(SESSION_EXPIRED_NOTIFIED_KEY, "true");
+            toast.error(sessionRejectionMessage(error), {
+              title: "Please sign in again.",
+              toastId: SESSION_EXPIRED_TOAST_ID,
+            });
+          }
 
           // Already on login: this is the destination, so redirecting would
           // only remount the page.
