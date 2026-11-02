@@ -197,10 +197,10 @@ const Navbar = () => {
           role="dialog"
           aria-modal="true"
           aria-label="Mobile menu"
-          className="menu-in fixed inset-0 z-[120] overflow-y-auto bg-white md:hidden"
+          className="menu-panel fixed inset-0 z-[120] overflow-y-auto bg-white md:hidden"
         >
-          {/* The sheet wipes over the header rather than fading, so its logo
-              (placed exactly over the header's) never shows as a second copy. */}
+          {/* The sheet is opaque from the first frame so its logo never ghosts
+              over the header's; the contents rise in one after another. */}
           <div className="flex items-center justify-between px-4 py-5 sm:px-[5vw] sm:py-6">
             <Link
               to="/"
