@@ -19,7 +19,7 @@ const InlineNotice = ({
     <p
       id={id}
       role={role}
-      className={`flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[11px] leading-relaxed ${className}`}
+      className={`inline-notice-in flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[11px] leading-relaxed ${className}`}
       style={{ color }}
     >
       <span>{children}</span>

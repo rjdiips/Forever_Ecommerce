@@ -90,6 +90,23 @@ a.active hr {
   animation: plate-in 320ms ease-out both;
 }
 
+/* Inline feedback (ADR-0008) eases in where it lands, so a new line is noticed
+   without the control underneath it moving. Opacity and a short rise only. */
+@keyframes inline-notice-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.2rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.inline-notice-in {
+  animation: inline-notice-in 200ms ease-out both;
+}
+
 @media (max-width: 640px) {
   a.active {
     background-color: black;
@@ -135,7 +152,8 @@ a.active hr {
   .menu-in,
   .plate-in,
   .search-field-enter,
-  .search-field-exit {
+  .search-field-exit,
+  .inline-notice-in {
     animation: none;
   }
 }
