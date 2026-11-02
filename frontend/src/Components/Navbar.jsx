@@ -199,14 +199,9 @@ const Navbar = () => {
           aria-label="Mobile menu"
           className="menu-in fixed inset-0 z-[120] overflow-y-auto bg-white md:hidden"
         >
-          <div className="flex items-center justify-between px-4 py-5">
-            <Link
-              to="/"
-              onClick={() => setMenuOpen(false)}
-              aria-label="Forever home"
-            >
-              <img src={assets.logo} alt="Forever" className="w-32" />
-            </Link>
+          {/* No logo here: the panel fades in over the header, whose logo sits in
+              the same corner, and a second copy would ghost over it mid-fade. */}
+          <div className="flex items-center justify-end px-4 py-5">
             <button
               type="button"
               onClick={() => setMenuOpen(false)}
