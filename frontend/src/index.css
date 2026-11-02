@@ -76,7 +76,9 @@ a.active hr {
 }
 
 /* The product plate cross-fades when a thumbnail or related piece is chosen.
-   The outgoing image stays behind it, so the frame never flashes empty. */
+   The outgoing image stays behind it, and ProductPage applies this only once
+   the incoming image has loaded, so the frame never flashes empty and the
+   swap cannot pop in after the animation would have finished. */
 @keyframes plate-in {
   from {
     opacity: 0;
@@ -87,7 +89,7 @@ a.active hr {
 }
 
 .plate-in {
-  animation: plate-in 320ms ease-out both;
+  animation: plate-in 400ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 
 /* Inline feedback (ADR-0008) eases in where it lands, so a new line is noticed

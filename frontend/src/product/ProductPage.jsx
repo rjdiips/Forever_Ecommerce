@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { formatProductPrice } from "@forever/shared";
 import { useCart } from "../cart/CartContext";
@@ -61,12 +61,34 @@ const ProductPage = ({ product }) => {
 
   // The product route is reused when a related piece is opened, so the plate
   // swaps while the page stays mounted. Hold the outgoing image under the
-  // incoming one and let the incoming one fade over it.
-  const [plate, setPlate] = useState({ current: "", previous: "" });
+  // incoming one, and start the fade only once the incoming image has loaded:
+  // a slow 780px copy would otherwise finish the animation while still blank
+  // and then pop into place.
+  const [plate, setPlate] = useState({
+    current: "",
+    previous: "",
+    ready: false,
+  });
 
   if (activeImage !== plate.current) {
-    setPlate({ current: activeImage, previous: plate.current });
+    setPlate({ current: activeImage, previous: plate.current, ready: false });
   }
+
+  const markPlateReady = useCallback((node) => {
+    // A cached image can finish before React attaches onLoad, so check the node
+    // when it mounts too.
+    if (node?.complete && node.naturalWidth > 0) {
+      setPlate((current) =>
+        current.ready ? current : { ...current, ready: true }
+      );
+    }
+  }, []);
+
+  const onPlateLoad = () => {
+    setPlate((current) =>
+      current.ready ? current : { ...current, ready: true }
+    );
+  };
 
   // A missing size is a question for this panel, not a system failure, so it
   // renders in the size row and never as a toast (ADR-0008).
@@ -175,9 +197,13 @@ const ProductPage = ({ product }) => {
               )}
               <img
                 key={plate.current}
+                ref={markPlateReady}
                 src={productImage(plate.current, 780)}
                 alt={product.name}
-                className="plate-in relative z-10 aspect-[390/450] h-full w-full object-cover"
+                onLoad={onPlateLoad}
+                className={`relative z-10 aspect-[390/450] h-full w-full object-cover ${
+                  plate.ready ? "plate-in" : "opacity-0"
+                }`}
               />
               {images.length > 1 && (
                 <p className="absolute left-4 top-4 z-20 bg-white/90 px-2.5 py-1 text-[8px] uppercase tracking-[0.22em] text-[#111] tabular-nums">
