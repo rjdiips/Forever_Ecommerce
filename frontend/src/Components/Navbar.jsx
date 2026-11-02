@@ -199,9 +199,16 @@ const Navbar = () => {
           aria-label="Mobile menu"
           className="menu-in fixed inset-0 z-[120] overflow-y-auto bg-white md:hidden"
         >
-          {/* No logo here: the panel fades in over the header, whose logo sits in
-              the same corner, and a second copy would ghost over it mid-fade. */}
-          <div className="flex items-center justify-end px-4 py-5">
+          {/* The sheet wipes over the header rather than fading, so its logo
+              (placed exactly over the header's) never shows as a second copy. */}
+          <div className="flex items-center justify-between px-4 py-5 sm:px-[5vw] sm:py-6">
+            <Link
+              to="/"
+              onClick={() => setMenuOpen(false)}
+              aria-label="Forever home"
+            >
+              <img src={assets.logo} alt="Forever" className="w-32" />
+            </Link>
             <button
               type="button"
               onClick={() => setMenuOpen(false)}
@@ -212,13 +219,13 @@ const Navbar = () => {
             </button>
           </div>
 
-          <div className="border-y border-gray-200 px-4 py-3">
+          <div className="border-y border-gray-200 px-4 py-3 sm:px-[5vw]">
             <p className="text-[9px] font-medium uppercase tracking-[0.28em] text-[#b8838e]">
               Forever / Menu
             </p>
           </div>
 
-          <nav aria-label="Mobile primary" className="px-4">
+          <nav aria-label="Mobile primary" className="px-4 sm:px-[5vw]">
             {NAV_LINKS.map((link) => (
               <NavLink
                 key={link.to}
@@ -249,7 +256,7 @@ const Navbar = () => {
             ))}
           </nav>
 
-          <div className="px-4 pt-10">
+          <div className="px-4 pt-10 sm:px-[5vw]">
             <p className="text-[9px] font-medium uppercase tracking-[0.28em] text-[#b8838e]">
               Forever / Contact
             </p>
