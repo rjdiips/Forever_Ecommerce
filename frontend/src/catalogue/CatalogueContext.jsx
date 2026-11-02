@@ -7,7 +7,6 @@ import {
   useState,
 } from "react";
 import axios from "axios";
-import { toast } from "../toast/toast";
 import { catalogueProducts, orderProducts } from "@forever/shared";
 import { BACKEND_URL } from "../config";
 import { relatedTo as selectRelated } from "./related";
@@ -36,14 +35,14 @@ export const CatalogueProvider = ({ children }) => {
           setAllProducts(response.data.data.products ?? []);
           setStatus("ready");
         } else {
+          // The Collection page and the homepage rails render this state
+          // inline, so a toast would say it twice (ADR-0008).
           setStatus("error");
-          toast.error(response.data.message);
         }
       })
-      .catch((error) => {
+      .catch(() => {
         if (cancelled) return;
         setStatus("error");
-        toast.error(error.response?.data?.message || error.message);
       });
 
     return () => {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import { toast } from "../toast/toast";
+import InlineNotice from "../Components/InlineNotice";
 import { MIN_PASSWORD_LENGTH } from "@forever/shared";
 import { useAuth, SESSION_EXPIRED_NOTIFIED_KEY } from "../auth/AuthContext";
 import { BACKEND_URL } from "../config";
@@ -10,6 +10,9 @@ const Login = () => {
   const navigate = useNavigate();
   const { token, setToken } = useAuth();
   const [currentState, setCurrentState] = useState("Login");
+  // Rejections belong to the form the customer is looking at (ADR-0008). The
+  // redirect and the account icon are the confirmation of a success.
+  const [error, setError] = useState("");
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -17,6 +20,8 @@ const Login = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    setError("");
+
     try {
       if (currentState === "Sign Up") {
         const response = await axios.post(BACKEND_URL + "/api/user/register", {
@@ -25,36 +30,33 @@ const Login = () => {
           password,
         });
 
-        const token = response.data.data.token;
         if (response.data.success) {
-          setToken(token);
+          setToken(response.data.data.token);
           localStorage.removeItem(SESSION_EXPIRED_NOTIFIED_KEY);
-          toast.success("Signup Successful!", {
-            title: "Welcome to Forever.",
-          });
         } else {
-          toast.error(response.data.message);
+          setError(
+            response.data.message ||
+              "We couldn't create your account. Please try again."
+          );
         }
       } else {
         const response = await axios.post(BACKEND_URL + "/api/user/login", {
           email,
           password,
         });
-        const token = response.data.data.token;
+
         if (response.data.success) {
-          setToken(token);
+          setToken(response.data.data.token);
           localStorage.removeItem(SESSION_EXPIRED_NOTIFIED_KEY);
-          toast.success("Login Successful!", {
-            title: "Welcome back.",
-          });
         } else {
-          toast.error(response.data.message);
+          setError(response.data.message || "Those details did not match.");
         }
       }
-    } catch (error) {
-      console.log(error);
-      // A network failure has no response, so fall back to the error itself.
-      toast.error(error.response?.data?.message || error.message);
+    } catch (requestError) {
+      setError(
+        requestError.response?.data?.message ||
+          "We couldn't reach Forever. Check your connection and try again."
+      );
     }
   };
 
@@ -129,6 +131,8 @@ const Login = () => {
         <button className="w-1/2 m-auto bg-black text-white px-8 py-2 mt-4 cursor-pointer ">
           {currentState === "Login" ? "Sign In" : "Sign Up"}
         </button>
+
+        {error ? <InlineNotice>{error}</InlineNotice> : null}
       </div>
     </form>
   );

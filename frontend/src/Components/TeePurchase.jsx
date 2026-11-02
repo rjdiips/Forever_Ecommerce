@@ -17,6 +17,7 @@ const TeePurchase = ({
   canBuy,
   busy,
   loading,
+  notice = null,
   onAddToCart,
   onDownload,
   canDownload = true,
@@ -76,6 +77,8 @@ const TeePurchase = ({
           className="border border-gray-300 rounded py-1.5 px-3.5 w-24"
         />
       </div>
+
+      {notice}
 
       <button
         onClick={onAddToCart}

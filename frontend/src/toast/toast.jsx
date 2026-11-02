@@ -3,7 +3,7 @@ import ForeverToast from "./ForeverToast";
 import { TOAST_LIFETIME, TOAST_META } from "./toastMeta";
 
 const show = (type, message, options = {}) => {
-  const meta = TOAST_META[type] ?? TOAST_META.info;
+  const meta = TOAST_META[type] ?? TOAST_META.error;
   const { title, style, ...toastOptions } = options ?? {};
   const text = typeof message === "string" ? message : "";
 
@@ -36,6 +36,4 @@ const show = (type, message, options = {}) => {
 export const toast = {
   success: (message, options) => show("success", message, options),
   error: (message, options) => show("error", message, options),
-  info: (message, options) => show("info", message, options),
-  warning: (message, options) => show("warning", message, options),
 };

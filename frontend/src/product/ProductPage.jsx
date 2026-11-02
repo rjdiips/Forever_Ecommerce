@@ -3,10 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { formatProductPrice } from "@forever/shared";
 import { useCart } from "../cart/CartContext";
 import { useCatalogue } from "../catalogue/CatalogueContext";
-import { toast } from "../toast/toast";
 import { REVIEW_COUNT, REVIEW_RATING, reviewsFor } from "../reviews/reviews";
 import StarRating from "../Components/StarRating";
 import HomeProductRail from "../Components/HomeProductRail";
+import InlineNotice from "../Components/InlineNotice";
 import { Reveal } from "../Components/Reveal";
 import { productImage } from "./productImage";
 import ProductTitle from "./ProductTitle";
@@ -34,11 +34,16 @@ const DELIVERY = [
 // tabs, so nothing about the piece is hidden behind a click.
 const ProductPage = ({ product }) => {
   const { add } = useCart();
-  const { relatedTo } = useCatalogue();
+  const { relatedTo, error: catalogueError } = useCatalogue();
   const navigate = useNavigate();
   const images = product?.image ?? [];
   const [pickedImage, setPickedImage] = useState("");
   const [size, setSize] = useState("");
+  const [sizeMissing, setSizeMissing] = useState(false);
+  // The result of the last add: `{ ok, message }`. One line under the buttons
+  // carries both the confirmation and the failure, for signed-in and
+  // anonymous customers alike (ADR-0008).
+  const [bagResult, setBagResult] = useState(null);
 
   // The catalogue arrives after the first paint, and moving between pieces
   // reuses this component, so neither a size nor a chosen plate may survive
@@ -46,6 +51,8 @@ const ProductPage = ({ product }) => {
   useEffect(() => {
     setSize("");
     setPickedImage("");
+    setSizeMissing(false);
+    setBagResult(null);
   }, [product?._id]);
 
   const activeImage = images.includes(pickedImage)
@@ -61,16 +68,35 @@ const ProductPage = ({ product }) => {
     setPlate({ current: activeImage, previous: plate.current });
   }
 
-  // Buy Now is Add to cart plus the checkout step. The size guard matches the
-  // cart's own, so the toast is the same one the cart would raise.
-  const buyNow = async () => {
+  // A missing size is a question for this panel, not a system failure, so it
+  // renders in the size row and never as a toast (ADR-0008).
+  const chooseSize = (item) => {
+    setSize(item);
+    setSizeMissing(false);
+    setBagResult(null);
+  };
+
+  const addToBag = async () => {
     if (!size) {
-      toast.error("Please select a size");
+      setSizeMissing(true);
       return;
     }
 
-    await add(product._id, size);
-    navigate("/place-order");
+    setBagResult(await add(product._id, size));
+  };
+
+  // Buy Now is Add to cart plus the checkout step. It only leaves the page when
+  // the Cart accepted the piece.
+  const buyNow = async () => {
+    if (!size) {
+      setSizeMissing(true);
+      return;
+    }
+
+    const result = await add(product._id, size);
+    setBagResult(result);
+
+    if (result.ok) navigate("/place-order");
   };
 
   // The catalogue loads asynchronously; hold the space rather than flashing an
@@ -225,17 +251,30 @@ const ProductPage = ({ product }) => {
                 <p className="text-[9px] font-semibold uppercase tracking-[0.24em] text-[#111]">
                   Select size
                 </p>
-                <p className="text-[9px] uppercase tracking-[0.18em] text-gray-400">
-                  {size ? `Size ${size}` : "Required"}
+                <p
+                  className={`text-[9px] uppercase tracking-[0.18em] ${
+                    sizeMissing ? "text-[#8f4a56]" : "text-gray-400"
+                  }`}
+                >
+                  {sizeMissing
+                    ? "Select a size"
+                    : size
+                      ? `Size ${size}`
+                      : "Required"}
                 </p>
               </div>
 
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div
+                role="group"
+                aria-label="Select a size"
+                aria-describedby={sizeMissing ? "size-notice" : undefined}
+                className="mt-3 flex flex-wrap gap-2"
+              >
                 {product.sizes.map((item) => (
                   <button
                     key={item}
                     type="button"
-                    onClick={() => setSize(item)}
+                    onClick={() => chooseSize(item)}
                     aria-pressed={item === size}
                     className={`h-11 min-w-12 border px-3 text-[11px] uppercase tracking-[0.14em] transition-colors ${
                       item === size
@@ -247,12 +286,18 @@ const ProductPage = ({ product }) => {
                   </button>
                 ))}
               </div>
+
+              {sizeMissing && (
+                <InlineNotice id="size-notice" className="mt-3">
+                  Choose a size to continue.
+                </InlineNotice>
+              )}
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <button
                 type="button"
-                onClick={() => add(product._id, size)}
+                onClick={addToBag}
                 className="group flex items-center justify-between gap-4 bg-[#111] px-5 py-4 text-left text-[10px] font-semibold uppercase tracking-[0.26em] text-white transition-colors hover:bg-gray-800"
               >
                 Add to cart
@@ -272,13 +317,38 @@ const ProductPage = ({ product }) => {
               </button>
             </div>
 
-            <p className="mt-4 flex items-center gap-2 border-t border-gray-200 pt-4 text-[10px] uppercase tracking-[0.18em] text-gray-500">
-              <span
-                aria-hidden="true"
-                className="h-1.5 w-1.5 rounded-full bg-[#b8838e]"
-              />
-              In stock
-            </p>
+            <div className="mt-4 border-t border-gray-200 pt-4">
+              {bagResult ? (
+                bagResult.ok ? (
+                  <InlineNotice
+                    tone="success"
+                    action={
+                      <Link
+                        to="/cart"
+                        className="border-b border-current pb-0.5 text-[9px] font-semibold uppercase tracking-[0.2em]"
+                      >
+                        View bag &rarr;
+                      </Link>
+                    }
+                  >
+                    Added to your bag.
+                  </InlineNotice>
+                ) : (
+                  <InlineNotice>
+                    {bagResult.message ||
+                      "We couldn't add that to your bag. Please try again."}
+                  </InlineNotice>
+                )
+              ) : (
+                <p className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-gray-500">
+                  <span
+                    aria-hidden="true"
+                    className="h-1.5 w-1.5 rounded-full bg-[#b8838e]"
+                  />
+                  In stock
+                </p>
+              )}
+            </div>
           </div>
         </Reveal>
       </div>
@@ -376,7 +446,11 @@ const ProductPage = ({ product }) => {
           </Link>
         </div>
 
-        {related.length > 0 ? (
+        {catalogueError ? (
+          <p className="mt-8 text-sm text-gray-500">
+            Pieces are unavailable right now.
+          </p>
+        ) : related.length > 0 ? (
           <HomeProductRail products={related} />
         ) : (
           <p className="mt-8 text-sm text-gray-500">

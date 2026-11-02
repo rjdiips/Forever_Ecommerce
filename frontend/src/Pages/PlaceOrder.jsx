@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets";
 import CartTotal from "../Components/CartTotal";
 import Title from "../Components/Title";
+import InlineNotice from "../Components/InlineNotice";
 import { useAuth } from "../auth/AuthContext";
 import { BACKEND_URL } from "../config";
 import { useCart } from "../cart/CartContext";
 import axios from "axios";
-import { toast } from "../toast/toast";
 
 const PlaceOrder = () => {
   const navigate = useNavigate();
@@ -15,6 +15,9 @@ const PlaceOrder = () => {
   const { lineItems, clear } = useCart();
 
   const [paymentMethod, setPaymentMethod] = useState("cod");
+  // A refused order is the form's own problem, so it renders here and the
+  // filled-in address survives (ADR-0008).
+  const [submitError, setSubmitError] = useState("");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -36,6 +39,7 @@ const PlaceOrder = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    setSubmitError("");
 
     try {
       // Intent only: the server prices every line from the catalogue. Any
@@ -64,7 +68,10 @@ const PlaceOrder = () => {
             clear();
             navigate("/orders");
           } else {
-            toast.error(response.data.message);
+            setSubmitError(
+              response.data.message ||
+                "We couldn't place your order. Please try again."
+            );
           }
           break;
         }
@@ -81,7 +88,10 @@ const PlaceOrder = () => {
             const { sessionUrl } = response.data.data;
             window.location.replace(sessionUrl);
           } else {
-            toast.error(response.data.message);
+            setSubmitError(
+              response.data.message ||
+                "We couldn't place your order. Please try again."
+            );
           }
           break;
         }
@@ -91,7 +101,10 @@ const PlaceOrder = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message || error.message);
+      setSubmitError(
+        error.response?.data?.message ||
+          "We couldn't reach Forever. Check your connection and try again."
+      );
     }
   };
 
@@ -242,9 +255,13 @@ const PlaceOrder = () => {
           {/* -------------- Payment method selection -------------- */}
 
           <div className="w-full text-end mt-8">
+            {submitError ? (
+              <InlineNotice className="mb-4 justify-end">
+                {submitError}
+              </InlineNotice>
+            ) : null}
             <button
               type="submit"
-              // onClick={() => navigate('/orders')}
               className="bg-black text-white px-16 py-3 text-sm cursor-pointer"
             >
               PLACE ORDER

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
-import { toast } from "../toast/toast";
+import InlineNotice from "../Components/InlineNotice";
 import {
   GENERIC_PASSWORD_RESET_CONFIRMATION,
   MIN_PASSWORD_LENGTH,
@@ -44,18 +44,14 @@ const SetPasswordForm = ({ token }) => {
       );
 
       // The API returns a fresh Session token minted after the version bump,
-      // so setting it here signs the User in.
+      // so setting it here signs the User in. The redirect is the confirmation.
       setToken(response.data.data.token);
-      toast.success("Password reset successful. You are now signed in.", {
-        title: "Password updated.",
-      });
       navigate("/");
-    } catch (error) {
+    } catch (requestError) {
       const message =
-        error.response?.data?.message ||
+        requestError.response?.data?.message ||
         "Something went wrong. Please try again.";
       setError(message);
-      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -96,12 +92,15 @@ const SetPasswordForm = ({ token }) => {
         />
 
         {error ? (
-          <div className="text-sm text-red-700" role="alert">
-            <p>{error}</p>
-            <Link to="/reset-password" className="underline">
-              Request a new link
-            </Link>
-          </div>
+          <InlineNotice
+            action={
+              <Link to="/reset-password" className="underline">
+                Request a new link
+              </Link>
+            }
+          >
+            {error}
+          </InlineNotice>
         ) : null}
 
         <button
@@ -118,11 +117,13 @@ const SetPasswordForm = ({ token }) => {
 const RequestResetForm = () => {
   const [email, setEmail] = useState("");
   const [confirmation, setConfirmation] = useState("");
+  const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
     setSubmitting(true);
+    setError("");
 
     try {
       const response = await axios.post(
@@ -134,9 +135,9 @@ const RequestResetForm = () => {
       setConfirmation(
         response.data.message || GENERIC_PASSWORD_RESET_CONFIRMATION
       );
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
+    } catch (requestError) {
+      setError(
+        requestError.response?.data?.message ||
           "Something went wrong. Please try again."
       );
     } finally {
@@ -188,6 +189,8 @@ const RequestResetForm = () => {
         >
           {submitting ? "Sending..." : "Send Reset Link"}
         </button>
+
+        {error ? <InlineNotice>{error}</InlineNotice> : null}
       </div>
     </form>
   );

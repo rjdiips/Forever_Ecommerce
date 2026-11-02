@@ -1,20 +1,25 @@
 import { useEffect, useState } from 'react';
 import { formatMoney, orderItemPriceCents } from '@forever/shared';
 import Title from '../Components/Title';
+import InlineNotice from '../Components/InlineNotice';
 import { useAuth } from '../auth/AuthContext';
 import { BACKEND_URL } from '../config';
 import axios from 'axios';
-import { toast } from '../toast/toast';
 
 const Orders = () => {
   const { token } = useAuth();
 
   // Orders data
   const [orderData, setOrderData] = useState([]);
+  // A failed history is the list's own problem, so it renders in the list
+  // rather than as a toast (ADR-0008).
+  const [loadError, setLoadError] = useState(false);
 
   // Fetch the orders data
   const fetchOrderData = async () => {
     try {
+      setLoadError(false);
+
       if (!token) {
         return null;
       }
@@ -41,7 +46,7 @@ const Orders = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message);
+      setLoadError(true);
     }
   };
 
@@ -65,7 +70,13 @@ const Orders = () => {
       </div>
       <div>{}</div>
 
-      {orderData.length === 0 ? (
+      {loadError ? (
+        <div className='mt-6 border-y border-gray-200 py-12 text-center'>
+          <InlineNotice className='justify-center'>
+            We couldn&rsquo;t load your orders. Refresh to try again.
+          </InlineNotice>
+        </div>
+      ) : orderData.length === 0 ? (
         <p className='text-gray-500'>You have no orders.</p>
       ) : (
         <div>

@@ -1,5 +1,8 @@
 export const TOAST_LIFETIME = 6500;
 
+// Toasts are the shop's voice, not the customer's mistake (ADR-0008): only a
+// failure with no control to point at, or a confirmation with nowhere else to
+// be seen, reaches this file.
 export const TOAST_META = {
   success: {
     label: "Confirmed",
@@ -8,21 +11,9 @@ export const TOAST_META = {
     fallbackMessage: "Your changes have been saved.",
   },
   error: {
-    label: "Action needed",
+    label: "System",
     accent: "#8f4a56",
-    defaultTitle: "That didn't go through.",
-    fallbackMessage: "Something went wrong. Please try again.",
-  },
-  info: {
-    label: "A note",
-    accent: "#b69563",
-    defaultTitle: "A note from Forever.",
-    fallbackMessage: "There is a small update for you.",
-  },
-  warning: {
-    label: "Heads-up",
-    accent: "#b69563",
-    defaultTitle: "Just a heads-up.",
-    fallbackMessage: "Please check this before continuing.",
+    defaultTitle: "Something went wrong on our side.",
+    fallbackMessage: "Please try again in a moment.",
   },
 };

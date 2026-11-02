@@ -1,7 +1,8 @@
 import { useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { findTeeBase, teeColors } from "@forever/shared";
 import { toast } from "../toast/toast";
+import InlineNotice from "../Components/InlineNotice";
 import TshirtCanvas from "../Components/TshirtCanvas";
 import TshirtControls from "../Components/TshirtControls";
 import TeePurchase from "../Components/TeePurchase";
@@ -37,6 +38,9 @@ const TshirtGeneratorPage = () => {
   const [size, setSize] = useState("");
   const [quantity, setQuantity] = useState(DEFAULT_PURCHASE_QUANTITY);
   const [busy, setBusy] = useState(false);
+  // A precondition or a refused add renders beside the button that caused it
+  // (ADR-0008); nothing here is a toast.
+  const [notice, setNotice] = useState(null);
   // The blank arrives over the network, so the page waits for it before it will
   // export or sell: "loading", "loaded", "error", or "unavailable" when the
   // chosen colour has no base (or its base has no image).
@@ -65,23 +69,37 @@ const TshirtGeneratorPage = () => {
           : null;
 
   // Export the finished Tee draft, store the design, then add the base Product
-  // to the Cart as a line carrying that design (ADR-0001).
+  // to the Cart as a line carrying that design (ADR-0001). Preconditions are
+  // questions for this page, so they render under the button rather than as a
+  // toast (ADR-0008).
   const handleAddToCart = async () => {
-    if (!baseTee) {
-      toast.error("This tee colour is not available right now");
-      return;
-    }
+    setNotice(null);
+
+    // Already stated under the canvas; the purchase button is disabled when
+    // there is no base to buy.
+    if (!baseTee) return;
 
     if (!token) {
-      toast.error("Please sign in to save your custom tee");
-      navigate("/login");
+      setNotice(
+        <InlineNotice
+          action={
+            <Link
+              to="/login"
+              className="border-b border-current pb-0.5 text-[9px] font-semibold uppercase tracking-[0.2em]"
+            >
+              Sign in &rarr;
+            </Link>
+          }
+        >
+          Sign in to save this tee to your bag.
+        </InlineNotice>
+      );
       return;
     }
 
-    if (!canBuy) {
-      toast.error("Choose a graphic and a size first");
-      return;
-    }
+    // `TeePurchase` prints the reason and disables the button, so the guard
+    // stays silent in case the button is ever enabled again.
+    if (!canBuy) return;
 
     setBusy(true);
     try {
@@ -98,10 +116,21 @@ const TshirtGeneratorPage = () => {
         token,
       });
 
-      await add(baseTee._id, size, {
+      const result = await add(baseTee._id, size, {
         design: designUrl,
         quantity: purchaseQuantity(quantity),
       });
+
+      if (!result.ok) {
+        setNotice(
+          <InlineNotice>
+            {result.message ||
+              "We couldn't add that to your bag. Please try again."}
+          </InlineNotice>
+        );
+        return;
+      }
+
       navigate("/cart");
     } catch (error) {
       toast.error(
@@ -172,6 +201,7 @@ const TshirtGeneratorPage = () => {
             canBuy={canBuy}
             busy={busy}
             loading={loading}
+            notice={notice}
             onAddToCart={handleAddToCart}
             onDownload={handleDownload}
             canDownload={blankReady}

@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef } from "react";
-import { toast } from "../toast/toast";
+import { useCallback, useEffect, useRef, useState } from "react";
+import InlineNotice from "./InlineNotice";
 import { DEFAULT_CUSTOM_GRAPHIC_SCALE, PRESETS } from "../tee/presets";
 import { downscaleGraphicFile } from "../tee/upload";
 
@@ -15,6 +15,8 @@ const TshirtControls = ({
   // when the draft moves on. Presets are bundled URLs and are never revoked.
   const uploadUrlRef = useRef(null);
   const uploadRequestRef = useRef(0);
+  // A rejected file belongs to the upload control (ADR-0008).
+  const [uploadError, setUploadError] = useState("");
 
   const releaseUploadUrl = useCallback(() => {
     if (uploadUrlRef.current) {
@@ -41,6 +43,7 @@ const TshirtControls = ({
 
     const request = uploadRequestRef.current + 1;
     uploadRequestRef.current = request;
+    setUploadError("");
 
     try {
       const url = await downscaleGraphicFile(file);
@@ -53,7 +56,9 @@ const TshirtControls = ({
       uploadUrlRef.current = url;
       onSelectGraphic(url, DEFAULT_CUSTOM_GRAPHIC_SCALE);
     } catch (error) {
-      toast.error(error?.message || "Could not use that image.");
+      setUploadError(
+        error?.message || "That image couldn't be used. Try a PNG or JPG."
+      );
     } finally {
       // Let the same file be chosen again after a failed attempt.
       event.target.value = "";
@@ -130,6 +135,10 @@ const TshirtControls = ({
             hover:file:bg-gray-100
           "
         />
+
+        {uploadError ? (
+          <InlineNotice className="mt-2">{uploadError}</InlineNotice>
+        ) : null}
       </div>
 
       <div>

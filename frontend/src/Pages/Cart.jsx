@@ -3,6 +3,7 @@ import { cartLineId, formatMoney } from "@forever/shared";
 import { useCatalogue } from "../catalogue/CatalogueContext";
 import { useCart } from "../cart/CartContext";
 import Title from "../Components/Title";
+import InlineNotice from "../Components/InlineNotice";
 import { assets } from "../assets/assets";
 import CartTotal from "../Components/CartTotal";
 
@@ -34,7 +35,7 @@ const EmptyCart = () => (
 );
 
 const Cart = () => {
-  const { lineItems, count, loading, update, remove } = useCart();
+  const { lineItems, count, loading, loadError, update, remove } = useCart();
   const { getById } = useCatalogue();
   const navigate = useNavigate();
 
@@ -55,6 +56,12 @@ const Cart = () => {
         >
           Loading your bag
         </p>
+      ) : loadError && isEmpty ? (
+        <div className="border-y border-gray-200 py-20 text-center">
+          <InlineNotice className="justify-center">
+            We couldn&rsquo;t load your bag. Refresh to try again.
+          </InlineNotice>
+        </div>
       ) : isEmpty ? (
         <EmptyCart />
       ) : (

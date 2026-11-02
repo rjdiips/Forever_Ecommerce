@@ -33,6 +33,9 @@ export const CartProvider = ({ token, products = [], backendUrl, children }) => 
   // A signed-in cart arrives over the network; the storefront needs to know the
   // bag is still loading so it does not announce "empty" before the lines land.
   const [loading, setLoading] = useState(false);
+  // A failed load has no control to point at, but the Cart page has a place to
+  // say so, so the page renders this rather than the toast (ADR-0008).
+  const [loadError, setLoadError] = useState(false);
 
   const priceOf = useMemo(() => priceOfFromProducts(products), [products]);
 
@@ -42,11 +45,13 @@ export const CartProvider = ({ token, products = [], backendUrl, children }) => 
     if (!token) {
       setLines([]);
       setLoading(false);
+      setLoadError(false);
       return undefined;
     }
 
     let cancelled = false;
     setLoading(true);
+    setLoadError(false);
     axios
       .post(`${backendUrl}/api/cart/get`, {}, { headers: { token } })
       .then((response) => {
@@ -54,8 +59,8 @@ export const CartProvider = ({ token, products = [], backendUrl, children }) => 
           setLines(cartLines(response.data.data.cartData));
         }
       })
-      .catch((error) => {
-        toast.error(error.response?.data?.message || error.message);
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -68,11 +73,12 @@ export const CartProvider = ({ token, products = [], backendUrl, children }) => 
 
   // `design` is the uploaded URL of a Custom Tee; it is part of the line's
   // identity, so two designs of the same base and size stay separate lines.
+  // The Cart never announces the result: it returns it, and the panel that
+  // asked renders it (ADR-0008).
   const add = useCallback(
     async (productId, size, { design, quantity = 1 } = {}) => {
       if (!size) {
-        toast.error("Please select a size");
-        return;
+        return { ok: false, message: "Choose a size to continue." };
       }
 
       setLines((current) =>
@@ -84,7 +90,7 @@ export const CartProvider = ({ token, products = [], backendUrl, children }) => 
         })
       );
 
-      if (!token) return;
+      if (!token) return { ok: true };
 
       try {
         const response = await axios.post(
@@ -92,13 +98,24 @@ export const CartProvider = ({ token, products = [], backendUrl, children }) => 
           { itemId: productId, size, quantity, ...(design ? { design } : {}) },
           { headers: { token } }
         );
-        if (response.data.success) {
-          toast.success(response.data.message, {
-            title: "Added to your bag.",
-          });
+
+        if (!response.data.success) {
+          return {
+            ok: false,
+            message:
+              response.data.message ||
+              "We couldn't add that to your bag. Please try again.",
+          };
         }
+
+        return { ok: true };
       } catch (error) {
-        toast.error(error.response?.data?.message || error.message);
+        return {
+          ok: false,
+          message:
+            error.response?.data?.message ||
+            "We couldn't add that to your bag. Please try again.",
+        };
       }
     },
     [token, backendUrl]
@@ -146,12 +163,23 @@ export const CartProvider = ({ token, products = [], backendUrl, children }) => 
       total: cartTotal(subtotalCents, DELIVERY_FEE),
       count: itemCount,
       loading,
+      loadError,
       add,
       update,
       remove,
       clear,
     }),
-    [lineItems, subtotalCents, itemCount, loading, add, update, remove, clear]
+    [
+      lineItems,
+      subtotalCents,
+      itemCount,
+      loading,
+      loadError,
+      add,
+      update,
+      remove,
+      clear,
+    ]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

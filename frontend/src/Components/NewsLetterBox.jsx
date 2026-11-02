@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import axios from "axios";
 import { toast } from "../toast/toast";
+import InlineNotice from "./InlineNotice";
 import { BACKEND_URL } from "../config";
 import { fireConfetti } from "../lib/confetti";
 import { Reveal } from "./Reveal";
@@ -9,12 +10,16 @@ import { SectionLabel } from "./HomeSectionHeading";
 const NewsLetterBox = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  // The confirmation toasts because there is no subscriptions page to check
+  // afterwards; a failure still belongs to the field that caused it (ADR-0008).
+  const [error, setError] = useState("");
   const formRef = useRef(null);
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
 
     setLoading(true);
+    setError("");
 
     try {
       const response = await axios.post(`${BACKEND_URL}/api/subscribe`, {
@@ -25,12 +30,11 @@ const NewsLetterBox = () => {
         title: "You're on the list.",
       });
       setEmail("");
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message ||
-        "Subscription failed. Please try again.";
-      toast.error(errorMessage);
-      console.error("Subscription error:", error);
+    } catch (requestError) {
+      setError(
+        requestError.response?.data?.message ||
+          "We couldn't add you to the list. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -79,6 +83,10 @@ const NewsLetterBox = () => {
               className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] origin-left scale-x-0 bg-gray-900 transition-transform duration-500 group-focus-within/form:scale-x-100"
             />
           </form>
+
+          {error ? (
+            <InlineNotice className="mt-3 justify-center">{error}</InlineNotice>
+          ) : null}
         </div>
       </Reveal>
     </section>

@@ -10,15 +10,6 @@ const Icon = ({ type }) => {
     );
   }
 
-  if (type === "info" || type === "warning") {
-    return (
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <path d="M8 7.1v5.15" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-        <circle cx="8" cy="4" r="0.85" fill="currentColor" />
-      </svg>
-    );
-  }
-
   return (
     <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
       <path
@@ -39,7 +30,7 @@ const CloseIcon = () => (
 );
 
 const ForeverToast = ({ type = "info", title, message, closeToast }) => {
-  const meta = TOAST_META[type] ?? TOAST_META.info;
+  const meta = TOAST_META[type] ?? TOAST_META.error;
   const dismiss = () => closeToast?.();
 
   return (
