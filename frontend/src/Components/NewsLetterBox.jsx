@@ -41,7 +41,7 @@ const NewsLetterBox = () => {
   };
 
   return (
-    <section className="py-20 text-center">
+    <section className="pt-20 pb-6 text-center">
       <Reveal>
         <SectionLabel>Join the list</SectionLabel>
         <h2 className="editorial-display mt-4 text-3xl text-[#111] sm:text-4xl">

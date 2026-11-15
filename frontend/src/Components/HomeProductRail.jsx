@@ -5,7 +5,7 @@ import { Reveal } from "./Reveal";
 const HomeProductCard = ({ product }) => (
   <Link
     to={`/product/${product._id}`}
-    className="group block text-gray-700"
+    className="group flex h-full flex-col text-gray-700"
   >
     <div className="relative aspect-[390/450] overflow-hidden bg-gray-100">
       <img
@@ -15,11 +15,16 @@ const HomeProductCard = ({ product }) => (
         className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
       />
     </div>
-    <div className="relative mt-3 pb-2">
-      <p className="break-words text-sm">{product.name}</p>
-      <span className="absolute bottom-0 left-0 h-px w-0 bg-gray-700 transition-[width] duration-500 group-hover:w-10" />
+    {/* Reserve two title lines so the price sits on one baseline across a row. */}
+    <div className="relative mt-3 min-h-[3rem] pb-2">
+      <p className="relative break-words text-sm">
+        {product.name}
+        <span className="absolute -bottom-2 left-0 h-px w-0 bg-gray-700 transition-[width] duration-500 group-hover:w-10" />
+      </p>
     </div>
-    <p className="text-sm font-medium">{formatProductPrice(product.price)}</p>
+    <p className="mt-auto text-sm font-medium">
+      {formatProductPrice(product.price)}
+    </p>
   </Link>
 );
 
