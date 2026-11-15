@@ -151,7 +151,7 @@ const ProductPage = ({ product }) => {
           </span>
           <span className="text-[#111]">{product.subCategory}</span>
         </div>
-        <span className="hidden text-[#b8838e] sm:block">
+        <span className="hidden text-[#a85580] sm:block">
           Forever / The piece
         </span>
       </nav>
@@ -249,7 +249,7 @@ const ProductPage = ({ product }) => {
 
         <Reveal delay={80}>
           <div className="border border-[#111] bg-white p-5 shadow-[7px_7px_0_rgba(17,17,17,0.06)] sm:p-7">
-            <p className="text-[9px] uppercase tracking-[0.3em] text-[#b8838e]">
+            <p className="text-[9px] uppercase tracking-[0.3em] text-[#a85580]">
               {product.category} / {product.subCategory}
             </p>
 
@@ -369,7 +369,7 @@ const ProductPage = ({ product }) => {
                 <p className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-gray-500">
                   <span
                     aria-hidden="true"
-                    className="h-1.5 w-1.5 rounded-full bg-[#b8838e]"
+                    className="h-1.5 w-1.5 rounded-full bg-[#c586a5]"
                   />
                   In stock
                 </p>
@@ -392,7 +392,7 @@ const ProductPage = ({ product }) => {
         <dl className="grid gap-x-12 gap-y-7 py-6 sm:grid-cols-3">
           {DELIVERY.map((note) => (
             <div key={note.label}>
-              <dt className="text-[9px] uppercase tracking-[0.2em] text-[#b8838e]">
+              <dt className="text-[10px] uppercase tracking-[0.2em] text-[#a85580]">
                 {note.label}
               </dt>
               <dd className="mt-2 text-sm leading-relaxed text-gray-600">
@@ -406,7 +406,7 @@ const ProductPage = ({ product }) => {
       <section className="mt-12 border-t border-gray-200 pt-10" aria-label="Reviews">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <h2 className="editorial-display text-2xl text-[#111]">
-            Reviews <span className="text-[#b8838e]">({REVIEW_COUNT})</span>
+            Reviews <span className="text-[#a85580]">({REVIEW_COUNT})</span>
           </h2>
           <div className="flex items-baseline gap-6">
             <p className="text-[9px] uppercase tracking-[0.22em] text-gray-400 tabular-nums">
@@ -421,7 +421,7 @@ const ProductPage = ({ product }) => {
             <article key={review.id} className="border-t border-gray-200 pt-4">
               <p
                 aria-hidden="true"
-                className="editorial-display text-3xl leading-none text-[#b8838e]"
+                className="editorial-display text-3xl leading-none text-[#a85580]"
               >
                 &ldquo;
               </p>
@@ -452,7 +452,7 @@ const ProductPage = ({ product }) => {
       >
         <div className="flex items-end justify-between gap-6">
           <div>
-            <p className="text-[9px] uppercase tracking-[0.3em] text-[#b8838e]">
+            <p className="text-[9px] uppercase tracking-[0.3em] text-[#a85580]">
               Forever / Continue
             </p>
             <h2 className="editorial-display mt-3 text-3xl text-[#111]">

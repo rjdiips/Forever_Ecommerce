@@ -40,5 +40,5 @@
   <!-- The crease line a paper bag folds on. -->
   <path d="M144 152 H256" stroke="#d1d5db" stroke-width="1.5" />
 
-  <circle cx="200" cy="212" r="5" fill="#b8838e" />
+  <circle cx="200" cy="212" r="5" fill="#c586a5" />
 </svg>

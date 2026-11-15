@@ -25,7 +25,7 @@ const Footer = () => {
         </div>
 
         <div>
-          <p className="editorial-display-strong text-[11px] tracking-[0.12em] text-[#b8838e]">
+          <p className="editorial-display-strong text-[11px] tracking-[0.12em] text-[#a85580]">
             Company
           </p>
           <ul className="mt-5 flex flex-col gap-2.5 text-[13px] font-medium text-gray-700">
@@ -47,7 +47,7 @@ const Footer = () => {
         </div>
 
         <div>
-          <p className="editorial-display-strong text-[11px] tracking-[0.12em] text-[#b8838e]">
+          <p className="editorial-display-strong text-[11px] tracking-[0.12em] text-[#a85580]">
             Get in touch
           </p>
           <ul className="mt-5 flex flex-col gap-2.5 text-[13px] font-medium text-gray-700">

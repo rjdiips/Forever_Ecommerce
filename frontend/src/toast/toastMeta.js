@@ -6,7 +6,7 @@ export const TOAST_LIFETIME = 6500;
 export const TOAST_META = {
   success: {
     label: "Confirmed",
-    accent: "#b8838e",
+    accent: "#c586a5",
     defaultTitle: "All set.",
     fallbackMessage: "Your changes have been saved.",
   },

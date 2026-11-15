@@ -3,7 +3,8 @@ import { CATEGORIES, SUB_CATEGORIES } from "@forever/shared";
 
 // The collection's refinement rail: category and type filters only. On mobile
 // the whole panel collapses behind Refine so the products stay near the top.
-const ROSE = "#b8838e";
+// Accent from the wordmark dot. Label text uses #a85580 (4.91:1 on white).
+const ROSE = "#c586a5";
 
 const FacetRow = ({ active, label, onClick }) => (
   <button
@@ -25,8 +26,8 @@ const FacetRow = ({ active, label, onClick }) => (
       aria-hidden="true"
       className={`h-1.5 w-1.5 rounded-full transition-colors ${
         active
-          ? "bg-[#b8838e]"
-          : "border border-gray-300 group-hover:border-[#b8838e]"
+          ? "bg-[#a85580]"
+          : "border border-gray-300 group-hover:border-[#a85580]"
       }`}
     />
   </button>
@@ -35,7 +36,7 @@ const FacetRow = ({ active, label, onClick }) => (
 const FacetGroup = ({ label, values, selected, onToggle }) => (
   <div className="border-b border-gray-200 py-5">
     <div className="flex items-baseline justify-between">
-      <p className="text-[9px] uppercase tracking-[0.24em] text-[#b8838e]">
+      <p className="text-[10px] uppercase tracking-[0.24em] text-[#a85580]">
         {label}
       </p>
       <span className="text-[9px] uppercase tracking-[0.18em] text-gray-400 tabular-nums">

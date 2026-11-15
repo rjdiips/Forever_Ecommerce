@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { assets } from "../assets/assets";
 
-const ROSE = "#b8838e";
+// Accent from the wordmark dot. Label text uses #a85580 (4.91:1 on white).
+const ROSE = "#c586a5";
 
 const Hero = () => (
   <section
@@ -37,7 +38,7 @@ const Hero = () => (
           </span>
         </h1>
 
-        <p className="mt-4 text-[9px] uppercase tracking-[0.32em] text-[#b8838e]">
+        <p className="mt-4 text-[9px] uppercase tracking-[0.32em] text-[#a85580]">
           Forever / New season
         </p>
 

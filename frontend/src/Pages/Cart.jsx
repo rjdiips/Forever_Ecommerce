@@ -14,7 +14,7 @@ const EmptyCart = () => (
   <div className="border-y border-gray-200 px-6 py-16 text-center sm:py-20">
     <img src={assets.empty_cart} alt="" className="mx-auto w-44 sm:w-56" />
 
-    <p className="mt-8 text-[9px] uppercase tracking-[0.3em] text-[#b8838e]">
+    <p className="mt-8 text-[9px] uppercase tracking-[0.3em] text-[#a85580]">
       Forever / Your bag
     </p>
     <p className="editorial-display mt-3 text-2xl text-[#111] sm:text-3xl">

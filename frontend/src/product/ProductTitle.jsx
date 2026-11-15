@@ -13,7 +13,7 @@ const ProductTitle = ({ name }) => {
         {last}
         <span
           aria-hidden="true"
-          className="ml-1.5 inline-block h-2 w-2 rounded-full bg-[#b8838e] align-baseline"
+          className="ml-1.5 inline-block h-2 w-2 rounded-full bg-[#c586a5] align-baseline"
         />
       </span>
     </h1>

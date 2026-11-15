@@ -97,7 +97,7 @@ const Navbar = () => {
                       </span>
                       <span
                         aria-hidden="true"
-                        className={`mt-1 h-px bg-[#b8838e] transition-[width] duration-300 ease-out ${
+                        className={`mt-1 h-px bg-[#c586a5] transition-[width] duration-300 ease-out ${
                           isActive ? "w-full" : "w-0 group-hover:w-full"
                         }`}
                       />
@@ -139,12 +139,12 @@ const Navbar = () => {
                 style={{ border: "1px solid #111" }}
               >
                 <div className="flex items-center justify-between border-b border-gray-200 px-4 py-2.5">
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.24em] text-[#b8838e]">
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.24em] text-[#a85580]">
                     Forever / Account
                   </p>
                   <span
                     aria-hidden="true"
-                    className="h-1 w-1 rounded-full bg-[#b8838e]"
+                    className="h-1 w-1 rounded-full bg-[#c586a5]"
                   />
                 </div>
                 <div className="divide-y divide-gray-100">
@@ -220,7 +220,7 @@ const Navbar = () => {
           </div>
 
           <div className="border-y border-gray-200 px-4 py-3 sm:px-[5vw]">
-            <p className="text-[9px] font-medium uppercase tracking-[0.28em] text-[#b8838e]">
+            <p className="text-[9px] font-medium uppercase tracking-[0.28em] text-[#a85580]">
               Forever / Menu
             </p>
           </div>
@@ -247,7 +247,7 @@ const Navbar = () => {
                     {isActive && (
                       <span
                         aria-hidden="true"
-                        className="h-1.5 w-1.5 rounded-full bg-[#b8838e]"
+                        className="h-1.5 w-1.5 rounded-full bg-[#c586a5]"
                       />
                     )}
                   </>
@@ -257,7 +257,7 @@ const Navbar = () => {
           </nav>
 
           <div className="px-4 pt-10 sm:px-[5vw]">
-            <p className="text-[9px] font-medium uppercase tracking-[0.28em] text-[#b8838e]">
+            <p className="text-[9px] font-medium uppercase tracking-[0.28em] text-[#a85580]">
               Forever / Contact
             </p>
             <a

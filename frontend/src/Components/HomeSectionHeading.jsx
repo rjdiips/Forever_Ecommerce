@@ -1,7 +1,7 @@
 import { Reveal } from "./Reveal";
 
 export const SectionLabel = ({ children }) => (
-  <p className="text-[9px] uppercase tracking-[0.3em] text-[#b8838e]">
+  <p className="text-[9px] uppercase tracking-[0.3em] text-[#a85580]">
     {children}
   </p>
 );

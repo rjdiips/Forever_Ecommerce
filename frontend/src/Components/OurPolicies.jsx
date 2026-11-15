@@ -37,7 +37,7 @@ const OurPolicies = () => (
             className="mt-1 w-8 shrink-0 opacity-80"
           />
           <div>
-            <p className="text-[9px] uppercase tracking-[0.24em] text-[#b8838e]">
+            <p className="text-[9px] uppercase tracking-[0.24em] text-[#a85580]">
               {policy.label}
             </p>
             <p className="editorial-display mt-1 text-[15px] text-[#111]">

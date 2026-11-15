@@ -57,7 +57,7 @@
 }
 
 .forever-toast-shell .Toastify__progress-bar:not(.Toastify__progress-bar--bg) {
-  background: var(--forever-toast-accent, #b8838e);
+  background: var(--forever-toast-accent, #c586a5);
 }
 
 .forever-toast-shell.Toastify__slide-enter--bottom-left {

@@ -51,7 +51,7 @@ const ProductPlate = ({ product }) => (
 
 const EmptyState = ({ onClear }) => (
   <div className="mt-12 border-y border-gray-200 py-16 text-center">
-    <p className="text-[9px] uppercase tracking-[0.3em] text-[#b8838e]">
+    <p className="text-[9px] uppercase tracking-[0.3em] text-[#a85580]">
       Forever / Nothing here
     </p>
     <p className="editorial-display mt-3 text-2xl text-[#111]">
@@ -157,7 +157,7 @@ const Collection = () => {
                     filteredProducts.length === 1 ? "piece" : "pieces"
                   }`}
               {hasFilters && (
-                <span className="ml-2 text-[#b8838e]">/ filtered</span>
+                <span className="ml-2 text-[#a85580]">/ filtered</span>
               )}
             </p>
 
@@ -184,7 +184,7 @@ const Collection = () => {
 
           {error ? (
             <div className="mt-12 border-y border-gray-200 py-16 text-center">
-              <p className="text-[9px] uppercase tracking-[0.3em] text-[#b8838e]">
+              <p className="text-[9px] uppercase tracking-[0.3em] text-[#a85580]">
                 Forever / Offline
               </p>
               <p className="editorial-display mt-3 text-2xl text-[#111]">
