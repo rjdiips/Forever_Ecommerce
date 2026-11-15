@@ -191,8 +191,8 @@ Create `backend/.env`:
 | `JWT_SECRET` | Yes | Signs session, admin, and password-reset tokens |
 | `FRONTEND_URL` | Yes | Storefront origin used in password-reset links, e.g. `http://localhost:5173` |
 | `ADMIN_EMAIL` | Yes, for admin | Admin login email |
-| `ADMIN_PASSWORD` | Yes, for admin | Admin login password |
-| `CLOUDINARY_CLOUD_NAME` | Yes, for uploads | Cloudinary cloud name |
+| `ADMIN_PASSWORD` | Yes, for admin | Admin login password. If either admin value is missing, `POST /api/user/admin` answers `503 Admin login is unavailable` rather than accepting an empty body. |
+| `CLOUDINARY_CLOUD_NAME` | Yes, for uploads | Cloudinary cloud name. Also binds customer design URLs to this cloud, so a design can only name an asset the shop stored. |
 | `CLOUDINARY_API_KEY` | Yes, for uploads | Cloudinary API key |
 | `CLOUDINARY_API_SECRET` | Yes, for uploads | Cloudinary API secret |
 | `STRIPE_SECRET_KEY` | Yes, for card checkout | Stripe secret key |

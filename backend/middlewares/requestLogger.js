@@ -31,7 +31,9 @@ const requestLogger = (req, res, next) => {
     log[level]("request", {
       requestId,
       method: req.method,
-      path: req.originalUrl,
+      // The query string is dropped: it is caller-controlled and a future
+      // token-in-link design would otherwise write it into Runtime Logs.
+      path: req.originalUrl.split("?")[0],
       status,
       durationMs: Math.round(durationMs * 10) / 10,
       userId: req.userId,

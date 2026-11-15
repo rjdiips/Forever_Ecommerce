@@ -70,12 +70,52 @@ test("a design is rejected on an ordinary product", () => {
   }
 });
 
-test("a design is a stored http(s) image URL", () => {
+test("a design is an https URL on the shop's Cloudinary host", () => {
   for (const design of [
     "https://res.cloudinary.com/forever/image/upload/design.webp",
-    "http://example.com/design.png",
+    "https://res.cloudinary.com/forever/design.png",
   ]) {
     assert.doesNotThrow(() => assertDesignUrl(design));
+  }
+});
+
+test("a design on any other host is rejected", () => {
+  for (const design of [
+    // The old rule accepted this one; it lets a shopper point the admin's
+    // browser at a host the shop does not control.
+    "http://example.com/design.png",
+    "https://example.com/design.png",
+    "https://attacker.example/design.webp",
+    "https://127.0.0.1:8080/design.webp",
+    "https://169.254.169.254/latest/meta-data",
+    // Right host, wrong scheme.
+    "http://res.cloudinary.com/forever/design.png",
+  ]) {
+    assert.throws(
+      () => assertDesignUrl(design),
+      (err) => err instanceof HttpError && err.status === 400
+    );
+  }
+});
+
+test("a design must belong to the shop's own cloud when one is configured", () => {
+  const previous = process.env.CLOUDINARY_CLOUD_NAME;
+  process.env.CLOUDINARY_CLOUD_NAME = "forever";
+
+  try {
+    assert.doesNotThrow(() =>
+      assertDesignUrl("https://res.cloudinary.com/forever/image/upload/design.webp")
+    );
+    assert.throws(
+      () =>
+        assertDesignUrl(
+          "https://res.cloudinary.com/someone-else/image/upload/x.webp"
+        ),
+      (err) => err instanceof HttpError && err.status === 400
+    );
+  } finally {
+    if (previous === undefined) delete process.env.CLOUDINARY_CLOUD_NAME;
+    else process.env.CLOUDINARY_CLOUD_NAME = previous;
   }
 });
 

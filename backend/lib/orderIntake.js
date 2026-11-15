@@ -11,6 +11,7 @@ import ProductModel from "../models/productModel.js";
 import orderModel from "../models/orderModel.js";
 import UserModel from "../models/userModel.js";
 import { getStripe } from "../config/stripe.js";
+import { getFrontendUrl } from "../config/frontendUrl.js";
 import { HttpError } from "./http.js";
 import { priceOrder } from "./orderPricing.js";
 
@@ -38,7 +39,6 @@ const isPaymentMethod = (method) =>
  * @param {object} intent.address
  * @param {import("./orderPricing.js").OrderIntentLine[]} intent.items
  * @param {string} intent.paymentMethod one of {@link PAYMENT_METHOD}
- * @param {string} [intent.origin] the shop origin, for Stripe's redirect URLs
  * @returns {Promise<{ orderId: unknown, sessionUrl?: string }>}
  */
 export async function createOrder({
@@ -46,14 +46,9 @@ export async function createOrder({
   address,
   items,
   paymentMethod,
-  origin,
 }) {
   if (!isPaymentMethod(paymentMethod)) {
     throw new HttpError(400, "Unknown payment method");
-  }
-
-  if (paymentMethod === PAYMENT_METHOD.STRIPE && !origin) {
-    throw new HttpError(400, "Missing request origin");
   }
 
   const priced = priceOrder(items, await loadProducts(items));
@@ -77,7 +72,7 @@ export async function createOrder({
   let sessionUrl;
 
   try {
-    sessionUrl = await createCheckoutSession({ order, priced, origin });
+    sessionUrl = await createCheckoutSession({ order, priced });
   } catch (error) {
     // No session means no way to pay: do not leave an orphan Order behind.
     await orderModel.findByIdAndDelete(order._id);
@@ -169,7 +164,11 @@ async function findOwnedOrder(orderId, userId) {
 }
 
 /** Open a Stripe Checkout session from the server-priced lines. */
-async function createCheckoutSession({ order, priced, origin }) {
+async function createCheckoutSession({ order, priced }) {
+  // The shop owns this origin; a request header must never choose where the
+  // payer is sent after payment.
+  const origin = getFrontendUrl();
+
   const lineItems = priced.items.map((item) => ({
     price_data: {
       currency: CURRENCY,

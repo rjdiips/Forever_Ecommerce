@@ -1,6 +1,7 @@
 import UserModel from "../models/userModel.js";
 import validator from "validator";
 import bcrypt from "bcrypt";
+import crypto from "node:crypto";
 import { waitUntil } from "@vercel/functions";
 import {
   MIN_PASSWORD_LENGTH,
@@ -37,6 +38,23 @@ const DUMMY_PASSWORD_HASH =
 
 /** The one failure message for a bad email, a bad password, or both. */
 const INVALID_CREDENTIALS_MESSAGE = "Invalid email or password";
+
+/** Admin sign-in is a feature that is off, not open, when unconfigured. */
+const UNAVAILABLE_MESSAGE = "Admin login is unavailable";
+
+/**
+ * Compare two secrets without leaking their content or length through timing.
+ *
+ * Both sides are hashed first so the buffers are always the same length.
+ *
+ * @param {unknown} supplied
+ * @param {string} expected
+ */
+const sameSecret = (supplied, expected) =>
+  crypto.timingSafeEqual(
+    crypto.createHash("sha256").update(String(supplied)).digest(),
+    crypto.createHash("sha256").update(expected).digest()
+  );
 
 /** A reset link that is malformed, forged, or already used. */
 const INVALID_RESET_LINK_MESSAGE =
@@ -218,13 +236,23 @@ export const resetPassword = async (req) => {
 
 // Route for admin login
 export const adminLogin = async (req) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body ?? {};
+
+  const expectedEmail = process.env.ADMIN_EMAIL;
+  const expectedPassword = process.env.ADMIN_PASSWORD;
+
+  // Fail closed: an absent configuration must never match an absent body
+  // field. This is the one place where the missing value and the supplied
+  // value are both `undefined`, so it is checked before any comparison.
+  if (!expectedEmail || !expectedPassword) {
+    throw new HttpError(503, UNAVAILABLE_MESSAGE);
+  }
 
   if (
-    email !== process.env.ADMIN_EMAIL ||
-    password !== process.env.ADMIN_PASSWORD
+    !sameSecret(email, expectedEmail) ||
+    !sameSecret(password, expectedPassword)
   ) {
-    throw new HttpError(400, "Invalid email or password");
+    throw new HttpError(400, INVALID_CREDENTIALS_MESSAGE);
   }
 
   // A 12-hour admin Session token. It carries no credentials: a token is

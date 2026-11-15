@@ -12,6 +12,9 @@ export const DESIGN_TYPES = ["image/webp", "image/png", "image/jpeg"];
 /** Largest design we accept, in bytes. The editor aims for 500 KB or less. */
 export const MAX_DESIGN_BYTES = 2 * 1024 * 1024;
 
+/** The only host a design URL may name: Cloudinary's delivery host. */
+const DESIGN_HOST = "res.cloudinary.com";
+
 /**
  * Throw unless `file` is an acceptable design upload.
  *
@@ -45,16 +48,31 @@ export function assertDesignTarget(product) {
 /**
  * Throw unless `design` is the URL of an uploaded image.
  *
- * The URL is what a Cart line and an Order item carry, so it must not be a
- * `data:` URI, a script URL or anything else a browser might execute.
+ * The URL is what a Cart line and an Order item carry, and it is later loaded
+ * as an `<img src>` in the operator's dashboard. So it must be an asset this
+ * shop uploaded: Cloudinary's delivery host, and the shop's own cloud when
+ * `CLOUDINARY_CLOUD_NAME` is set. Syntax and scheme alone are not enough, or a
+ * shopper could point the admin's browser at any host they choose.
  *
  * @param {unknown} design
  */
 export function assertDesignUrl(design) {
+  const message = "A design must be an uploaded image";
+
   if (
     typeof design !== "string" ||
-    !validator.isURL(design, { protocols: ["http", "https"] })
+    !validator.isURL(design, { protocols: ["https"] })
   ) {
-    throw new HttpError(400, "A design must be an uploaded image");
+    throw new HttpError(400, message);
+  }
+
+  const url = new URL(design);
+  const cloud = process.env.CLOUDINARY_CLOUD_NAME;
+
+  if (
+    url.hostname !== DESIGN_HOST ||
+    (cloud && !url.pathname.startsWith(`/${cloud}/`))
+  ) {
+    throw new HttpError(400, message);
   }
 }

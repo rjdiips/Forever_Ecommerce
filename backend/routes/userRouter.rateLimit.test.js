@@ -10,6 +10,11 @@ import { startAuthServer, stubUserModel } from "../test-support/authHttp.js";
  * `x-forwarded-for` header that the app's one trusted proxy hop resolves.
  */
 
+// Configured admin credentials: without them the route correctly answers 503
+// (see adminLogin.test.js), which would hide the limiter under test here.
+process.env.ADMIN_EMAIL = "admin@example.com";
+process.env.ADMIN_PASSWORD = "a-long-random-password";
+
 let auth;
 
 before(async () => {

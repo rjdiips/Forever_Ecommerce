@@ -33,9 +33,11 @@ connectDB().catch(() => {});
 connectToCloudinary();
 
 // Middlewares
+// The logger runs before the body parser so a malformed body is still
+// attributable to a request id and appears in the logs.
+app.use(requestLogger);
 app.use(express.json());
 app.use(cors());
-app.use(requestLogger);
 
 // Every API router needs the database. Waiting here opens at most one
 // connection per instance and fails fast (503) while Atlas is unreachable,

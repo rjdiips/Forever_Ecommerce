@@ -46,3 +46,22 @@ export const forgotPasswordRateLimit = authLimiter(5);
 
 /** Reset password: 5 requests per 15 minutes per client IP. */
 export const resetPasswordRateLimit = authLimiter(5);
+
+/** Newsletter: 5 requests per 15 minutes per client IP. */
+export const subscribeRateLimit = authLimiter(5);
+
+/**
+ * Design uploads: 10 per hour per signed-in User.
+ *
+ * Keyed on the principal, not the IP, so the bound follows the account that
+ * owns the Cloudinary assets. Mount it after `userAuth`.
+ */
+export const designUploadRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => `user:${req.userId}`,
+  handler: (req, res, next) =>
+    next(new HttpError(429, MAX_ATTEMPTS_MESSAGE)),
+});

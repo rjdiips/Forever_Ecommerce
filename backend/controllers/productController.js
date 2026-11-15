@@ -9,6 +9,30 @@ import {
 import { HttpError } from "../lib/http.js";
 import { resolveProductColor } from "../lib/product.js";
 
+/**
+ * Read the sizes the admin form posts as a JSON array.
+ *
+ * A malformed value is the caller's error, not a 500.
+ *
+ * @param {unknown} sizes
+ * @returns {string[]}
+ */
+const parseSizes = (sizes) => {
+  let parsed;
+
+  try {
+    parsed = JSON.parse(sizes);
+  } catch {
+    throw new HttpError(400, "Please provide the available sizes");
+  }
+
+  if (!Array.isArray(parsed) || parsed.length === 0) {
+    throw new HttpError(400, "Please provide the available sizes");
+  }
+
+  return parsed;
+};
+
 export const addProduct = async (req) => {
   const {
     name,
@@ -30,16 +54,24 @@ export const addProduct = async (req) => {
     throw new HttpError(400, "Unknown product sub-category");
   }
 
+  const sizeList = parseSizes(sizes);
+  const amount = Number(price);
+
+  if (!Number.isFinite(amount) || amount < 0) {
+    throw new HttpError(400, "Please enter a valid price");
+  }
+
   // The kind decides whether a colour is required, so resolve both before the
   // upload for the same reason: a refused Tee base must not leave images behind.
   const kind = normalizeProductKind(req.body.kind);
   const color = resolveProductColor(kind, req.body.color);
 
   // Check if images are availabe in req.files then it`ll store image in image variable
-  const image1 = req.files.image1 && req.files.image1[0];
-  const image2 = req.files.image2 && req.files.image2[0];
-  const image3 = req.files.image3 && req.files.image3[0];
-  const image4 = req.files.image4 && req.files.image4[0];
+  const files = req.files ?? {};
+  const image1 = files.image1 && files.image1[0];
+  const image2 = files.image2 && files.image2[0];
+  const image3 = files.image3 && files.image3[0];
+  const image4 = files.image4 && files.image4[0];
 
   // Filter out undefined images
   const images = [image1, image2, image3, image4].filter(
@@ -61,10 +93,10 @@ export const addProduct = async (req) => {
   const productData = {
     name,
     description,
-    price: Number(price),
+    price: amount,
     category,
     subCategory,
-    sizes: JSON.parse(sizes),
+    sizes: sizeList,
     bestseller: bestseller === "true" ? true : false,
     kind,
     image: imageUrl,

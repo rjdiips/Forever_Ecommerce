@@ -6,11 +6,17 @@ import {
   getListProducts,
   reorderProducts,
 } from "../controllers/productController.js";
-import upload from "../middlewares/multer.js";
+import { createUpload } from "../middlewares/multer.js";
 import { adminAuth } from "../middlewares/adminAuth.js";
 import { route } from "../lib/http.js";
 
 const productRouter = express.Router();
+
+// Four photos, 5 MB each, enforced while the body streams.
+const productUpload = createUpload({
+  maxFileSize: 5 * 1024 * 1024,
+  maxFiles: 4,
+});
 
 // /api/product/list
 productRouter.get("/list", route(getListProducts));
@@ -19,7 +25,7 @@ productRouter.get("/list", route(getListProducts));
 productRouter.post(
   "/add",
   adminAuth,
-  upload.fields([
+  productUpload.fields([
     { name: "image1", maxCount: 1 },
     { name: "image2", maxCount: 1 },
     { name: "image3", maxCount: 1 },

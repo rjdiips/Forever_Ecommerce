@@ -28,7 +28,6 @@ export const placeOrderStripe = async (req) => {
     address,
     items,
     paymentMethod: PAYMENT_METHOD.STRIPE,
-    origin: req.headers.origin,
   });
 };
 

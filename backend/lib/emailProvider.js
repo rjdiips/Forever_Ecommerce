@@ -89,6 +89,9 @@ const failureDetail = async (response) => {
   return body.slice(0, 300) || response.statusText;
 };
 
+/** A hung provider connection must not hold the invocation open. */
+const REQUEST_TIMEOUT_MS = 10_000;
+
 /**
  * @param {BrevoProvider} provider
  * @param {EmailMessage} message
@@ -96,7 +99,10 @@ const failureDetail = async (response) => {
  */
 const sendWithBrevo = async (provider, message) => {
   const { url, init } = buildBrevoRequest({ provider, ...message });
-  const response = await fetch(url, init);
+  const response = await fetch(url, {
+    ...init,
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+  });
 
   if (!response.ok) {
     throw new Error(
