@@ -1,4 +1,5 @@
 import { formatProductPrice } from "@forever/shared";
+import Button from "./Button";
 import { purchaseQuantity } from "../tee/purchase";
 
 // The purchase half of the tee generator: shows the tee being bought, then
@@ -23,41 +24,49 @@ const TeePurchase = ({
   canDownload = true,
 }) => {
   return (
-    <div className="flex flex-col gap-4 p-4 border rounded-lg shadow-lg">
+    <div className="border border-[#111] bg-white p-5 shadow-[7px_7px_0_rgba(17,17,17,0.06)]">
+      <p className="text-[9px] uppercase tracking-[0.3em] text-[#a85580]">
+        Forever / The tee
+      </p>
+
       {(productName || price != null) && (
-        <div>
-          <p className="text-sm text-gray-500">Designing onto</p>
-          <div className="flex items-baseline justify-between gap-4">
-            {productName && (
-              <h3 className="text-lg font-semibold">{productName}</h3>
-            )}
-            {price != null && (
-              <p className="shrink-0 font-medium">
-                {formatProductPrice(price)}
-              </p>
-            )}
-          </div>
+        <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          {productName && (
+            <h2 className="editorial-display text-xl text-[#111]">
+              {productName}
+            </h2>
+          )}
+          {price != null && (
+            <p className="shrink-0 text-xl font-medium text-[#111] tabular-nums">
+              {formatProductPrice(price)}
+            </p>
+          )}
         </div>
       )}
 
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Size</h3>
+      <div className="mt-6 border-t border-gray-200 pt-5">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#111]">
+          Size
+        </p>
+
         {sizes.length === 0 ? (
-          <p className="text-sm text-gray-500">
+          <p className="mt-3 text-sm text-gray-500">
             {loading
-              ? "Loading the Custom Tee..."
+              ? "Loading the Custom Tee…"
               : "The Custom Tee is not available right now."}
           </p>
         ) : (
-          <div className="flex gap-2 flex-wrap">
+          <div className="mt-3 flex flex-wrap gap-2">
             {sizes.map((option) => (
               <button
                 key={option}
+                type="button"
                 onClick={() => onSize(option)}
-                className={`border border-gray-200 py-2 px-4 cursor-pointer transition-all duration-200 ${
+                aria-pressed={option === size}
+                className={`h-11 min-w-12 border px-3 text-[11px] uppercase tracking-[0.14em] transition-colors ${
                   option === size
-                    ? "bg-black text-white"
-                    : "bg-gray-100 hover:bg-gray-200"
+                    ? "border-[#111] bg-[#111] text-white"
+                    : "border-gray-300 bg-white text-gray-700 hover:border-[#111]"
                 }`}
               >
                 {option}
@@ -67,39 +76,44 @@ const TeePurchase = ({
         )}
       </div>
 
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Quantity</h3>
+      <div className="mt-5">
+        <label
+          htmlFor="tee-quantity"
+          className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#111]"
+        >
+          Quantity
+        </label>
         <input
+          id="tee-quantity"
           type="number"
           min={1}
           value={quantity}
           onChange={(event) => onQuantity(purchaseQuantity(event.target.value))}
-          className="border border-gray-300 rounded py-1.5 px-3.5 w-24"
+          className="mt-3 block w-20 border border-gray-300 bg-white px-3 py-2 text-sm text-[#111] tabular-nums outline-none transition-colors focus:border-[#111] focus:ring-1 focus:ring-[#111]"
         />
       </div>
 
-      {notice}
+      {notice ? <div className="mt-4">{notice}</div> : null}
 
-      <button
-        onClick={onAddToCart}
-        disabled={!canBuy || busy}
-        className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-      >
-        {busy ? "PREPARING YOUR DESIGN..." : "ADD CUSTOM TEE TO CART"}
-      </button>
+      <Button onClick={onAddToCart} disabled={!canBuy || busy} className="mt-6 w-full">
+        {busy ? "Preparing your design…" : "Add custom tee to cart"}
+        {!busy && <span aria-hidden="true">→</span>}
+      </Button>
+
       {!canBuy && !loading && (
-        <p className="text-sm text-gray-500">
+        <p className="mt-3 text-[11px] leading-relaxed text-gray-500">
           Choose a graphic and a size to add this tee to your cart.
         </p>
       )}
 
-      <button
+      <Button
+        variant="outline"
         onClick={onDownload}
         disabled={!canDownload}
-        className="w-full py-2 text-sm !border rounded hover:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+        className="mt-3 w-full"
       >
-        Download Design
-      </button>
+        Download design
+      </Button>
     </div>
   );
 };

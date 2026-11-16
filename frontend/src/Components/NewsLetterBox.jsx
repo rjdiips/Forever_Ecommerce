@@ -44,7 +44,7 @@ const NewsLetterBox = () => {
     <section className="pt-20 pb-6 text-center">
       <Reveal>
         <SectionLabel>Join the list</SectionLabel>
-        <h2 className="editorial-display mt-4 text-3xl text-[#111] sm:text-4xl">
+        <h2 className="editorial-display mt-4 text-3xl text-balance text-[#111] sm:text-4xl">
           Subscribe now &amp; get 20% off
         </h2>
         <p className="mt-3 text-sm text-gray-500">

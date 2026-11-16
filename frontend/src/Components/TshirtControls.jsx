@@ -1,7 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import Button from "./Button";
 import InlineNotice from "./InlineNotice";
 import { DEFAULT_CUSTOM_GRAPHIC_SCALE, PRESETS } from "../tee/presets";
 import { downscaleGraphicFile } from "../tee/upload";
+
+const Legend = ({ children }) => (
+  <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#111]">
+    {children}
+  </p>
+);
+
+const Group = ({ children }) => (
+  <section className="mt-5 border-t border-gray-200 pt-5">{children}</section>
+);
 
 const TshirtControls = ({
   design,
@@ -72,17 +83,25 @@ const TshirtControls = ({
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4 border rounded-lg shadow-lg">
-      {/* --- T-shirt Color --- */}
-      <div>
-        <h3 className="text-lg font-semibold mb-2">T-shirt Color</h3>
-        <div className="flex gap-2">
+    <div className="border border-[#111] bg-white p-5 shadow-[7px_7px_0_rgba(17,17,17,0.06)]">
+      <p className="text-[9px] uppercase tracking-[0.3em] text-[#a85580]">
+        Forever / The design
+      </p>
+
+      {/* --- T-shirt Colour --- */}
+      <div className="mt-5">
+        <Legend>The blank</Legend>
+        <div className="mt-3 flex flex-wrap gap-2">
           {colors.map((color) => (
             <button
               key={color}
+              type="button"
               onClick={() => onColor(color)}
-              className={`p-2 !border rounded capitalize hover:bg-gray-100 ${
-                design.color === color ? "bg-gray-200 font-semibold" : ""
+              aria-pressed={design.color === color}
+              className={`h-11 min-w-12 border px-3 text-[11px] capitalize tracking-[0.14em] transition-colors ${
+                design.color === color
+                  ? "border-[#111] bg-[#111] text-white"
+                  : "border-gray-300 bg-white text-gray-700 hover:border-[#111]"
               }`}
             >
               {color}
@@ -92,57 +111,68 @@ const TshirtControls = ({
       </div>
 
       {/* --- Preset Graphics --- */}
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Preset Graphics</h3>
-        <div className="flex gap-2 items-center flex-wrap">
-          {PRESETS.map((preset) => (
-            <img
-              key={preset.id}
-              src={preset.thumb}
-              alt={preset.id}
-              width={48}
-              height={48}
-              loading="lazy"
-              decoding="async"
-              onClick={() => selectGraphic(preset.src, preset.defaultScale)}
-              className={`w-12 h-12 !border cursor-pointer object-contain p-1 ${
-                design.graphic === preset.src ? "ring-2 ring-black" : ""
-              }`}
-            />
-          ))}
+      <Group>
+        <div className="flex items-baseline justify-between gap-4">
+          <Legend>Graphic</Legend>
           <button
+            type="button"
             onClick={() => selectGraphic(null)}
-            className="h-12 p-2 text-sm !border rounded text-red-500 hover:bg-red-50"
+            className="border-b border-current pb-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-gray-500 transition-colors hover:text-[#8f4a56]"
           >
             Remove
           </button>
         </div>
-      </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              onClick={() => selectGraphic(preset.src, preset.defaultScale)}
+              aria-pressed={design.graphic === preset.src}
+              aria-label={`Use the ${preset.id} graphic`}
+              className={`h-14 w-14 border bg-white p-1.5 transition-colors ${
+                design.graphic === preset.src
+                  ? "border-[#111]"
+                  : "border-gray-300 hover:border-gray-500"
+              }`}
+            >
+              <img
+                src={preset.thumb}
+                alt=""
+                width={48}
+                height={48}
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-contain"
+              />
+            </button>
+          ))}
+        </div>
+      </Group>
 
       {/* --- Custom File Upload --- */}
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Upload Your Own</h3>
+      <Group>
+        <Legend>Your own image</Legend>
         <input
           type="file"
           accept="image/*"
           onChange={handleUpload}
-          className="
-            block w-full text-sm text-gray-500
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-md file:!border
-            file:text-sm file:font-semibold
-            file:bg-white file:text-gray-700
-            hover:file:bg-gray-100
-          "
+          aria-label="Upload your own image"
+          className="mt-3 block w-full text-[11px] text-gray-500 file:mr-3 file:border file:border-[#111] file:bg-white file:px-3 file:py-2 file:text-[9px] file:font-semibold file:uppercase file:tracking-[0.2em] file:text-[#111] file:transition-colors hover:file:bg-[#111] hover:file:text-white"
         />
 
         {uploadError ? (
           <InlineNotice className="mt-2">{uploadError}</InlineNotice>
         ) : null}
-      </div>
+      </Group>
 
-      <div>
-        <h3 className="text-lg font-semibold mb-1">Graphic Size</h3>
+      <Group>
+        <div className="flex items-baseline justify-between gap-4">
+          <Legend>Graphic size</Legend>
+          <p className="text-[9px] uppercase tracking-[0.18em] text-gray-400 tabular-nums">
+            {Math.round(design.scale * 100)}%
+          </p>
+        </div>
         <input
           type="range"
           min="0.001"
@@ -150,36 +180,14 @@ const TshirtControls = ({
           step="0.001"
           value={design.scale}
           onChange={(event) => onScale(parseFloat(event.target.value))}
-          className="
-            w-full
-            h-1
-            bg-gray-300
-            rounded-lg
-            appearance-none
-            cursor-pointer
-            
-            [&::-webkit-slider-thumb]:appearance-none
-            [&::-webkit-slider-thumb]:h-4
-            [&::-webkit-slider-thumb]:w-4
-            [&::-webkit-slider-thumb]:bg-black
-            [&::-webkit-slider-thumb]:rounded-sm
-            
-            [&::-moz-range-thumb]:appearance-none
-            [&::-moz-range-thumb]:h-4
-            [&::-moz-range-thumb]:w-4
-            [&::-moz-range-thumb]:bg-black
-            [&::-moz-range-thumb]:rounded-sm
-          "
+          aria-label="Graphic size"
+          className="mt-4 h-px w-full cursor-pointer appearance-none bg-gray-300 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-none [&::-moz-range-thumb]:bg-[#111] [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-none [&::-webkit-slider-thumb]:bg-[#111]"
         />
-      </div>
+      </Group>
 
-      {/* --- Reset --- */}
-      <button
-        onClick={handleReset}
-        className="w-full py-2 text-sm !border rounded hover:bg-gray-100"
-      >
-        Reset
-      </button>
+      <Button variant="outline" onClick={handleReset} className="mt-6 w-full">
+        Reset the design
+      </Button>
     </div>
   );
 };

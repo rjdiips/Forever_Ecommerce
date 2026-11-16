@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { findTeeBase, teeColors } from "@forever/shared";
 import { toast } from "../toast/toast";
 import InlineNotice from "../Components/InlineNotice";
+import PageHeading from "../Components/PageHeading";
 import TshirtCanvas from "../Components/TshirtCanvas";
 import TshirtControls from "../Components/TshirtControls";
 import TeePurchase from "../Components/TeePurchase";
@@ -161,10 +162,16 @@ const TshirtGeneratorPage = () => {
   };
 
   return (
-    <div className="border-t">
-      <div className="py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div className="border-t pt-10">
+      <PageHeading
+        label="Forever / Custom tee"
+        title="Design your own"
+        note="Your graphic, our blank"
+      />
+
+      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3 lg:gap-10">
         {/* The Canvas */}
-        <div className="md:col-span-2">
+        <div className="lg:col-span-2">
           <TshirtCanvas
             ref={canvasRef}
             design={design}
@@ -173,14 +180,17 @@ const TshirtGeneratorPage = () => {
             onMove={moveTo}
           />
           {blankMessage && (
-            <p className="mt-3 text-sm text-gray-500" role="status">
+            <p
+              className="mt-3 text-[10px] uppercase tracking-[0.18em] text-gray-500"
+              role="status"
+            >
               {blankMessage}
             </p>
           )}
         </div>
 
         {/* The Controls */}
-        <div className="md:col-span-1 flex flex-col gap-6">
+        <div className="flex flex-col gap-6 lg:col-span-1">
           <TshirtControls
             design={design}
             colors={colors}
