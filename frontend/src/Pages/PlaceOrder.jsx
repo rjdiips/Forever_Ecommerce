@@ -1,18 +1,24 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { assets } from "../assets/assets";
-import CartTotal from "../Components/CartTotal";
-import Title from "../Components/Title";
-import InlineNotice from "../Components/InlineNotice";
-import { useAuth } from "../auth/AuthContext";
-import { BACKEND_URL } from "../config";
-import { useCart } from "../cart/CartContext";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Button from "../Components/Button";
+import CartTotal from "../Components/CartTotal";
+import Field from "../Components/Field";
+import InlineNotice from "../Components/InlineNotice";
+import PageHeading from "../Components/PageHeading";
+import { useAuth } from "../auth/AuthContext";
+import { useCart } from "../cart/CartContext";
+import { BACKEND_URL } from "../config";
+
+const PAYMENT_METHODS = [
+  { value: "stripe", label: "Card — Stripe", note: "Paid now" },
+  { value: "cod", label: "Cash on delivery", note: "Paid on arrival" },
+];
 
 const PlaceOrder = () => {
   const navigate = useNavigate();
   const { token } = useAuth();
-  const { lineItems, clear } = useCart();
+  const { lineItems, count, clear } = useCart();
 
   const [paymentMethod, setPaymentMethod] = useState("cod");
   // A refused order is the form's own problem, so it renders here and the
@@ -33,7 +39,6 @@ const PlaceOrder = () => {
   const onChangeHandler = (e) => {
     const name = e.target.name;
     const value = e.target.value;
-    // setFormData({ ...formData, [name]: value });
     setFormData((data) => ({ ...data, [name]: value }));
   };
 
@@ -109,165 +114,188 @@ const PlaceOrder = () => {
   };
 
   return (
-    <form
-      onSubmit={onSubmitHandler}
-      className="flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t"
-    >
-      {/* --------------- Left Side ----------------------- */}
+    <form onSubmit={onSubmitHandler} className="border-t pt-10">
+      <PageHeading
+        label="Forever / Checkout"
+        title="Place order"
+        note={`${count} ${count === 1 ? "piece" : "pieces"} in this order`}
+      />
 
-      <div className="flex flex-col gap-4 w-full sm:max-w-[480px]">
-        <div className="text-xl sm:text-2xl my-3 ">
-          <Title text1={"DELIVERY"} text2={"INFORMATION"} />
-        </div>
-        <div className="flex flex-col sm:flex-row  gap-3">
-          <input
-            name="firstName"
-            onChange={onChangeHandler}
-            value={formData.firstName}
-            type="text"
-            required
-            placeholder="First Name"
-            className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
-          />
-          <input
-            name="lastName"
-            onChange={onChangeHandler}
-            value={formData.lastName}
-            type="text"
-            required
-            placeholder="Last Name"
-            className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
-          />
-        </div>
-        <input
-          name="email"
-          onChange={onChangeHandler}
-          value={formData.email}
-          type="email"
-          required
-          placeholder="Email Address"
-          className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
-        />
-        <input
-          name="street"
-          onChange={onChangeHandler}
-          value={formData.street}
-          type="text"
-          required
-          placeholder="Street"
-          className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
-        />
-        <div className="flex flex-col sm:flex-row  gap-3">
-          <input
-            name="city"
-            onChange={onChangeHandler}
-            value={formData.city}
-            type="text"
-            required
-            placeholder="City"
-            className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
-          />
-          <input
-            name="state"
-            onChange={onChangeHandler}
-            value={formData.state}
-            type="text"
-            required
-            placeholder="State"
-            className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
-          />
-        </div>
-        <div className="flex flex-col sm:flex-row  gap-3">
-          <input
-            name="zipcode"
-            onChange={onChangeHandler}
-            value={formData.zipcode}
-            type="text"
-            required
-            placeholder="Zipcode"
-            className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
-          />
-          <input
-            name="country"
-            onChange={onChangeHandler}
-            value={formData.country}
-            type="text"
-            required
-            placeholder="Country"
-            className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
-          />
-        </div>
-        <input
-          name="phone"
-          onChange={onChangeHandler}
-          value={formData.phone}
-          type="number"
-          required
-          placeholder="Phone "
-          className="border  border-gray-300 rounded py-1.5 px-3.5 w-full"
-        />
-      </div>
+      <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] lg:gap-14">
+        {/* --------------- Delivery ----------------------- */}
 
-      {/* --------------- Right Side ----------------------- */}
-
-      <div className="mt-8">
-        <div className="mt8 min-w-80">
-          <CartTotal />
-        </div>
-
-        <div className="mt-12">
-          <Title text1={"PAYMENT"} text2={"METHOD"} />
-
-          {/* -------------- Payment method selection -------------- */}
-
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div
-              onClick={() => {
-                setPaymentMethod("stripe");
-              }}
-              className="flex items-center gap-3 border p-2 px-3 cursor-pointer"
-            >
-              <p
-                className={` min-w-3.5 h-3.5 border rounded-full ${
-                  paymentMethod === "stripe" ? "bg-green-400" : ""
-                }`}
-              ></p>
-              <img className="h-6 mx-4" src={assets.stripe_logo} alt="" />
-            </div>
-            <div
-              onClick={() => {
-                setPaymentMethod("cod");
-              }}
-              className="flex items-center gap-3 border p-2 px-3 cursor-pointer"
-            >
-              <p
-                className={` min-w-3.5 h-3.5 border rounded-full ${
-                  paymentMethod === "cod" ? "bg-green-400" : ""
-                }`}
-              ></p>
-              <p className="text-gray-500 text-sm font-medium mx-4">
-                {" "}
-                CASH ON DELIVERY
-              </p>
-            </div>
+        <div>
+          <div className="flex items-end justify-between gap-4 border-b border-gray-200 pb-3">
+            <h2 className="editorial-display text-2xl text-[#111]">
+              Delivery information
+            </h2>
+            <p className="text-[9px] uppercase tracking-[0.22em] text-gray-400">
+              Where it goes
+            </p>
           </div>
 
-          {/* -------------- Payment method selection -------------- */}
+          <div className="mt-6 grid gap-5 sm:grid-cols-2">
+            <Field
+              id="first-name"
+              name="firstName"
+              label="First name"
+              value={formData.firstName}
+              onChange={onChangeHandler}
+              placeholder="Jane"
+              autoComplete="given-name"
+              required
+            />
+            <Field
+              id="last-name"
+              name="lastName"
+              label="Last name"
+              value={formData.lastName}
+              onChange={onChangeHandler}
+              placeholder="Doe"
+              autoComplete="family-name"
+              required
+            />
+            <Field
+              id="email"
+              name="email"
+              type="email"
+              label="Email"
+              className="sm:col-span-2"
+              value={formData.email}
+              onChange={onChangeHandler}
+              placeholder="you@example.com"
+              autoComplete="email"
+              required
+            />
+            <Field
+              id="street"
+              name="street"
+              label="Street"
+              className="sm:col-span-2"
+              value={formData.street}
+              onChange={onChangeHandler}
+              placeholder="24 Ash Lane, Apt 3"
+              autoComplete="street-address"
+              required
+            />
+            <Field
+              id="city"
+              name="city"
+              label="City"
+              value={formData.city}
+              onChange={onChangeHandler}
+              placeholder="Portland"
+              autoComplete="address-level2"
+              required
+            />
+            <Field
+              id="state"
+              name="state"
+              label="State"
+              value={formData.state}
+              onChange={onChangeHandler}
+              placeholder="Oregon"
+              autoComplete="address-level1"
+              required
+            />
+            <Field
+              id="zipcode"
+              name="zipcode"
+              label="Zip code"
+              value={formData.zipcode}
+              onChange={onChangeHandler}
+              placeholder="97205"
+              autoComplete="postal-code"
+              required
+            />
+            <Field
+              id="country"
+              name="country"
+              label="Country"
+              value={formData.country}
+              onChange={onChangeHandler}
+              placeholder="United States"
+              autoComplete="country-name"
+              required
+            />
+            <Field
+              id="phone"
+              name="phone"
+              type="number"
+              label="Phone"
+              className="sm:col-span-2"
+              value={formData.phone}
+              onChange={onChangeHandler}
+              placeholder="555 0100"
+              autoComplete="tel"
+              required
+            />
+          </div>
 
-          <div className="w-full text-end mt-8">
+          <Link
+            to="/cart"
+            className="mt-8 inline-flex items-center gap-2 border-b border-current pb-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-gray-600 transition-colors hover:text-[#111]"
+          >
+            <span aria-hidden="true">←</span>
+            Back to bag
+          </Link>
+        </div>
+
+        {/* --------------- Summary and payment ----------------------- */}
+
+        <aside className="lg:sticky lg:top-6 lg:self-start">
+          <div className="border border-[#111] bg-white p-5 shadow-[7px_7px_0_rgba(17,17,17,0.06)] sm:p-6">
+            <CartTotal />
+
+            <fieldset className="mt-6 border-t border-gray-200 pt-5">
+              <legend className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#111]">
+                Payment method
+              </legend>
+
+              <div className="mt-3 flex flex-col gap-2">
+                {PAYMENT_METHODS.map((method) => (
+                  <label
+                    key={method.value}
+                    className={`flex cursor-pointer items-center gap-3 border px-3 py-3 transition-colors ${
+                      paymentMethod === method.value
+                        ? "border-[#111] bg-gray-50"
+                        : "border-gray-300 hover:border-gray-400"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value={method.value}
+                      checked={paymentMethod === method.value}
+                      onChange={() => setPaymentMethod(method.value)}
+                      className="h-3.5 w-3.5 accent-[#111]"
+                    />
+                    <span className="flex-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#111]">
+                      {method.label}
+                    </span>
+                    <span className="text-[9px] uppercase tracking-[0.16em] text-gray-400">
+                      {method.note}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
             {submitError ? (
-              <InlineNotice className="mb-4 justify-end">
-                {submitError}
-              </InlineNotice>
+              <InlineNotice className="mt-4">{submitError}</InlineNotice>
             ) : null}
-            <button
-              type="submit"
-              className="bg-black text-white px-16 py-3 text-sm cursor-pointer"
-            >
-              PLACE ORDER
-            </button>
+
+            <Button type="submit" className="mt-6 w-full">
+              Place order
+              <span aria-hidden="true">→</span>
+            </Button>
+
+            <p className="mt-4 text-[11px] leading-relaxed text-gray-500">
+              Card payments are handled by Stripe. You will return here once the
+              payment is made.
+            </p>
           </div>
-        </div>
+        </aside>
       </div>
     </form>
   );

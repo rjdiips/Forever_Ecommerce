@@ -2,10 +2,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { cartLineId, formatMoney } from "@forever/shared";
 import { useCatalogue } from "../catalogue/CatalogueContext";
 import { useCart } from "../cart/CartContext";
-import Title from "../Components/Title";
-import InlineNotice from "../Components/InlineNotice";
-import { assets } from "../assets/assets";
+import Button from "../Components/Button";
 import CartTotal from "../Components/CartTotal";
+import InlineNotice from "../Components/InlineNotice";
+import PageHeading from "../Components/PageHeading";
+import { assets } from "../assets/assets";
 
 // An empty bag used to render as a blank page with a $10.00 shipping fee and a
 // live checkout button. This is the only thing on the page when there is
@@ -27,9 +28,9 @@ const EmptyCart = () => (
 
     <Link
       to="/collection"
-      className="mt-9 inline-block bg-black px-8 py-3 text-sm text-white transition-colors hover:bg-gray-800"
+      className="mt-9 inline-block bg-[#111] px-8 py-4 text-[10px] font-semibold uppercase tracking-[0.26em] text-white transition-colors hover:bg-gray-800"
     >
-      SHOP THE COLLECTION
+      Shop the collection
     </Link>
   </div>
 );
@@ -44,11 +45,7 @@ const Cart = () => {
   const isEmpty = count === 0;
 
   return (
-    <div className="pt-14 border-t">
-      <div className="mb-3 text-2xl">
-        <Title text1={"YOUR"} text2={"CART"} />
-      </div>
-
+    <div className="border-t pt-10">
       {loading ? (
         <p
           aria-busy="true"
@@ -67,6 +64,7 @@ const Cart = () => {
       ) : (
         <CartContents
           lineItems={lineItems}
+          count={count}
           getById={getById}
           update={update}
           remove={remove}
@@ -77,90 +75,121 @@ const Cart = () => {
   );
 };
 
-const CartContents = ({ lineItems, getById, update, remove, onCheckout }) => {
+const CartContents = ({ lineItems, count, getById, update, remove, onCheckout }) => {
   return (
     <>
-      {/* Cart Items      */}
+      <PageHeading
+        label="Forever / Your bag"
+        title="Your cart"
+        note={`${count} ${count === 1 ? "piece" : "pieces"}`}
+      />
 
-      <div>
-        {lineItems.map((line) => {
-          const product = getById(line.productId);
+      <div className="mt-2 grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-14">
+        <ul>
+          {lineItems.map((line) => {
+            const product = getById(line.productId);
 
-          // Skip rendering this item until its product is in the catalogue
-          if (!product) {
-            return null;
-          }
+            // Skip rendering this item until its product is in the catalogue
+            if (!product) {
+              return null;
+            }
 
-          // A Custom Tee shows the design the shopper made, not the base
-          // product photo.
-          const preview = line.design || product.image[0];
+            // A Custom Tee shows the design the shopper made, not the base
+            // product photo.
+            const preview = line.design || product.image[0];
 
-          return (
-            <div
-              key={cartLineId(line)}
-              className="py-3 border-b border-t text-gray-700 grid  grid-cols-[4fr_0.5fr_0.5fr] sm:grid-cols-[4fr_2fr_0.5fr] items-center gap-4"
-            >
-              <div className="flex items-start gap-6">
-                <img
-                  src={preview}
-                  alt={line.design ? "Custom tee design" : ""}
-                  className="w-16 sm:w-20"
-                />
-                <div>
-                  <p className="text-sm sm:text-lg font-medium">
-                    {product.name}
-                  </p>
+            return (
+              <li
+                key={cartLineId(line)}
+                className="flex items-start gap-5 border-b border-gray-200 py-5 sm:gap-6"
+              >
+                <div className="w-20 shrink-0 bg-gray-100 sm:w-24">
+                  <img
+                    src={preview}
+                    alt={line.design ? "Your custom design" : ""}
+                    className="aspect-[390/450] w-full object-cover"
+                  />
+                </div>
 
-                  <div className="flex items-center gap-5 mt-2">
-                    <p>{formatMoney(line.unitPrice)}</p>
-                    <p className="px-2 sm:px-3 sm:py-1 border bg-slate-50 ">
-                      {line.size}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-2">
+                    <p className="text-[15px] leading-snug text-[#111]">
+                      {product.name}
+                    </p>
+                    <p className="editorial-display text-lg leading-none text-[#111] tabular-nums">
+                      {formatMoney(line.unitPrice * line.quantity)}
                     </p>
                   </div>
-                  {line.design && (
-                    <p className="mt-1 text-xs text-gray-500">
-                      Your custom design
-                    </p>
-                  )}
+
+                  <p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-gray-500">
+                    Size {line.size}
+                    <span aria-hidden="true" className="px-2 text-gray-300">
+                      /
+                    </span>
+                    <span className="tabular-nums">
+                      {formatMoney(line.unitPrice)} each
+                    </span>
+                    {line.design ? (
+                      <>
+                        <span aria-hidden="true" className="px-2 text-gray-300">
+                          /
+                        </span>
+                        Custom design
+                      </>
+                    ) : null}
+                  </p>
+
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+                    <label className="flex items-center gap-3">
+                      <span className="text-[10px] uppercase tracking-[0.18em] text-gray-500">
+                        Quantity
+                      </span>
+                      <input
+                        aria-label={`Quantity for ${product.name}`}
+                        onChange={(e) => {
+                          const quantity = Number(e.target.value);
+                          if (Number.isInteger(quantity) && quantity > 0) {
+                            update(line, quantity);
+                          }
+                        }}
+                        className="w-14 border border-gray-300 bg-white px-2 py-1.5 text-center text-sm text-[#111] tabular-nums outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111]"
+                        type="number"
+                        min={1}
+                        value={line.quantity}
+                      />
+                    </label>
+
+                    <button
+                      type="button"
+                      onClick={() => remove(line)}
+                      className="border-b border-current pb-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-gray-500 transition-colors hover:text-[#8f4a56]"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </li>
+            );
+          })}
+        </ul>
 
-              <input
-                onChange={(e) => {
-                  const quantity = Number(e.target.value);
-                  if (Number.isInteger(quantity) && quantity > 0) {
-                    update(line, quantity);
-                  }
-                }}
-                className="border  max-w-10 sm:max-w-20 px-1 sm:px-2 py-1 "
-                type="number"
-                min={1}
-                value={line.quantity}
-              />
-              <img
-                onClick={() => remove(line)}
-                src={assets.bin_icon}
-                alt=""
-                className="w-4 mr-4 sm:w-5 cursor-pointer"
-              />
-            </div>
-          );
-        })}
-      </div>
+        <aside className="lg:sticky lg:top-6 lg:self-start">
+          <div className="border border-[#111] bg-white p-5 shadow-[7px_7px_0_rgba(17,17,17,0.06)] sm:p-6">
+            <CartTotal />
 
-      <div className="flex justify-end my-20">
-        <div className="w-full sm:w-[450px]">
-          <CartTotal />
+            <Button onClick={onCheckout} className="mt-6 w-full">
+              Proceed to checkout
+            </Button>
 
-          <div className="w-full text-end">
-            <button
-              onClick={onCheckout}
-              className="my-8 px-8 py-3 bg-black text-white hover:bg-gray-800 text-sm cursor-pointer"
+            <Link
+              to="/collection"
+              className="mt-5 inline-flex items-center gap-2 border-b border-current pb-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-gray-600 transition-colors hover:text-[#111]"
             >
-              PROCEED TO CHECKOUT
-            </button>
+              <span aria-hidden="true">←</span>
+              Keep browsing
+            </Link>
           </div>
-        </div>
+        </aside>
       </div>
     </>
   );

@@ -1,10 +1,18 @@
-import { useEffect, useState } from 'react';
-import { formatMoney, orderItemPriceCents } from '@forever/shared';
-import Title from '../Components/Title';
-import InlineNotice from '../Components/InlineNotice';
-import { useAuth } from '../auth/AuthContext';
-import { BACKEND_URL } from '../config';
-import axios from 'axios';
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import { formatMoney, orderItemPriceCents } from "@forever/shared";
+import InlineNotice from "../Components/InlineNotice";
+import PageHeading from "../Components/PageHeading";
+import { useAuth } from "../auth/AuthContext";
+import { BACKEND_URL } from "../config";
+
+const formatDate = (date) =>
+  date.toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 
 const Orders = () => {
   const { token } = useAuth();
@@ -25,7 +33,7 @@ const Orders = () => {
       }
 
       const response = await axios.post(
-        BACKEND_URL + '/api/order/userorders',
+        BACKEND_URL + "/api/order/userorders",
         {},
         { headers: { token } }
       );
@@ -33,11 +41,11 @@ const Orders = () => {
         let allOrderItem = [];
         response.data.data.orders.map((order) => {
           order.items.map((item) => {
-            item['orderStatus'] = order.orderStatus;
-            item['payment'] = order.payment;
-            item['paymentMethod'] = order.paymentMethod;
-            item['date'] = order.date;
-            item['price'] = orderItemPriceCents(item, order);
+            item["orderStatus"] = order.orderStatus;
+            item["payment"] = order.payment;
+            item["paymentMethod"] = order.paymentMethod;
+            item["date"] = order.date;
+            item["price"] = orderItemPriceCents(item, order);
             allOrderItem.push(item);
           });
         });
@@ -54,88 +62,112 @@ const Orders = () => {
     fetchOrderData();
   }, [token]);
 
-  // Function to format the current date
-  const formatDate = (date) => {
-    const options = { day: '2-digit', month: 'short', year: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
-  };
-
-  // Get the current date
-  const currentDate = formatDate(new Date());
-
   return (
-    <div className='pt-16 border-t'>
-      <div className='mb-3 text-2xl'>
-        <Title text1={'MY'} text2={'ORDERS'} />
-      </div>
-      <div>{}</div>
+    <div className="border-t pt-10">
+      <PageHeading
+        label="Forever / Account"
+        title="Your orders"
+        note={
+          orderData.length
+            ? `${orderData.length} ${orderData.length === 1 ? "piece" : "pieces"} ordered`
+            : null
+        }
+      />
 
       {loadError ? (
-        <div className='mt-6 border-y border-gray-200 py-12 text-center'>
-          <InlineNotice className='justify-center'>
+        <div className="mt-10 border-b border-gray-200 py-16 text-center">
+          <InlineNotice className="justify-center">
             We couldn&rsquo;t load your orders. Refresh to try again.
           </InlineNotice>
         </div>
       ) : orderData.length === 0 ? (
-        <p className='text-gray-500'>You have no orders.</p>
-      ) : (
-        <div>
-          {orderData.map((item, index) => {
-            return (
-              <div
-                key={index}
-                className='py-4 border-t border-b text-gray-700 flex flex-col md:flex-row md:items-center md:justify-between g4'
-              >
-                <div className='flex items-start gap-6'>
-                  <img
-                    src={item.design || item.image[0]}
-                    alt={item.design ? 'Your custom design' : ''}
-                    className='w-16 sm:w-20'
-                  />
-
-                  <div>
-                    <p className='sm:text-base font-medium'>{item.name}</p>
-
-                    <div className='flex items-center gap-5 mt-1 text-base text-gray-700'>
-                      <p>
-                        {formatMoney(item.price)}
-                      </p>
-                      <p>Quantity: {item.quantity}</p>
-                      <p>Size: {item.size}</p>
-                    </div>
-                    {item.design && (
-                      <p className='mt-1 text-xs text-gray-400'>
-                        Your custom design
-                      </p>
-                    )}
-                    <p className='mt-1'>
-                      Date: <span className='text-gray-400'>{currentDate}</span>
-                    </p>
-                    <p className='mt-1'>
-                      Payment Method:{' '}
-                      <span className='text-gray-400'>
-                        {item.paymentMethod}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-
-                <div className='flex justify-between md:w-1/2'>
-                  <div className='flex items-center gap-2'>
-                    <p className='min-w-2 h-2 rounded-full bg-green-400'></p>
-                    <p className='text-sm md:text-base'>{item.orderStatus}</p>
-                  </div>
-                  <button
-                    onClick={fetchOrderData}
-                    className='border px-4 py-2 text-sm font-medium rounded-sm text-gray-700 cursor-pointer hover:bg-gray-100'
-                  >
-                    Track Order
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+        <div className="mt-10 border-b border-gray-200 pb-16 pt-14 text-center">
+          <p className="text-[9px] uppercase tracking-[0.3em] text-[#a85580]">
+            Forever / Nothing here
+          </p>
+          <p className="editorial-display mt-3 text-2xl text-[#111]">
+            No orders yet.
+          </p>
+          <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-gray-600">
+            Orders you place will appear here, with their status and payment.
+          </p>
+          <Link
+            to="/collection"
+            className="mt-6 inline-flex items-center gap-2 border-b border-current pb-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] transition-opacity hover:opacity-60"
+          >
+            Shop the collection
+            <span aria-hidden="true">→</span>
+          </Link>
         </div>
+      ) : (
+        <ul className="mt-2">
+          {orderData.map((item, index) => (
+            <li
+              key={index}
+              className="flex flex-wrap items-start gap-5 border-b border-gray-200 py-5 sm:gap-6"
+            >
+              <div className="w-20 shrink-0 bg-gray-100 sm:w-24">
+                <img
+                  src={item.design || item.image[0]}
+                  alt={item.design ? "Your custom design" : ""}
+                  className="aspect-[390/450] w-full object-cover"
+                />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p className="text-[15px] leading-snug text-[#111]">
+                  {item.name}
+                </p>
+
+                <p className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-[10px] uppercase tracking-[0.18em] text-gray-500">
+                  <span className="tabular-nums">
+                    {formatMoney(item.price)} each
+                  </span>
+                  <span className="tabular-nums">Qty {item.quantity}</span>
+                  <span>Size {item.size}</span>
+                  <span className="tabular-nums">
+                    {item.date ? formatDate(new Date(item.date)) : ""}
+                  </span>
+                </p>
+
+                <p className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-[10px] uppercase tracking-[0.18em]">
+                  <span className="text-gray-500">
+                    {item.paymentMethod === "cod"
+                      ? "Cash on delivery"
+                      : "Card / Stripe"}
+                  </span>
+                  <span
+                    className={
+                      item.payment ? "text-[#111]" : "text-[#8f4a56]"
+                    }
+                  >
+                    {item.payment ? "Paid" : "Not paid"}
+                  </span>
+                  {item.design ? (
+                    <span className="text-gray-500">Custom design</span>
+                  ) : null}
+                </p>
+              </div>
+
+              <div className="flex w-full items-center justify-between gap-4 sm:w-auto sm:flex-col sm:items-end sm:gap-3">
+                <p className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-[#111]">
+                  <span
+                    aria-hidden="true"
+                    className="h-1.5 w-1.5 rounded-full bg-[#c586a5]"
+                  />
+                  {item.orderStatus}
+                </p>
+                <button
+                  type="button"
+                  onClick={fetchOrderData}
+                  className="border border-gray-300 px-4 py-2 text-[9px] font-semibold uppercase tracking-[0.2em] text-gray-600 transition-colors hover:border-[#111] hover:text-[#111]"
+                >
+                  Refresh status
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );
