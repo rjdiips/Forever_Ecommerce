@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
+import AuthShell from "../Components/AuthShell";
+import Button from "../Components/Button";
+import Field from "../Components/Field";
 import InlineNotice from "../Components/InlineNotice";
 import {
   GENERIC_PASSWORD_RESET_CONFIRMATION,
@@ -9,6 +12,18 @@ import {
 } from "@forever/shared";
 import { BACKEND_URL } from "../config";
 import { useAuth } from "../auth/AuthContext";
+
+// Both auth pages end with the same way back, so a customer who took the wrong
+// door is never stranded on a form.
+const BackToLogin = () => (
+  <Link
+    to="/login"
+    className="mt-6 inline-flex items-center gap-2 border-b border-current pb-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] transition-opacity hover:opacity-60"
+  >
+    <span aria-hidden="true">←</span>
+    Back to sign in
+  </Link>
+);
 
 const SetPasswordForm = ({ token }) => {
   const navigate = useNavigate();
@@ -58,35 +73,31 @@ const SetPasswordForm = ({ token }) => {
   };
 
   return (
-    <form
-      onSubmit={onSubmitHandler}
-      className="flex flex-col items-center w-[90%] sm:max-w-96 m-auto mt-14 gap-4 text-gray-800"
+    <AuthShell
+      label="Forever / Account"
+      title="Set a new password."
+      description={`Choose a new password of at least ${MIN_PASSWORD_LENGTH} characters.`}
     >
-      <div className="inline-flex items-center gap-2 mb-2 mt-10">
-        <p className="prata-regular text 3x1">Set a New Password</p>
-        <hr className="border-none h-[1.5px] w-8 bg-gray-800 " />
-      </div>
-
-      <p className="text-center text-sm text-gray-600">
-        Choose a new password of at least {MIN_PASSWORD_LENGTH} characters.
-      </p>
-
-      <div className="w-full px-3 py-2 flex flex-col gap-4">
-        <input
-          onChange={(event) => setPassword(event.target.value)}
-          value={password}
+      <form onSubmit={onSubmitHandler} className="flex flex-col gap-5">
+        <Field
+          id="new-password"
+          label="New password"
           type="password"
-          className="w-full px-3 py-2 !border border-gray-880"
-          placeholder="New password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          placeholder="••••••••"
+          autoComplete="new-password"
           minLength={MIN_PASSWORD_LENGTH}
           required
         />
-        <input
-          onChange={(event) => setConfirmation(event.target.value)}
-          value={confirmation}
+        <Field
+          id="confirm-password"
+          label="Confirm new password"
           type="password"
-          className="w-full px-3 py-2 !border border-gray-880"
-          placeholder="Confirm new password"
+          value={confirmation}
+          onChange={(event) => setConfirmation(event.target.value)}
+          placeholder="••••••••"
+          autoComplete="new-password"
           minLength={MIN_PASSWORD_LENGTH}
           required
         />
@@ -103,14 +114,13 @@ const SetPasswordForm = ({ token }) => {
           </InlineNotice>
         ) : null}
 
-        <button
-          disabled={submitting}
-          className="w-1/2 m-auto bg-black text-white px-8 py-2 mt-4 cursor-pointer disabled:opacity-50"
-        >
-          {submitting ? "Saving..." : "Set New Password"}
-        </button>
-      </div>
-    </form>
+        <Button type="submit" disabled={submitting} className="mt-1 w-full">
+          {submitting ? "Saving…" : "Save password"}
+        </Button>
+
+        <BackToLogin />
+      </form>
+    </AuthShell>
   );
 };
 
@@ -147,52 +157,43 @@ const RequestResetForm = () => {
 
   if (confirmation) {
     return (
-      <div className="flex flex-col items-center w-[90%] sm:max-w-96 m-auto mt-14 gap-4 text-gray-800">
-        <div className="inline-flex items-center gap-2 mb-2 mt-10">
-          <p className="prata-regular text 3x1">Check Your Email</p>
-          <hr className="border-none h-[1.5px] w-8 bg-gray-800 " />
-        </div>
-        <p className="text-center">{confirmation}</p>
-        <Link to="/login" className="cursor-pointer underline">
-          Back to login
-        </Link>
-      </div>
+      <AuthShell
+        label="Forever / Account"
+        title="Check your email."
+        description={confirmation}
+      >
+        <BackToLogin />
+      </AuthShell>
     );
   }
 
   return (
-    <form
-      onSubmit={onSubmitHandler}
-      className="flex flex-col items-center w-[90%] sm:max-w-96 m-auto mt-14 gap-4 text-gray-800"
+    <AuthShell
+      label="Forever / Account"
+      title="Reset password."
+      description="Enter the email for your account and we will send you a reset link."
     >
-      <div className="inline-flex items-center gap-2 mb-2 mt-10">
-        <p className="prata-regular text 3x1">Reset Password</p>
-        <hr className="border-none h-[1.5px] w-8 bg-gray-800 " />
-      </div>
-
-      <p className="text-center text-sm text-gray-600">
-        Enter the email for your account and we will send you a reset link.
-      </p>
-
-      <div className="w-full px-3 py-2 flex flex-col gap-4">
-        <input
-          onChange={(event) => setEmail(event.target.value)}
-          value={email}
+      <form onSubmit={onSubmitHandler} className="flex flex-col gap-5">
+        <Field
+          id="reset-email"
+          label="Email"
           type="email"
-          className="w-full px-3 py-2 !border border-gray-880"
-          placeholder="Email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="you@example.com"
+          autoComplete="email"
           required
         />
-        <button
-          disabled={submitting}
-          className="w-1/2 m-auto bg-black text-white px-8 py-2 mt-4 cursor-pointer disabled:opacity-50"
-        >
-          {submitting ? "Sending..." : "Send Reset Link"}
-        </button>
 
         {error ? <InlineNotice>{error}</InlineNotice> : null}
-      </div>
-    </form>
+
+        <Button type="submit" disabled={submitting} className="mt-1 w-full">
+          {submitting ? "Sending…" : "Send reset link"}
+        </Button>
+
+        <BackToLogin />
+      </form>
+    </AuthShell>
   );
 };
 
